@@ -27,7 +27,7 @@ Dos fuentes de la familia **Geist** (Google Fonts):
 
 - El `<body>` lleva `font-family: var(--font-sans)` y `-webkit-font-smoothing: antialiased`.
 - Interlineado de cuerpo: relajado (~1.5). Los títulos usan `text-balance` / `text-pretty` (equivalente CSS: `text-wrap: balance` / `text-wrap: pretty`).
-- Números tabulares: las cifras (días, contadores, saldos) usan `font-variant-numeric: tabular-nums` para que no "bailen".
+- Números tabulares: las cifras (días, contadores, saldos) usan `font-variant-numeric: tabular-nums` para que no "bailen". 
 
 **Escala tipográfica real usada en el sistema:**
 
