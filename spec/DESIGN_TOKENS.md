@@ -202,6 +202,94 @@ Todas las fechas se muestran en formato español corto: `"10 mar 2025"` (locale 
 - **Scrollbar en sheets y diálogos:** ancho 10px, thumb `rounded-full` con color `--border`, track con padding `p-px`.
 - **Tablas responsivas:** contenedor `overflow-x: auto` sin indicador visual adicional.
 
+### 1.12 Iconos SVG
+
+El sistema utiliza una biblioteca de iconos **inline SVG** (no sprites) para máxima flexibilidad y compatibilidad con theming. Todos los iconos provienen de **Lucide Icons** (https://lucide.dev/).
+
+**Propiedades estándar de todos los iconos:**
+- `stroke="currentColor"` → hereda el color del texto padre
+- `fill="none"` (por defecto, salvo iconos sólidos específicos)
+- `stroke-width="2"` (peso medio)
+- `stroke-linecap="round"` y `stroke-linejoin="round"`
+
+**Tamaños estándar:**
+
+| Tamaño | Px  | Uso                                           |
+|--------|-----|-----------------------------------------------|
+| sm     | 14px| Badges, texto inline                          |
+| base   | 16px| Botones estándar, inputs, items de menú       |
+| md     | 20px| Headers de card, botones grandes, logo        |
+| lg     | 24px| Títulos de página, ilustraciones              |
+| xl     | 32px| Iconos destacados (logo principal)            |
+
+**Catálogo de iconos usados en el sistema:**
+
+| Icono               | Lucide name       | Contexto de uso                                      |
+|---------------------|-------------------|-----------------------------------------------------|
+| Calendario check    | `CalendarCheck`   | Logo de la app, botón "Crear solicitud"            |
+| Usuario             | `User`            | Avatar fallback, menú de usuario                    |
+| Más (vertical)      | `MoreVertical`    | Menú de acciones (3 puntos)                         |
+| Sol                 | `Sun`             | Theme toggle (mostrado en modo oscuro)              |
+| Luna                | `Moon`            | Theme toggle (mostrado en modo claro)               |
+| Buscar              | `Search`          | Input de búsqueda                                   |
+| Filtro              | `Filter`          | Botón de filtros                                    |
+| Descargar           | `Download`        | Exportar CSV                                        |
+| Calendario          | `Calendar`        | Selector de fechas                                  |
+| Reloj               | `Clock`           | Timeline de eventos                                 |
+| Check circle        | `CheckCircle`     | Estado "aprobada", éxito en toast                   |
+| X circle            | `XCircle`         | Estado "rechazada", error en toast                  |
+| Alerta círculo      | `AlertCircle`     | Warning en toast, estado "pendiente"                |
+| Info                | `Info`            | Toast informativo, ayuda                            |
+| Triángulo alerta    | `AlertTriangle`   | Alertas de traslape, validación                     |
+| Chevron derecha     | `ChevronRight`    | Paginación "Siguiente"                              |
+| Chevron izquierda   | `ChevronLeft`     | Paginación "Anterior"                               |
+| Chevron abajo       | `ChevronDown`     | Dropdown, select                                    |
+| X                   | `X`               | Cerrar modal/sheet/toast                            |
+| Salir               | `LogOut`          | Cerrar sesión                                       |
+| Editar              | `Edit`            | Editar solicitud                                    |
+| Papelera            | `Trash2`          | Cancelar solicitud                                  |
+| Ojo                 | `Eye`             | Ver detalle (solo lectura)                          |
+| Play circle         | `PlayCircle`      | Evento "creada" en timeline                         |
+| User check          | `UserCheck`       | Evento "aprobada" en timeline                       |
+| User X              | `UserX`           | Evento "rechazada" en timeline                      |
+| Círculo cortado     | `Slash`           | Evento "cancelada" en timeline                      |
+| Usuarios            | `Users`           | Stat "Colaboradores" (Jefe/RRHH)                    |
+| Reloj check         | `ClockCheck`      | Stat "Pendientes"                                   |
+| Calendario días     | `CalendarDays`    | Stat "Días aprobados"                               |
+| Lista               | `List`            | Stat "Total solicitudes"                            |
+
+**Implementación en Razor:**
+
+Crear un helper estático `IconHelper.cs` o Partial View `_Icon.cshtml` que reciba el nombre del icono y el tamaño:
+
+```razor
+@* Views/Shared/_Icon.cshtml *@
+@model (string name, string size)
+@{
+    var sizePx = Model.size switch {
+        "sm" => "14",
+        "base" => "16",
+        "md" => "20",
+        "lg" => "24",
+        "xl" => "32",
+        _ => "16"
+    };
+}
+@switch (Model.name)
+{
+    case "CalendarCheck":
+        <svg width="@sizePx" height="@sizePx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/>
+        </svg>
+        break;
+    @* ... más casos ... *@
+}
+```
+
+Uso: `@await Html.PartialAsync("_Icon", ("CalendarCheck", "md"))`
+
+**Alternativa:** usar el paquete NuGet `Lucide.Icons.AspNetCore` (si existe) o cargar los SVG dinámicamente desde `wwwroot/icons/`.
+
 ---
 
 ## 2. Arquitectura MVC del proyecto
@@ -416,6 +504,142 @@ Rejilla de 7 columnas (días de semana), locale español. Cada día es un botón
 
 **Comportamiento:** al hacer clic en una nueva fecha con rango completo, la selección se reinicia. Cuando un día es simultáneamente rango y excede saldo, prevalece el rojo.
 
+**Estructura HTML:**
+```html
+<div class="calendar-range">
+  <div class="calendar-header">
+    <button class="btn btn--ghost btn--icon-sm" data-calendar-prev>
+      <!-- ChevronLeft icon -->
+    </button>
+    <span class="calendar-month-label">marzo 2025</span>
+    <button class="btn btn--ghost btn--icon-sm" data-calendar-next>
+      <!-- ChevronRight icon -->
+    </button>
+  </div>
+  <div class="calendar-weekdays">
+    <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span>
+  </div>
+  <div class="calendar-days">
+    <button class="calendar-day" data-date="2025-03-10">10</button>
+    <button class="calendar-day calendar-day--disabled" disabled>5</button>
+    <button class="calendar-day calendar-day--in-range" data-date="2025-03-15">15</button>
+    <button class="calendar-day calendar-day--range-start" data-date="2025-03-12">12</button>
+    <button class="calendar-day calendar-day--range-end" data-date="2025-03-18">18</button>
+    <button class="calendar-day calendar-day--exceeding" data-date="2025-03-20">20</button>
+    <!-- más días -->
+  </div>
+</div>
+```
+
+**CSS completo:**
+
+```css
+.calendar-range {
+  display: flex; flex-direction: column; gap: 12px;
+  width: 100%; max-width: 320px;
+  padding: 16px; border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--popover);
+}
+
+.calendar-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.calendar-month-label {
+  font-size: 14px; font-weight: 600; text-transform: capitalize;
+  color: var(--foreground);
+}
+
+.calendar-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 4px; text-align: center;
+}
+
+.calendar-weekdays span {
+  font-size: 12px; font-weight: 500;
+  color: var(--muted-foreground);
+  padding: 4px 0;
+}
+
+.calendar-days {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px;
+  font-size: 14px; font-weight: 400; font-variant-numeric: tabular-nums;
+  color: var(--foreground); background: transparent;
+  border: 1px solid transparent; cursor: pointer;
+  transition: all 150ms ease-in-out;
+}
+
+.calendar-day:hover:not(:disabled) {
+  background: var(--muted);
+}
+
+.calendar-day--disabled {
+  color: var(--muted-foreground); opacity: 0.4; cursor: not-allowed;
+}
+
+.calendar-day--range-start,
+.calendar-day--range-end {
+  background: var(--primary); color: var(--primary-foreground);
+  font-weight: 600;
+}
+
+.calendar-day--in-range {
+  background: color-mix(in oklch, var(--primary) 20%, transparent);
+  color: var(--foreground);
+}
+
+/* Días que exceden el saldo disponible - CLASE DEFINITIVA */
+.calendar-day--exceeding {
+  background: var(--destructive) !important;
+  color: white !important;
+  font-weight: 600;
+  border-color: transparent !important;
+  position: relative;
+}
+
+/* Si un día es simultáneamente rango y excedente, prevalece el rojo */
+.calendar-day--exceeding.calendar-day--in-range,
+.calendar-day--exceeding.calendar-day--range-start,
+.calendar-day--exceeding.calendar-day--range-end {
+  background: var(--destructive) !important;
+  color: white !important;
+}
+
+.calendar-day--exceeding:hover:not(:disabled) {
+  background: color-mix(in oklch, var(--destructive) 85%, black) !important;
+}
+
+.calendar-day--today {
+  border-color: var(--primary);
+}
+```
+
+**Resumen de selección (debajo del calendario):**
+
+```html
+<div class="calendar-summary">
+  <p class="text-sm">
+    Has seleccionado <strong class="font-semibold tabular-nums" id="selected-days-count">0</strong> días
+    <span class="text-muted-foreground">·</span>
+    Saldo disponible: <strong class="font-semibold tabular-nums text-emerald-700 dark:text-emerald-400" id="available-balance">15</strong> días
+  </p>
+  <p class="text-xs text-destructive" id="exceeding-warning" style="display:none;">
+    ⚠️ Has seleccionado más días de los disponibles
+  </p>
+</div>
+```
+
+**Regla crítica para `calendar-range.js`:** el script debe agregar la clase `.calendar-day--exceeding` dinámicamente solo cuando la selección actual excede el saldo. La clase NO debe estar en el HTML inicial del servidor, sino aplicarse en cliente tras calcular `(selectedDays - availableBalance) > 0`.
+
+
+
 ### 3.10 Tooltip
 
 ```css
@@ -442,6 +666,742 @@ Rejilla de 7 columnas (días de semana), locale español. Cada día es un botón
 ```css
 .progress-track { position: relative; height: 4px; width: 100%; border-radius: 9999px; background: var(--muted); overflow: hidden; }
 .progress-indicator { height: 100%; border-radius: 9999px; background: var(--primary); transition: all 150ms; }
+```
+
+### 3.13 Avatar de usuario (`.user-avatar`)
+
+Círculo con iniciales del usuario. Si no hay iniciales, muestra icono `User`.
+
+**Estructura HTML:**
+```html
+<div class="user-avatar" style="--avatar-bg: #f43f5e;">
+  <span class="user-avatar-initials">AT</span>
+</div>
+```
+
+**CSS:**
+```css
+.user-avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 9999px;
+  background: var(--avatar-bg, var(--muted));
+  color: white; font-size: 14px; font-weight: 600;
+  flex-shrink: 0; user-select: none;
+}
+
+.user-avatar--sm { width: 24px; height: 24px; font-size: 11px; }
+.user-avatar--lg { width: 40px; height: 40px; font-size: 16px; }
+.user-avatar--xl { width: 48px; height: 48px; font-size: 18px; }
+
+.user-avatar-initials { text-transform: uppercase; }
+
+/* Cuando no hay iniciales, mostrar icono User */
+.user-avatar-icon { width: 16px; height: 16px; opacity: 0.9; }
+```
+
+**Variantes por tamaño:**
+- `sm`: 24px (tablas compactas)
+- `base`: 32px (menú de usuario, tabla estándar)
+- `lg`: 40px (encabezados de detalle)
+- `xl`: 48px (perfiles destacados)
+
+### 3.14 Menú de usuario (`.user-menu`)
+
+Dropdown que aparece al hacer clic en el avatar del header. Contiene información del usuario + cambio de rol + cerrar sesión.
+
+**Estructura HTML:**
+```html
+<div class="user-menu">
+  <button class="user-menu-trigger" data-user-menu-trigger aria-expanded="false">
+    <div class="user-avatar" style="--avatar-bg: #f43f5e;">AT</div>
+    <span class="user-menu-name">Ana Torres</span>
+    <svg class="user-menu-chevron"><!-- ChevronDown --></svg>
+  </button>
+
+  <div class="user-menu-dropdown" data-user-menu-dropdown>
+    <div class="user-menu-header">
+      <p class="user-menu-header-name">Ana Torres</p>
+      <p class="user-menu-header-email">ana.torres@empresa.com</p>
+      <span class="badge badge--secondary">Empleado</span>
+    </div>
+
+    <div class="user-menu-separator"></div>
+
+    <div class="user-menu-section">
+      <p class="user-menu-section-label">Cambiar rol</p>
+      <form asp-action="ChangeRole" method="post">
+        <input type="hidden" name="Role" id="role-input" />
+        <button type="button" class="user-menu-item" data-role="empleado">
+          <svg><!-- User --></svg>
+          <span>Empleado</span>
+          <svg class="user-menu-item-check"><!-- Check --></svg>
+        </button>
+        <button type="button" class="user-menu-item" data-role="jefe">
+          <svg><!-- UserCheck --></svg>
+          <span>Jefe / Aprobador</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="user-menu-separator"></div>
+
+    <form asp-action="Logout" method="post">
+      <button type="submit" class="user-menu-item user-menu-item--danger">
+        <svg><!-- LogOut --></svg>
+        <span>Cerrar sesión</span>
+      </button>
+    </form>
+  </div>
+</div>
+```
+
+**CSS:**
+```css
+.user-menu { position: relative; }
+
+.user-menu-trigger {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 4px 8px 4px 4px; border-radius: 10px;
+  border: 1px solid transparent; background: transparent;
+  cursor: pointer; transition: all 150ms;
+}
+
+.user-menu-trigger:hover { background: var(--muted); }
+
+.user-menu-trigger[aria-expanded="true"] {
+  background: var(--muted);
+  border-color: var(--border);
+}
+
+.user-menu-name {
+  font-size: 14px; font-weight: 500; color: var(--foreground);
+  max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .user-menu-name { display: none; }
+}
+
+.user-menu-chevron {
+  width: 16px; height: 16px; color: var(--muted-foreground);
+  transition: transform 150ms;
+}
+
+.user-menu-trigger[aria-expanded="true"] .user-menu-chevron {
+  transform: rotate(180deg);
+}
+
+.user-menu-dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  width: 240px; padding: 8px;
+  background: var(--popover); border: 1px solid var(--border);
+  border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,.1);
+  z-index: 40;
+  opacity: 0; visibility: hidden; transform: translateY(-8px);
+  transition: all 150ms ease-out;
+}
+
+.user-menu-dropdown--open {
+  opacity: 1; visibility: visible; transform: translateY(0);
+}
+
+.user-menu-header {
+  padding: 8px; display: flex; flex-direction: column; gap: 4px;
+}
+
+.user-menu-header-name {
+  font-size: 14px; font-weight: 600; color: var(--foreground);
+}
+
+.user-menu-header-email {
+  font-size: 12px; color: var(--muted-foreground);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.user-menu-separator {
+  height: 1px; background: var(--border); margin: 4px 0;
+}
+
+.user-menu-section {
+  padding: 4px 0;
+}
+
+.user-menu-section-label {
+  font-size: 12px; font-weight: 500; color: var(--muted-foreground);
+  padding: 4px 8px; text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+.user-menu-item {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 8px; border-radius: 6px; border: none;
+  background: transparent; color: var(--foreground);
+  font-size: 14px; text-align: left; cursor: pointer;
+  transition: all 150ms;
+}
+
+.user-menu-item:hover {
+  background: var(--muted);
+}
+
+.user-menu-item svg {
+  width: 16px; height: 16px; flex-shrink: 0;
+}
+
+.user-menu-item-check {
+  margin-left: auto; color: var(--primary);
+  opacity: 0; transition: opacity 150ms;
+}
+
+.user-menu-item[data-role].active .user-menu-item-check {
+  opacity: 1;
+}
+
+.user-menu-item--danger {
+  color: var(--destructive);
+}
+
+.user-menu-item--danger:hover {
+  background: rgba(229,72,77,0.1);
+}
+```
+
+### 3.15 Toggle de tema (`.theme-toggle`)
+
+Botón que cambia entre modo claro y oscuro. Muestra luna en modo claro (sugiere "activar oscuro") y sol en modo oscuro (sugiere "activar claro").
+
+**Estructura HTML:**
+```html
+<button class="theme-toggle" data-theme-toggle aria-label="Cambiar tema">
+  <svg class="theme-toggle-icon theme-toggle-icon--light"><!-- Sun --></svg>
+  <svg class="theme-toggle-icon theme-toggle-icon--dark"><!-- Moon --></svg>
+</button>
+```
+
+**CSS:**
+```css
+.theme-toggle {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; padding: 0;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: transparent; cursor: pointer;
+  transition: all 150ms;
+}
+
+.theme-toggle:hover {
+  background: var(--muted);
+}
+
+.theme-toggle-icon {
+  width: 16px; height: 16px; color: var(--foreground);
+  transition: all 150ms;
+}
+
+.theme-toggle-icon--light {
+  display: none;
+}
+
+.theme-toggle-icon--dark {
+  display: block;
+}
+
+/* En modo oscuro, invertir los iconos */
+.dark .theme-toggle-icon--light {
+  display: block;
+}
+
+.dark .theme-toggle-icon--dark {
+  display: none;
+}
+```
+
+### 3.16 Toast (notificaciones)
+
+Notificaciones temporales que aparecen en la esquina superior derecha.
+
+**Estructura HTML:**
+```html
+<div class="toast toast--success" role="alert">
+  <svg class="toast-icon"><!-- CheckCircle --></svg>
+  <div class="toast-content">
+    <p class="toast-title">Solicitud creada</p>
+    <p class="toast-message">Tu solicitud ha sido enviada al aprobador</p>
+  </div>
+  <button class="toast-close" aria-label="Cerrar">
+    <svg><!-- X --></svg>
+  </button>
+</div>
+```
+
+**CSS:**
+```css
+.toast {
+  position: fixed; top: 16px; right: 16px; z-index: 60;
+  display: flex; align-items: flex-start; gap: 12px;
+  min-width: 320px; max-width: 420px; padding: 12px 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; box-shadow: 0 10px 15px rgba(0,0,0,.1);
+  opacity: 0; transform: translateY(-16px);
+  animation: toast-enter 200ms ease-out forwards;
+}
+
+@keyframes toast-enter {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.toast--closing {
+  animation: toast-exit 150ms ease-out forwards;
+}
+
+@keyframes toast-exit {
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+.toast-icon {
+  width: 20px; height: 20px; flex-shrink: 0;
+}
+
+.toast-content {
+  flex: 1; display: flex; flex-direction: column; gap: 2px;
+}
+
+.toast-title {
+  font-size: 14px; font-weight: 600; color: var(--foreground);
+}
+
+.toast-message {
+  font-size: 13px; color: var(--muted-foreground);
+}
+
+.toast-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; padding: 0;
+  border: none; background: transparent; color: var(--muted-foreground);
+  cursor: pointer; transition: color 150ms;
+}
+
+.toast-close:hover { color: var(--foreground); }
+
+.toast-close svg { width: 14px; height: 14px; }
+
+/* Variantes de color */
+.toast--success { border-left: 3px solid #10b981; }
+.toast--success .toast-icon { color: #10b981; }
+
+.toast--error { border-left: 3px solid var(--destructive); }
+.toast--error .toast-icon { color: var(--destructive); }
+
+.toast--warning { border-left: 3px solid #f59e0b; }
+.toast--warning .toast-icon { color: #f59e0b; }
+
+.toast--info { border-left: 3px solid #0ea5e9; }
+.toast--info .toast-icon { color: #0ea5e9; }
+
+/* Stacking: múltiples toasts */
+.toast-container {
+  position: fixed; top: 16px; right: 16px; z-index: 60;
+  display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none;
+}
+
+.toast-container .toast {
+  position: relative; top: auto; right: auto;
+  pointer-events: auto;
+}
+```
+
+### 3.17 Alert (alertas inline)
+
+Cajas de alerta para warnings, errores, información. Se usan dentro de formularios, modales, etc.
+
+**Estructura HTML:**
+```html
+<div class="alert alert--destructive">
+  <svg class="alert-icon"><!-- AlertTriangle --></svg>
+  <div class="alert-content">
+    <strong class="alert-title">Traslape con una solicitud aprobada</strong>
+    <p class="alert-message">No es posible aprobar: el periodo se traslapa con SOL-0025 (10-15 mar 2025)</p>
+  </div>
+</div>
+```
+
+**CSS:**
+```css
+.alert {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px; border-radius: 8px;
+  border: 1px solid;
+}
+
+.alert-icon {
+  width: 20px; height: 20px; flex-shrink: 0;
+}
+
+.alert-content {
+  flex: 1; display: flex; flex-direction: column; gap: 4px;
+}
+
+.alert-title {
+  font-size: 14px; font-weight: 600;
+}
+
+.alert-message {
+  font-size: 13px; margin: 0;
+}
+
+/* Variantes */
+.alert--destructive {
+  background: rgba(229,72,77,0.1);
+  border-color: rgba(229,72,77,0.4);
+  color: var(--destructive);
+}
+
+.alert--warning {
+  background: rgba(245,158,11,0.1);
+  border-color: rgba(245,158,11,0.4);
+  color: #b45309;
+}
+
+.dark .alert--warning {
+  color: #fbbf24;
+}
+
+.alert--info {
+  background: rgba(14,165,233,0.1);
+  border-color: rgba(14,165,233,0.4);
+  color: #0284c7;
+}
+
+.dark .alert--info {
+  color: #38bdf8;
+}
+
+.alert--success {
+  background: rgba(16,185,129,0.1);
+  border-color: rgba(16,185,129,0.4);
+  color: #047857;
+}
+
+.dark .alert--success {
+  color: #34d399;
+}
+```
+
+### 3.18 Mini-card (tarjetas de saldo en modal)
+
+Tarjetas pequeñas para mostrar cifras numéricas en el modal de detalle del aprobador.
+
+**Estructura HTML:**
+```html
+<div class="detail-balance-grid">
+  <div class="mini-card">
+    <span class="mini-card-value">15</span>
+    <span class="mini-card-label">Disponible</span>
+  </div>
+  <div class="mini-card">
+    <span class="mini-card-value">5</span>
+    <span class="mini-card-label">Solicitados</span>
+  </div>
+  <div class="mini-card">
+    <span class="mini-card-value negative">10</span>
+    <span class="mini-card-label">Post aprobación</span>
+  </div>
+</div>
+```
+
+**CSS:**
+```css
+.detail-balance-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.mini-card {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 12px 8px; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--card);
+  text-align: center;
+}
+
+.mini-card-value {
+  font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+
+.mini-card-value.negative {
+  color: var(--destructive);
+}
+
+.mini-card-label {
+  font-size: 12px; color: var(--muted-foreground);
+}
+```
+
+### 3.19 Separator (línea divisora)
+
+Línea horizontal o vertical para separar secciones.
+
+**CSS:**
+```css
+.separator {
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.separator--horizontal {
+  height: 1px; width: 100%;
+}
+
+.separator--vertical {
+  width: 1px; height: 100%;
+}
+```
+
+### 3.20 Label (etiquetas de formulario)
+
+```css
+.form-label {
+  display: block; font-size: 14px; font-weight: 500;
+  color: var(--foreground); margin-bottom: 6px;
+}
+
+.form-label--required::after {
+  content: " *"; color: var(--destructive);
+}
+```
+
+### 3.21 Scrollbar custom (modo oscuro)
+
+```css
+/* Scrollbar para sheets y modales */
+.dialog-body::-webkit-scrollbar,
+.sheet-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.dialog-body::-webkit-scrollbar-track,
+.sheet-body::-webkit-scrollbar-track {
+  background: transparent;
+  padding: 1px;
+}
+
+.dialog-body::-webkit-scrollbar-thumb,
+.sheet-body::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.dialog-body::-webkit-scrollbar-thumb:hover,
+.sheet-body::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+  background-clip: content-box;
+}
+```
+
+### 3.22 Skeleton (placeholders de carga)
+
+Placeholders animados para contenido en carga.
+
+**CSS:**
+```css
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    color-mix(in oklch, var(--muted) 80%, white) 50%,
+    var(--muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 0%; }
+}
+
+.skeleton--text {
+  height: 14px; width: 100%;
+}
+
+.skeleton--title {
+  height: 20px; width: 60%;
+}
+
+.skeleton--avatar {
+  width: 32px; height: 32px; border-radius: 9999px;
+}
+
+.skeleton--button {
+  height: 32px; width: 80px;
+}
+```
+
+### 3.23 Empty state (estados vacíos)
+
+Patrón visual para listas vacías, sin resultados, etc.
+
+**Estructura HTML:**
+```html
+<div class="empty-state">
+  <svg class="empty-state-icon"><!-- icono contextual (Calendar, Search, etc.) --></svg>
+  <h3 class="empty-state-title">No hay solicitudes</h3>
+  <p class="empty-state-message">Aún no has creado ninguna solicitud de vacaciones</p>
+  <button class="btn btn--default">Crear solicitud</button>
+</div>
+```
+
+**CSS:**
+```css
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 48px 24px; text-align: center;
+  color: var(--muted-foreground);
+}
+
+.empty-state-icon {
+  width: 48px; height: 48px; margin-bottom: 16px;
+  color: var(--muted-foreground); opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: 16px; font-weight: 600; color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+.empty-state-message {
+  font-size: 14px; color: var(--muted-foreground);
+  max-width: 320px; margin-bottom: 16px;
+}
+```
+
+### 3.24 Utilities (clases helper)
+
+Clases utilitarias reutilizables en todo el sistema. Deben definirse en `wwwroot/css/utilities.css`.
+
+**Tipografía:**
+```css
+/* Fuente monoespaciada */
+.mono { font-family: var(--font-mono); }
+
+/* Números tabulares (no "bailan" al cambiar) */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* Text wrap balance (títulos) */
+.text-balance { text-wrap: balance; }
+
+/* Truncar texto con ellipsis */
+.truncate {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Text sizes */
+.text-xs { font-size: 12px; }
+.text-sm { font-size: 14px; }
+.text-base { font-size: 16px; }
+.text-lg { font-size: 18px; }
+.text-xl { font-size: 20px; }
+.text-2xl { font-size: 24px; }
+.text-3xl { font-size: 30px; }
+
+/* Font weights */
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* Text colors */
+.text-muted-foreground { color: var(--muted-foreground); }
+.text-destructive { color: var(--destructive); }
+.text-emerald-700 { color: #047857; }
+.dark .text-emerald-700 { color: #34d399; }
+.text-amber-700 { color: #b45309; }
+.dark .text-amber-700 { color: #fbbf24; }
+```
+
+**Layout:**
+```css
+/* Flexbox */
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }
+.items-end { align-items: flex-end; }
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.flex-1 { flex: 1; }
+.flex-shrink-0 { flex-shrink: 0; }
+
+/* Grid */
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Responsive grid */
+@media (min-width: 640px) {
+  .sm\\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .sm\\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .lg\\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .lg\\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Gaps */
+.gap-0\.5 { gap: 2px; }
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.gap-8 { gap: 32px; }
+```
+
+**Spacing:**
+```css
+/* Margin y padding se usan con moderación, preferir gap en flex/grid */
+.m-0 { margin: 0; }
+.mt-2 { margin-top: 8px; }
+.mb-0 { margin-bottom: 0; }
+.p-0 { padding: 0; }
+.p-4 { padding: 16px; }
+.px-4 { padding-left: 16px; padding-right: 16px; }
+.py-2 { padding-top: 8px; padding-bottom: 8px; }
+```
+
+**Accesibilidad:**
+```css
+/* Screen reader only */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap;
+  border-width: 0;
+}
+```
+
+**Otros:**
+```css
+/* Ancho completo */
+.w-full { width: 100%; }
+
+/* Hidden */
+.hidden { display: none; }
+
+/* Pointer cursor */
+.cursor-pointer { cursor: pointer; }
+
+/* User select none */
+.select-none { user-select: none; }
 ```
 
 ---
@@ -683,9 +1643,58 @@ Dado que Razor MVC es renderizado en servidor sin reactividad automática, toda 
 - Renderiza el calendario como grid de botones.
 - Maneja clics para seleccionar rango (inicio → fin; si hay rango completo, reinicia).
 - Calcula días seleccionados, consulta `data-available-balance` del empleado.
-- Pinta en rojo (clase `day--exceeding`) los días que exceden el saldo.
+- **Pinta en rojo (clase `.calendar-day--exceeding`) los días que exceden el saldo** disponible.
 - Actualiza el resumen de selección: "Has seleccionado X días · Saldo disponible: Y días".
+- Muestra el warning "⚠️ Has seleccionado más días de los disponibles" cuando corresponda.
 - Envía petición `POST /employee/requests/validate` (JSON) para validación del lado servidor antes de habilitar el botón de envío.
+
+**Pseudocódigo del comportamiento clave:**
+
+```javascript
+// calendar-range.js (comportamiento crítico)
+
+let rangeStart = null;
+let rangeEnd = null;
+const availableBalance = parseInt(calendarElement.dataset.availableBalance);
+
+function updateExceedingDays() {
+  const allDays = document.querySelectorAll('.calendar-day');
+
+  if (!rangeStart || !rangeEnd) {
+    // Si no hay rango, quitar todas las clases exceeding
+    allDays.forEach(day => day.classList.remove('calendar-day--exceeding'));
+    return;
+  }
+
+  const selectedDays = calculateDaysBetween(rangeStart, rangeEnd);
+  const exceededDays = Math.max(0, selectedDays - availableBalance);
+
+  if (exceededDays === 0) {
+    // Saldo suficiente, quitar todas las clases exceeding
+    allDays.forEach(day => day.classList.remove('calendar-day--exceeding'));
+    document.getElementById('exceeding-warning').style.display = 'none';
+    return;
+  }
+
+  // Hay días excedentes: marcar los últimos N días del rango en rojo
+  const daysInRange = getDaysInRange(rangeStart, rangeEnd);
+  daysInRange.slice(-exceededDays).forEach(dateString => {
+    const dayButton = document.querySelector(`[data-date="${dateString}"]`);
+    if (dayButton) {
+      dayButton.classList.add('calendar-day--exceeding');
+    }
+  });
+
+  // Mostrar warning
+  document.getElementById('exceeding-warning').style.display = 'block';
+  document.getElementById('selected-days-count').textContent = selectedDays;
+}
+
+// Llamar updateExceedingDays() después de cada clic en un día
+```
+
+**Regla crítica:** la clase `.calendar-day--exceeding` debe aplicarse dinámicamente en cliente, **no** desde el servidor. El servidor solo provee `data-available-balance` en el elemento contenedor del calendario.
+
 
 ### 8.3 `toast.js` — Notificaciones toast
 
