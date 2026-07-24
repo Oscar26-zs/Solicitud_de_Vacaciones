@@ -162,11 +162,14 @@ Estado inválido (`aria-invalid="true"`): borde `--destructive` + anillo `rgba(d
 
 | Duración | Easing        | Uso                                          |
 | -------- | ------------- | -------------------------------------------- |
+| 100ms    | `ease-out`    | Tooltip fade in/out                          |
 | 150ms    | `ease-in-out` | Colores de botón, hover, foco de campos      |
 | 200ms    | `ease-out`    | Entrada de modales/sheets                    |
 | 150ms    | `ease-out`    | Salida de overlays                           |
 
 Botón: al pulsar (`:active`) desciende 1px (`translateY(1px)`) salvo si abre un menú.
+
+Tooltip (`.tooltip-content`): `opacity` + `transform: translateY(-4px)` → `translateY(0)` en 100ms `ease-out` al entrar; `opacity` → 0 en 100ms `ease-out` al salir.
 
 ### 1.8 Z-index
 
@@ -716,7 +719,7 @@ Dado que Razor MVC es renderizado en servidor sin reactividad automática, toda 
   - Haya una fecha de inicio y fin seleccionadas.
   - El motivo no esté vacío.
   - Los días solicitados no excedan el saldo disponible.
-- Muestra `FieldError` inline para campos inválidos.
+- No muestra errores inline por campo; solo deshabilita/habilita el botón y actualiza el resumen de selección.
 - La validación del lado servidor se ejecuta al enviar (POST) y devuelve errores JSON si falla.
 
 ### 8.8 `theme.js` — Modo claro/oscuro
@@ -728,9 +731,10 @@ Dado que Razor MVC es renderizado en servidor sin reactividad automática, toda 
 
 ### 8.9 `user-menu.js` — Menú de usuario
 
-- Abre/cierra dropdown al hacer clic en el trigger.
-- Al seleccionar un rol diferente, envía `POST /account/change-role` con el nuevo rol y recarga la página.
-- Al hacer clic en "Cerrar sesión", envía `POST /account/logout`.
+- Abre/cierra dropdown al hacer clic en el trigger (`[data-user-menu-trigger]`), alternando la clase `.user-menu-dropdown--open` en el siguiente hermano `.user-menu-dropdown`.
+- El menú se cierra al hacer clic fuera del dropdown (evento `click` en `document`).
+- **Cambio de rol:** los `<button>` con `[data-user-menu-item]` están dentro de un `<form asp-action="ChangeRole">` en el HTML. Al hacer clic, JS asigna el rol a un `<input type="hidden" name="Role">` y envía el formulario (`POST /account/change-role`), lo que recarga la página.
+- **Cerrar sesión:** se maneja mediante un formulario HTML independiente en el menú (`<form asp-action="Logout">`), no desde JavaScript. user-menu.js solo gestiona la apertura/cierre del dropdown y el submit del formulario de cambio de rol.
 
 ### 8.10 Flujo de creación/edición de solicitud (ejemplo completo)
 
@@ -990,3 +994,16 @@ La exportación es del lado servidor: el Handler `HR/Index.cshtml.cs.OnGetExport
 6. **Validación de formularios:** Data Annotations en los ViewModels de C# (`[Required]` para motivo y comentario de rechazo, `[StringLength(500)]` para comentario) para la validación en servidor. JavaScript en cliente para feedback inmediato (deshabilitar el botón de envío hasta que todos los campos sean válidos). La validación del lado servidor siempre se ejecuta al enviar, incluso si el JS falla.
 
 7. **Interactividad que dependía de React/estado reactivo** (abrir/cerrar Sheet, seleccionar rango en Calendar, pintar en rojo los días que exceden el saldo, validación en vivo, cambio de rol, toasts) se resuelve con JavaScript vanilla, llamando a endpoints de los Controllers vía `fetch` cuando se necesita persistir datos, y manejando el estado puramente visual en JS del lado del cliente.
+
+---
+
+## 15. Página de error (`Error.cshtml`)
+
+Página genérica renderizada cuando ocurre una excepción no controlada. Usa el mismo `_Layout.cshtml` pero sin autorización (página pública).
+
+- **Estructura:** contenedor centrado con `text-align: center`, padding 48px.
+- **H1** (24px/600): "Ha ocurrido un error."
+- **Párrafo** (14px, `--muted-foreground`): mensaje genérico "Intente nuevamente más tarde."
+- **Código de error** (opcional): `<code>` con `font-family: var(--font-mono)`, 12px, `--muted-foreground`.
+- **Request ID** (solo en desarrollo): visible si `aspnet-environment` es Development, oculto en producción.
+- **Botón** "Volver al inicio" (`.btn btn--default`) redirige a `/employee` o `/account/login` según sesión.
