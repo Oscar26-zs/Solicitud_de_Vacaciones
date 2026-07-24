@@ -1980,10 +1980,6 @@ Diálogo modal:
     - **Filas clicables:** igual que Aprobador — `<tr onclick="openHRDetail('@r.Id')">`, el modal se abre vía fetch a `HR/Index?handler=Detail&id=...`. No tiene botones de acción, solo "Cerrar".
     - **Paginación:** 10 registros por página. Misma estructura que Employee.
 
-### 13.2 Exportar CSV
-
-La exportación es del lado servidor: el Handler `HR/Index.cshtml.cs.OnGetExportCsv` genera un archivo CSV con BOM y cabeceras: Folio, Empleado, Correo, Inicio, Fin, Días, Estado, Motivo, Decidido por. Se invoca con `GET /HR/Index?handler=ExportCsv` (descarga directa, no AJAX).
-
 ---
 
 ## 14. Notas de arquitectura MVC
