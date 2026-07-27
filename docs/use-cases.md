@@ -4,6 +4,8 @@
 
 Este documento recoge los casos de uso refinados a partir de las especificaciones en `spec/` y `spec/spec.md`. Cada caso de uso ha sido detallado con pasos de validación, autorización, datos de auditoría y mensajes de error específicos según las reglas de negocio (RN) y requisitos funcionales (RF) definidos.
 
+> **Nota:** CU-01 (Crear empleado y saldo inicial) queda fuera del alcance del MVP. Se asume que los empleados ya existen en el sistema al inicio del proyecto.
+
 > **Leyenda:**
 > - **Transversal** = Caso de uso que aplica de fondo en varios escenarios
 > - **Extensión** = Extensión opcional de otro CU
@@ -13,85 +15,30 @@ Este documento recoge los casos de uso refinados a partir de las especificacione
 
 | # | Tipo | Caso de Uso | Actor(es) |
 |---|------|-------------|-----------|
-| CU-01 | Principal | Crear empleado y saldo inicial | Admin |
-| CU-02 | Principal | Calcular/acumular saldo mensual | Sistema_Acumulacion (job) |
-| CU-03 | Principal | Consultar saldo personal / histórico | Empleado, RRHH |
-| CU-04 | Transversal | Registrar movimientos de balance | Sistema |
-| CU-05 | Principal | Crear solicitud de vacaciones | Empleado |
-| CU-06 | Principal | Ver mis solicitudes / detalle | Empleado |
-| CU-07 | Principal | Editar solicitud PENDING | Empleado |
-| CU-08 | Principal | Cancelar solicitud (empleado PENDING) | Empleado |
-| CU-09 | Transversal | Cálculo de días hábiles | Sistema |
-| CU-10 | Transversal | Prevención de traslapes | Sistema |
-| CU-11 | Principal | Bandeja de aprobadores | Aprobador |
-| CU-12 | Principal | Aprobar solicitud (descuento de saldo) | Aprobador |
-| CU-13 | Principal | Rechazar solicitud con comentario | Aprobador |
-| CU-14 | Extensión | Ver impacto en saldo antes de decidir | Aprobador |
-| CU-15 | Principal | Cancelación APPROVED por aprobador | Aprobador |
-| CU-16 | Principal | Auto-expiración PENDING → EXPIRED | Sistema_Expiracion (job) |
-| CU-17 | Transversal | Gestión de roles y permisos | Sistema |
-| CU-18 | Transversal | Auditoría y trazabilidad global | Sistema |
-| CU-19 | Principal | Filtrado y consultas para RRHH | RRHH |
-| CU-20 | Transversal | Mensajes UX y manejo de errores | Sistema |
+| CU-01 | Principal | Calcular/acumular saldo mensual | Sistema_Acumulacion (job) |
+| CU-02 | Principal | Consultar saldo personal / histórico | Empleado, RRHH |
+| CU-03 | Transversal | Registrar movimientos de balance | Sistema |
+| CU-04 | Principal | Crear solicitud de vacaciones | Empleado |
+| CU-05 | Principal | Ver mis solicitudes / detalle | Empleado |
+| CU-06 | Principal | Editar solicitud PENDING | Empleado |
+| CU-07 | Principal | Cancelar solicitud (empleado PENDING) | Empleado |
+| CU-08 | Transversal | Cálculo de días hábiles | Sistema |
+| CU-09 | Transversal | Prevención de traslapes | Sistema |
+| CU-10 | Principal | Bandeja de aprobadores | Aprobador |
+| CU-11 | Principal | Aprobar solicitud (descuento de saldo) | Aprobador |
+| CU-12 | Principal | Rechazar solicitud con comentario | Aprobador |
+| CU-13 | Extensión | Ver impacto en saldo antes de decidir | Aprobador |
+| CU-14 | Principal | Cancelación APPROVED por aprobador | Aprobador |
+| CU-15 | Principal | Auto-expiración PENDING → EXPIRED | Sistema_Expiracion (job) |
+| CU-16 | Transversal | Gestión de roles y permisos | Sistema |
+| CU-17 | Transversal | Auditoría y trazabilidad global | Sistema |
+| CU-18 | Principal | Filtrado y consultas para RRHH | RRHH |
+| CU-19 | Transversal | Mensajes UX y manejo de errores | Sistema |
 
 ---
 
-## CU-01 — Crear empleado y saldo inicial
+## CU-01 — Calcular/acumular saldo mensual
 **ID**: CU-01
-**Nombre**: Crear empleado con saldo inicial
-**Actor(es)**: Admin
-**Componente**: EmployeeService / EmployeeBalance / Identity
-**Prioridad**: P2
-**Trazabilidad**: `spec/001-employee-balance-management/spec.md` (RN-01, RF-034)
-
-### Precondiciones:
-- Admin autenticado con sesión activa vía ASP.NET Core Identity.
-- Email no registrado previamente.
-
-### Flujo principal (creación individual):
-1. Admin ingresa los datos del nuevo empleado: correo electrónico, nombre completo y fecha de ingreso.
-2. Sistema verifica que el correo electrónico tenga un formato válido.
-3. Sistema confirma que el correo no esté registrado por otro empleado.
-4. Sistema verifica que el nombre completo no esté vacío.
-5. Sistema verifica que la fecha de ingreso no sea futura.
-6. Sistema asigna los permisos básicos de empleado al nuevo usuario.
-7. Sistema guarda el empleado con estado Activo y registra la fecha de creación.
-8. Sistema crea el registro de saldo del empleado con todos los valores en cero:
-   - Saldo acumulado = 0
-   - Saldo consumido = 0
-   - Saldo disponible = 0
-   - *Nota: No se registra en el historial de saldo porque el saldo inicial cero no representa un movimiento.*
-9. Sistema confirma la creación exitosa y entrega el identificador del empleado.
-
-### Flujo alterno — Importación masiva:
-- **FA-01a**: Sistema de importación envía un lote de varios empleados.
-- **FA-01b**: Por cada registro del lote, se aplican las mismas validaciones de los pasos 2 al 5.
-- **FA-01c**: Los registros que no pasen las validaciones se rechazan indicando el motivo.
-- **FA-01d**: Solo los registros válidos se guardan, asegurando que todo el proceso se complete correctamente o se cancele por completo.
-- **FA-01e**: Se entrega un reporte indicando cuáles registros fueron exitosos y cuáles fallaron.
-
-### Excepciones:
-| Código | Condición | Mensaje |
-|--------|-----------|---------|
-| 400 | email mal formateado | "Email inválido" |
-| 400 | fullName vacío | "El nombre completo es obligatorio" |
-| 400 | joinDate > today | "La fecha de ingreso no puede ser futura" |
-| 409 | email ya existe | "El email ya está registrado" |
-| 500 | Error al persistir | "Error interno al crear empleado" |
-
-### Postcondiciones:
-- Empleado creado con estado Activo en el sistema.
-- Registro de saldo creado con saldo disponible = 0.
-- Permisos básicos de empleado asignados.
-
-### Criterios de aceptación:
-- Dado datos válidos, cuando admin crea empleado, entonces el empleado y su saldo disponible = 0 existen en el sistema, y el usuario tiene permisos de empleado.
-- Dado email duplicado, cuando se intenta crear, entonces el sistema rechaza la operación y no guarda nada.
-
----
-
-## CU-02 — Calcular/acumular saldo mensual
-**ID**: CU-02
 **Nombre**: Acumulación automática de saldo
 **Actor(es)**: SISTEMA_ACUMULACION (job programado)
 **Componente**: EmployeeBalanceService / Scheduler
@@ -143,8 +90,8 @@ Este documento recoge los casos de uso refinados a partir de las especificacione
 
 ---
 
-## CU-03 — Consultar saldo personal / histórico
-**ID**: CU-03
+## CU-02 — Consultar saldo personal / histórico
+**ID**: CU-02
 **Nombre**: Consultar saldo y movimientos
 **Actor(es)**: Empleado, RRHH
 **Componente**: EmployeeBalanceService
@@ -193,8 +140,8 @@ Este documento recoge los casos de uso refinados a partir de las especificacione
 
 ---
 
-## CU-04 — Registrar movimientos de balance (auditoría)
-**ID**: CU-04
+## CU-03 — Registrar movimientos de balance (auditoría)
+**ID**: CU-03
 **Actor(es)**: Sistema
 **Tipo**: Transversal
 **Componente**: BalanceHistory / EmployeeBalanceService
@@ -229,8 +176,8 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 
 ---
 
-## CU-05 — Crear solicitud de vacaciones
-**ID**: CU-05
+## CU-04 — Crear solicitud de vacaciones
+**ID**: CU-04
 **Nombre**: Crear solicitud de vacaciones (PENDING)
 **Actor(es)**: Empleado
 **Componente**: VacationRequestService / EmployeeBalanceService
@@ -295,8 +242,8 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 - Dado rango de fechas válido y saldo suficiente, cuando empleado crea solicitud y confirma, entonces la solicitud queda pendiente de aprobación y visible para los aprobadores.
 - Dado saldo insuficiente, cuando empleado intenta crear, entonces la operación es rechazada con el mensaje correspondiente.
 
-## CU-06 — Ver mis solicitudes / detalle y auditoría
-**ID**: CU-06
+## CU-05 — Ver mis solicitudes / detalle y auditoría
+**ID**: CU-05
 **Nombre**: Listar y ver detalle de solicitudes propias
 **Actor(es)**: Empleado
 **Componente**: VacationRequestService
@@ -340,8 +287,8 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 
 ---
 
-## CU-07 — Editar solicitud PENDING
-**ID**: CU-07
+## CU-06 — Editar solicitud PENDING
+**ID**: CU-06
 **Nombre**: Editar solicitud en estado PENDING
 **Actor(es)**: Empleado
 **Componente**: VacationRequestService
@@ -393,8 +340,8 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 
 ---
 
-## CU-08 — Cancelar solicitud por empleado (PENDING)
-**ID**: CU-08
+## CU-07 — Cancelar solicitud por empleado (PENDING)
+**ID**: CU-07
 **Nombre**: Cancelar solicitud propia en estado PENDING
 **Actor(es)**: Empleado
 **Componente**: VacationRequestService
@@ -440,8 +387,8 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 
 ---
 
-## CU-09 — Cálculo de días hábiles
-**ID**: CU-09
+## CU-08 — Cálculo de días hábiles
+**ID**: CU-08
 **Actor(es)**: Sistema
 **Tipo**: Transversal (lo ejecuta el sistema automáticamente al crear o editar solicitudes)
 **Componente**: DateUtils / VacationRequestService
@@ -476,8 +423,8 @@ Función del sistema para calcular cuántos días de vacaciones corresponden ent
 
 ---
 
-## CU-10 — Prevención de traslapes entre solicitudes
-**ID**: CU-10
+## CU-09 — Prevención de traslapes entre solicitudes
+**ID**: CU-09
 **Actor(es)**: Sistema
 **Tipo**: Transversal (lo ejecuta el sistema automáticamente al crear, editar o revisar solicitudes)
 **Componente**: VacationRequestRepository
@@ -508,8 +455,8 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 
 ---
 
-## CU-11 — Bandeja de aprobadores
-**ID**: CU-11
+## CU-10 — Bandeja de aprobadores
+**ID**: CU-10
 **Nombre**: Listar solicitudes PENDING para aprobación
 **Actor(es)**: Aprobador
 **Componente**: ApprovalService / VacationRequestService
@@ -557,8 +504,8 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 
 ---
 
-## CU-12 — Aprobar solicitud (descuento de saldo)
-**ID**: CU-12
+## CU-11 — Aprobar solicitud (descuento de saldo)
+**ID**: CU-11
 **Nombre**: Aprobar solicitud PENDING
 **Actor(es)**: Aprobador
 **Componente**: ApprovalService / EmployeeBalanceService
@@ -613,8 +560,8 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 
 ---
 
-## CU-13 — Rechazar solicitud con comentario obligatorio
-**ID**: CU-13
+## CU-12 — Rechazar solicitud con comentario obligatorio
+**ID**: CU-12
 **Nombre**: Rechazar solicitud PENDING
 **Actor(es)**: Aprobador
 **Componente**: ApprovalService
@@ -667,8 +614,8 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 
 ---
 
-## CU-14 — Ver impacto en saldo antes de decidir
-**ID**: CU-14
+## CU-13 — Ver impacto en saldo antes de decidir
+**ID**: CU-13
 **Tipo**: Extensión (se muestra al aprobador al abrir detalle de solicitud pendiente)
 **Actor(es)**: Aprobador
 **Componente**: ApprovalService / EmployeeBalanceService
@@ -676,7 +623,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 **Trazabilidad**: `spec/003-approval-workflow/spec.md` (HU-07, RF-026)
 
 ### Descripción:
-Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitud pendiente, ya sea desde la bandeja (CU-11) o antes de aprobar (CU-12). Muestra al aprobador cómo quedaría el saldo del empleado si se aprobara la solicitud.
+Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitud pendiente, ya sea desde la bandeja (CU-10) o antes de aprobar (CU-11). Muestra al aprobador cómo quedaría el saldo del empleado si se aprobara la solicitud.
 
 ### Flujo:
 1. Aprobador abre el detalle de una solicitud pendiente.
@@ -699,8 +646,8 @@ Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitu
 
 ---
 
-## CU-15 — Cancelación de APPROVED por aprobador (restauración)
-**ID**: CU-15
+## CU-14 — Cancelación de APPROVED por aprobador (restauración)
+**ID**: CU-14
 **Nombre**: Cancelar solicitud APPROVED antes del inicio
 **Actor(es)**: Aprobador
 **Componente**: ApprovalService / EmployeeBalanceService
@@ -750,8 +697,8 @@ Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitu
 
 ---
 
-## CU-16 — Auto-expiración de solicitudes PENDING → EXPIRED
-**ID**: CU-16
+## CU-15 — Auto-expiración de solicitudes PENDING → EXPIRED
+**ID**: CU-15
 **Nombre**: Auto-expirar solicitudes pendientes tras N días
 **Actor(es)**: SISTEMA_AUTO_EXPIRACION (job programado)
 **Componente**: ExpirationJob
@@ -791,8 +738,8 @@ Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitu
 
 ---
 
-## CU-17 — Gestión de roles y permisos
-**ID**: CU-17
+## CU-16 — Gestión de roles y permisos
+**ID**: CU-16
 **Actor(es)**: Sistema
 **Tipo**: Transversal (se ejecuta en cada operación del sistema)
 **Componente**: AuthService / Middleware (ASP.NET Core Identity)
@@ -829,8 +776,8 @@ Caso de uso transversal que aplica a todas las operaciones del sistema. No tiene
 
 ---
 
-## CU-18 — Auditoría y trazabilidad global
-**ID**: CU-18
+## CU-17 — Auditoría y trazabilidad global
+**ID**: CU-17
 **Actor(es)**: Sistema
 **Tipo**: Transversal (se ejecuta automáticamente tras cada cambio de estado o saldo)
 **Componente**: VacationRequestHistory / BalanceHistory
@@ -845,19 +792,19 @@ Requisito transversal de auditoría que se ejecuta como postcondición de los ca
 **VacationRequestHistory** (para solicitudes):
 | eventType | Disparado por | Actor |
 |-----------|---------------|-------|
-| CREATED | CU-05 (Crear solicitud) | Email del empleado |
-| UPDATED | CU-07 (Editar solicitud) | Email del empleado |
-| STATUS_CHANGED | CU-12 (Aprobar), CU-13 (Rechazar), CU-15 (Cancelar), CU-16 (Expiar) | Email del aprobador o SISTEMA_AUTO_EXPIRACION |
-| CANCELLED | CU-08 (Cancelar empleado) | Email del empleado |
+| CREATED | CU-04 (Crear solicitud) | Email del empleado |
+| UPDATED | CU-06 (Editar solicitud) | Email del empleado |
+| STATUS_CHANGED | CU-11 (Aprobar), CU-12 (Rechazar), CU-14 (Cancelar), CU-15 (Expiar) | Email del aprobador o SISTEMA_AUTO_EXPIRACION |
+| CANCELLED | CU-07 (Cancelar empleado) | Email del empleado |
 
 Cada registro incluye: requestId, eventType, actor, note, timestamp (UTC).
 
 **BalanceHistory** (para cambios de saldo):
 | movementType | Disparado por | Actor |
 |--------------|---------------|-------|
-| ACUMULATION | CU-02 (Acumulación mensual) | SISTEMA_ACUMULACION |
-| APPROVAL_DISCOUNT | CU-12 (Aprobar) | Email del aprobador |
-| CANCELLATION_RESTORE | CU-15 (Cancelar APPROVED) | Email del aprobador |
+| ACUMULATION | CU-01 (Acumulación mensual) | SISTEMA_ACUMULACION |
+| APPROVAL_DISCOUNT | CU-11 (Aprobar) | Email del aprobador |
+| CANCELLATION_RESTORE | CU-14 (Cancelar APPROVED) | Email del aprobador |
 
 Cada registro incluye: employeeId, movementType, previousBalance, newBalance, reason, actor, timestamp (UTC).
 
@@ -873,8 +820,8 @@ Cada registro incluye: employeeId, movementType, previousBalance, newBalance, re
 
 ---
 
-## CU-19 — Filtrado y consultas para RRHH
-**ID**: CU-19
+## CU-18 — Filtrado y consultas para RRHH
+**ID**: CU-18
 **Nombre**: Consultas filtradas de solicitudes y balances
 **Actor(es)**: RRHH
 **Componente**: VacationRequestService / EmployeeBalanceService
@@ -921,8 +868,8 @@ Cada registro incluye: employeeId, movementType, previousBalance, newBalance, re
 
 ---
 
-## CU-20 — Mensajes UX y manejo de errores
-**ID**: CU-20
+## CU-19 — Mensajes UX y manejo de errores
+**ID**: CU-19
 **Actor(es)**: Sistema
 **Tipo**: Transversal (aplica a todos los casos de uso)
 **Componente**: API / Frontend

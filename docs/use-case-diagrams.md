@@ -7,57 +7,36 @@
 
 | # | Caso de Uso | Actor(es) | Tipo |
 |---|-------------|-----------|------|
-| [CU-01](#cu01--crear-empleado-y-saldo-inicial) | Crear empleado y saldo inicial | Admin | Principal |
-| [CU-02](#cu02--calcularacumular-saldo-mensual) | Calcular/acumular saldo mensual | Sistema_Acumulacion | Principal |
-| [CU-03](#cu03--consultar-saldo-personal--histórico) | Consultar saldo personal / histórico | Empleado, RRHH | Principal |
-| [CU-04](#cu04--registrar-movimientos-de-balance) | Registrar movimientos de balance | Sistema | Transversal |
-| [CU-05](#cu05--crear-solicitud-pending) | Crear solicitud de vacaciones | Empleado | Principal |
-| [CU-06](#cu06--ver-mis-solicitudes--detalle) | Ver mis solicitudes / detalle | Empleado | Principal |
-| [CU-07](#cu07--editar-solicitud-pending) | Editar solicitud PENDING | Empleado | Principal |
-| [CU-08](#cu08--cancelar-solicitud-por-empleado) | Cancelar solicitud (empleado) | Empleado | Principal |
-| [CU-09](#cu09--cálculo-de-días-hábiles) | Cálculo de días hábiles | Sistema | Transversal |
-| [CU-10](#cu10--prevención-de-traslapes) | Prevención de traslapes | Sistema | Transversal |
-| [CU-11](#cu11--bandeja-de-aprobadores) | Bandeja de aprobadores | Aprobador | Principal |
-| [CU-12](#cu12--aprobar-solicitud) | Aprobar solicitud | Aprobador | Principal |
-| [CU-13](#cu13--rechazar-solicitud) | Rechazar solicitud | Aprobador | Principal |
-| [CU-14](#cu14--ver-impacto-en-saldo) | Ver impacto en saldo | Aprobador | Extensión |
-| [CU-15](#cu15--cancelar-approved-por-aprobador) | Cancelar APPROVED (aprobador) | Aprobador | Principal |
-| [CU-16](#cu16--auto-expiración-pending--expired) | Auto-expiración PENDING → EXPIRED | Sistema_Expiracion | Principal |
-| [CU-17](#cu17--gestión-de-roles-y-permisos) | Gestión de roles y permisos | Sistema | Transversal |
-| [CU-18](#cu18--auditoría-y-trazabilidad-global) | Auditoría y trazabilidad global | Sistema | Transversal |
-| [CU-19](#cu19--filtrado-y-consultas-para-rrhh) | Filtrado y consultas para RRHH | RRHH | Principal |
-| [CU-20](#cu20--mensajes-ux-y-manejo-de-errores) | Mensajes UX y manejo de errores | Sistema | Transversal |
+| [CU-01](#cu01--calcularacumular-saldo-mensual) | Calcular/acumular saldo mensual | Sistema_Acumulacion | Principal |
+| [CU-02](#cu02--consultar-saldo-personal--histórico) | Consultar saldo personal / histórico | Empleado, RRHH | Principal |
+| [CU-03](#cu03--registrar-movimientos-de-balance) | Registrar movimientos de balance | Sistema | Transversal |
+| [CU-04](#cu04--crear-solicitud-pending) | Crear solicitud de vacaciones | Empleado | Principal |
+| [CU-05](#cu05--ver-mis-solicitudes--detalle) | Ver mis solicitudes / detalle | Empleado | Principal |
+| [CU-06](#cu06--editar-solicitud-pending) | Editar solicitud PENDING | Empleado | Principal |
+| [CU-07](#cu07--cancelar-solicitud-por-empleado) | Cancelar solicitud (empleado) | Empleado | Principal |
+| [CU-08](#cu08--cálculo-de-días-hábiles) | Cálculo de días hábiles | Sistema | Transversal |
+| [CU-09](#cu09--prevención-de-traslapes) | Prevención de traslapes | Sistema | Transversal |
+| [CU-10](#cu10--bandeja-de-aprobadores) | Bandeja de aprobadores | Aprobador | Principal |
+| [CU-11](#cu11--aprobar-solicitud) | Aprobar solicitud | Aprobador | Principal |
+| [CU-12](#cu12--rechazar-solicitud) | Rechazar solicitud | Aprobador | Principal |
+| [CU-13](#cu13--ver-impacto-en-saldo) | Ver impacto en saldo | Aprobador | Extensión |
+| [CU-14](#cu14--cancelar-approved-por-aprobador) | Cancelar APPROVED (aprobador) | Aprobador | Principal |
+| [CU-15](#cu15--auto-expiración-pending--expired) | Auto-expiración PENDING → EXPIRED | Sistema_Expiracion | Principal |
+| [CU-16](#cu16--gestión-de-roles-y-permisos) | Gestión de roles y permisos | Sistema | Transversal |
+| [CU-17](#cu17--auditoría-y-trazabilidad-global) | Auditoría y trazabilidad global | Sistema | Transversal |
+| [CU-18](#cu18--filtrado-y-consultas-para-rrhh) | Filtrado y consultas para RRHH | RRHH | Principal |
+| [CU-19](#cu19--mensajes-ux-y-manejo-de-errores) | Mensajes UX y manejo de errores | Sistema | Transversal |
 
 ---
 
-## CU-01 — Crear empleado y saldo inicial
+
+
+## CU-01 — Calcular/acumular saldo mensual
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU01(("CU-01: Crear empleado<br/>y saldo inicial"))
-        V1[Verificar que el correo<br/>tenga formato válido]
-        V2[Confirmar que el correo<br/>no esté registrado]
-        V3[Verificar que el nombre<br/>no esté vacío]
-        V4[Verificar que la fecha<br/>de ingreso no sea futura]
-        R1[Asignar permisos<br/>de empleado]
-        R2[Guardar empleado<br/>con estado Activo]
-        R3[Crear registro de saldo<br/>con valores en cero]
-        R4[Confirmar creación<br/>y entregar identificador]
-
-        CU01 --> V1 --> V2 --> V3 --> V4 --> R1 --> R2 --> R3 --> R4
-    end
-    Admin["«actor» Admin"] --> CU01
-```
-
----
-
-## CU-02 — Calcular/acumular saldo mensual
-
-```mermaid
-graph TB
-    subgraph S["Sistema de Vacaciones"]
-        CU02(("CU-02: Acumulación automática<br/>de saldo mensual"))
+        CU01(("CU-01: Acumulación automática<br/>de saldo mensual"))
         P1[Proceso revisa todos<br/>los empleados activos]
         P2[Por cada empleado:<br/>revisar fecha de ingreso<br/>y último cálculo]
         P3{¿Hay meses completos<br/>no contabilizados?}
@@ -71,17 +50,17 @@ graph TB
         P3 -->|Sí| P4 --> P5 --> P6 --> P7 --> P8
         P3 -->|No| P8
     end
-    SA["«actor» Sistema_Acumulacion<br/>(Proceso automático)"] --> CU02
+    SA["«actor» Sistema_Acumulacion<br/>(Proceso automático)"] --> CU01
 ```
 
 ---
 
-## CU-03 — Consultar saldo personal / histórico
+## CU-02 — Consultar saldo personal / histórico
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU03(("CU-03: Consultar saldo<br/>y movimientos"))
+        CU02(("CU-02: Consultar saldo<br/>y movimientos"))
         A1{¿Es empleado?}
         A2{¿Consulta su<br/>propio saldo?}
         A3[Permitir consulta]
@@ -91,7 +70,7 @@ graph TB
         Q3{¿Solicitó ver<br/>historial?}
         Q4[Entregar lista de<br/>movimientos ordenada<br/>del más reciente al más antiguo]
 
-        CU03 --> A1
+        CU02 --> A1
         A1 -->|Sí| A2
         A2 -->|Sí| A3
         A2 -->|No| A4
@@ -100,34 +79,34 @@ graph TB
         Q3 -->|Sí| Q4
         Q3 -->|No| Fin
     end
-    Emp["«actor» Empleado"] --> CU03
-    RRHH["«actor» RRHH"] --> CU03
+    Emp["«actor» Empleado"] --> CU02
+    RRHH["«actor» RRHH"] --> CU02
 ```
 
 ---
 
-## CU-04 — Registrar movimientos de balance
+## CU-03 — Registrar movimientos de balance
 
 ```mermaid
 graph LR
     subgraph S["Sistema de Vacaciones"]
-        CU04(("CU-04: Registrar<br/>historial de saldo"))
+        CU03(("CU-03: Registrar<br/>historial de saldo"))
         T1["Tipos de movimiento:<br/>ACUMULACIÓN<br/>DESCUENTO POR APROBACIÓN<br/>RESTAURACIÓN POR CANCELACIÓN"]
         T2["Cada registro guarda:<br/>valor anterior, valor nuevo,<br/>motivo, quién lo hizo,<br/>fecha y hora"]
         T3["Se guarda junto con<br/>la operación principal:<br/>todo o nada"]
-        CU04 --> T1 --> T2 --> T3
+        CU03 --> T1 --> T2 --> T3
     end
-    Sis["«actor» Sistema"] --> CU04
+    Sis["«actor» Sistema"] --> CU03
 ```
 
 ---
 
-## CU-05 — Crear solicitud PENDING
+## CU-04 — Crear solicitud PENDING
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU05(("CU-05: Crear solicitud<br/>de vacaciones"))
+        CU04(("CU-04: Crear solicitud<br/>de vacaciones"))
         V1[Validar motivo:<br/>obligatorio y<br/>mínimo 10 caracteres]
         V2[Validar fechas:<br/>inicio desde mañana,<br/>fin no anterior a inicio]
         V3[Calcular<br/>días hábiles]
@@ -140,19 +119,19 @@ graph TB
         V10[Registrar en historial:<br/>solicitud creada]
         V11[Hacer visible en<br/>bandeja de aprobadores]
 
-        CU05 --> V1 --> V2 --> V3 --> V4 --> V5 --> V6 --> V7 --> V8 --> V9 --> V10 --> V11
+        CU04 --> V1 --> V2 --> V3 --> V4 --> V5 --> V6 --> V7 --> V8 --> V9 --> V10 --> V11
     end
-    Emp["«actor» Empleado"] --> CU05
+    Emp["«actor» Empleado"] --> CU04
 ```
 
 ---
 
-## CU-06 — Ver mis solicitudes / detalle
+## CU-05 — Ver mis solicitudes / detalle
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU06(("CU-06: Ver mis<br/>solicitudes"))
+        CU05(("CU-05: Ver mis<br/>solicitudes"))
         V1{¿El empleado ve<br/>solo sus propias<br/>solicitudes?}
         V2[Denegar acceso]
         F1[Aplicar filtro<br/>por estado si se indicó]
@@ -160,22 +139,22 @@ graph TB
         D1{Ruta: ver detalle<br/>de una solicitud?}
         D2[Entregar todos los datos<br/>+ historial de eventos]
 
-        CU06 --> V1
+        CU05 --> V1
         V1 -->|No| V2
         V1 -->|Sí| F1 --> F2
         D1 -->|Sí| D2
     end
-    Emp["«actor» Empleado"] --> CU06
+    Emp["«actor» Empleado"] --> CU05
 ```
 
 ---
 
-## CU-07 — Editar solicitud PENDING
+## CU-06 — Editar solicitud PENDING
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU07(("CU-07: Editar solicitud<br/>pendiente"))
+        CU06(("CU-06: Editar solicitud<br/>pendiente"))
         V1{¿Solicitud está<br/>pendiente?}
         V2[Denegar: solo se pueden<br/>editar pendientes]
         V3{¿Es el autor?}
@@ -187,24 +166,24 @@ graph TB
         V7[Registrar en historial:<br/>qué cambió, valor anterior,<br/>valor nuevo]
         V8[Actualizar en bandeja<br/>de aprobadores]
 
-        CU07 --> V1
+        CU06 --> V1
         V1 -->|No| V2
         V1 -->|Sí| V3
         V3 -->|No| V4
         V3 -->|Sí| V5
         V5 --> V5a --> V5b --> V6 --> V7 --> V8
     end
-    Emp["«actor» Empleado"] --> CU07
+    Emp["«actor» Empleado"] --> CU06
 ```
 
 ---
 
-## CU-08 — Cancelar solicitud por empleado
+## CU-07 — Cancelar solicitud por empleado
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU08(("CU-08: Cancelar solicitud<br/>propia pendiente"))
+        CU07(("CU-07: Cancelar solicitud<br/>propia pendiente"))
         V1{¿Solicitud está<br/>pendiente?}
         V2[Denegar]
         V3{¿Es el autor?}
@@ -216,23 +195,23 @@ graph TB
         C5[Notificar a aprobadores]
         C6[No modificar el saldo<br/>del empleado]
 
-        CU08 --> V1
+        CU07 --> V1
         V1 -->|No| V2
         V1 -->|Sí| V3
         V3 -->|No| V4
         V3 -->|Sí| C1 --> C2 --> C3 --> C4 --> C5 --> C6
     end
-    Emp["«actor» Empleado"] --> CU08
+    Emp["«actor» Empleado"] --> CU07
 ```
 
 ---
 
-## CU-09 — Cálculo de días hábiles
+## CU-08 — Cálculo de días hábiles
 
 ```mermaid
 graph LR
     subgraph S["Sistema de Vacaciones"]
-        CU09(("CU-09: Calcular<br/>días hábiles"))
+        CU08(("CU-08: Calcular<br/>días hábiles"))
         L1[Recibir fecha inicio<br/>y fecha fin]
         L2[Revisar cada día<br/>del período]
         L3{¿Sábado o<br/>domingo?}
@@ -248,17 +227,17 @@ graph LR
         L4 --> L2
         L2 -->|Fin del período| L6
     end
-    Sis["«actor» Sistema"] --> CU09
+    Sis["«actor» Sistema"] --> CU08
 ```
 
 ---
 
-## CU-10 — Prevención de traslapes
+## CU-09 — Prevención de traslapes
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU10(("CU-10: Verificar<br/>empalmes"))
+        CU09(("CU-09: Verificar<br/>empalmes"))
         B1[Buscar solicitudes del<br/>mismo empleado que:<br/>- estén pendientes o aprobadas<br/>- tengan fechas que se empalmen]
         B2{¿Hay empalme<br/>con alguna?}
         B3[Bloquear: La solicitud<br/>incluye días ya<br/>comprometidos]
@@ -268,17 +247,17 @@ graph TB
         B2 -->|Sí| B3
         B2 -->|No| B4
     end
-    Sis["«actor» Sistema"] --> CU10
+    Sis["«actor» Sistema"] --> CU09
 ```
 
 ---
 
-## CU-11 — Bandeja de aprobadores
+## CU-10 — Bandeja de aprobadores
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU11(("CU-11: Bandeja de<br/>aprobadores"))
+        CU10(("CU-10: Bandeja de<br/>aprobadores"))
         V1{¿Usuario tiene<br/>permisos de<br/>aprobador activo?}
         V2[Denegar acceso]
         L1[Buscar solicitudes<br/>pendientes de todos]
@@ -290,7 +269,7 @@ graph TB
         L7[Deshabilitar botón<br/>aprobar + advertencia]
         L8[Mostrar advertencia:<br/>Existen otras solicitudes<br/>que se solapan]
 
-        CU11 --> V1
+        CU10 --> V1
         V1 -->|No| V2
         V1 -->|Sí| L1 --> L2 --> L3 --> L4 --> L5
         L5 --> L6
@@ -298,17 +277,17 @@ graph TB
         L6 -->|No, solo pendiente| L8
         L6 -->|Sin empalme| L9[Mostrar normal]
     end
-    Ap["«actor» Aprobador"] --> CU11
+    Ap["«actor» Aprobador"] --> CU10
 ```
 
 ---
 
-## CU-12 — Aprobar solicitud
+## CU-11 — Aprobar solicitud
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU12(("CU-12: Aprobar solicitud<br/>pendiente"))
+        CU11(("CU-11: Aprobar solicitud<br/>pendiente"))
         V1{¿Solicitud existe<br/>y está pendiente?}
         V2[Denegar]
         V3{¿Aprobador activo<br/>y no es el autor?}
@@ -324,7 +303,7 @@ graph TB
         T6[Registrar en historial<br/>de solicitud: Aprobada]
         T7[Notificar al empleado]
 
-        CU12 --> V1
+        CU11 --> V1
         V1 -->|No| V2
         V1 -->|Sí| V3
         V3 -->|No| V4
@@ -333,17 +312,17 @@ graph TB
         S1 -->|Sí| C1 --> T1
         T1 --> T2 --> T3 --> T4 --> T5 --> T6 --> T7
     end
-    Ap["«actor» Aprobador"] --> CU12
+    Ap["«actor» Aprobador"] --> CU11
 ```
 
 ---
 
-## CU-13 — Rechazar solicitud
+## CU-12 — Rechazar solicitud
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU13(("CU-13: Rechazar solicitud<br/>pendiente"))
+        CU12(("CU-12: Rechazar solicitud<br/>pendiente"))
         C1[Validar comentario:<br/>obligatorio y<br/>máximo 500 caracteres]
         C2[Denegar: El comentario<br/>es obligatorio]
         V1{¿Aprobador válido,<br/>activo y no es<br/>el autor?}
@@ -355,23 +334,23 @@ graph TB
         T5[No modificar saldo]
         T6[Notificar empleado<br/>con el motivo<br/>de rechazo]
 
-        CU13 --> C1
+        CU12 --> C1
         C1 -->|Inválido| C2
         C1 -->|Válido| V1
         V1 -->|No| V2
         V1 -->|Sí| T1 --> T2 --> T3 --> T4 --> T5 --> T6
     end
-    Ap["«actor» Aprobador"] --> CU13
+    Ap["«actor» Aprobador"] --> CU12
 ```
 
 ---
 
-## CU-14 — Ver impacto en saldo
+## CU-13 — Ver impacto en saldo
 
 ```mermaid
 graph LR
     subgraph S["Sistema de Vacaciones"]
-        CU14(("CU-14: Ver impacto<br/>en saldo"))
+        CU13(("CU-13: Ver impacto<br/>en saldo"))
         C1[Consultar saldo<br/>actual del empleado]
         C2[Calcular saldo estimado<br/>= saldo actual<br/>- días solicitados]
         C3{¿Saldo estimado<br/>negativo?}
@@ -382,18 +361,18 @@ graph LR
         C3 -->|Sí| C4
         C3 -->|No| C5
     end
-    Ap["«actor» Aprobador"] --> CU14
+    Ap["«actor» Aprobador"] --> CU13
 
 ```
 
 ---
 
-## CU-15 — Cancelar APPROVED por aprobador
+## CU-14 — Cancelar APPROVED por aprobador
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU15(("CU-15: Cancelar solicitud<br/>aprobada antes del inicio"))
+        CU14(("CU-14: Cancelar solicitud<br/>aprobada antes del inicio"))
         V1{¿Solicitud está<br/>aprobada?}
         V2[Denegar]
         V3{¿Fecha de inicio<br/>aún no ha llegado?}
@@ -406,24 +385,24 @@ graph TB
         T6[Registrar en historial<br/>de solicitud: Cancelada<br/>por aprobador]
         T7[Notificar al empleado]
 
-        CU15 --> V1
+        CU14 --> V1
         V1 -->|No| V2
         V1 -->|Sí| V3
         V3 -->|No| V4
         V3 -->|Sí| T1
         T1 --> T2 --> T3 --> T4 --> T5 --> T6 --> T7
     end
-    Ap["«actor» Aprobador"] --> CU15
+    Ap["«actor» Aprobador"] --> CU14
 ```
 
 ---
 
-## CU-16 — Auto-expiración PENDING → EXPIRED
+## CU-15 — Auto-expiración PENDING → EXPIRED
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU16(("CU-16: Auto-expiar<br/>solicitudes pendientes"))
+        CU15(("CU-15: Auto-expiar<br/>solicitudes pendientes"))
         J1[Proceso diario con<br/>N días configurado<br/>para vencer]
         J2[Buscar pendientes con<br/>más de N días de<br/>antigüedad]
         J3{¿Hay solicitudes<br/>para expirar?}
@@ -437,53 +416,53 @@ graph TB
         J1 --> J2 --> J3
         J3 -->|Sí| J4 --> J5 --> J6 --> J7 --> J8
         J3 -->|No| J8
-        CU16 --> J9
+        CU15 --> J9
     end
-    SE["«actor» Sistema_Expiracion<br/>(Proceso automático)"] --> CU16
+    SE["«actor» Sistema_Expiracion<br/>(Proceso automático)"] --> CU15
 ```
 
 ---
 
-## CU-17 — Gestión de roles y permisos
+## CU-16 — Gestión de roles y permisos
 
 ```mermaid
 graph LR
     subgraph S["Sistema de Vacaciones"]
-        CU17(("CU-17: Control de<br/>acceso por rol"))
+        CU16(("CU-16: Control de<br/>acceso por rol"))
         R1["Roles:<br/>Empleado | Aprobador | RRHH"]
         R2["Cada operación verifica<br/>que el usuario tenga<br/>el permiso necesario"]
         R3["Si no está autenticado<br/>o no tiene permiso,<br/>se deniega el acceso"]
-        CU17 --> R1 --> R2 --> R3
+        CU16 --> R1 --> R2 --> R3
+    end
+    Sis["«actor» Sistema"] --> CU16
+```
+
+---
+
+## CU-17 — Auditoría y trazabilidad global
+
+```mermaid
+graph LR
+    subgraph S["Sistema de Vacaciones"]
+        CU17(("CU-17: Auditoría<br/>y trazabilidad"))
+        VRH["Historial de solicitudes:<br/>CREADA | ACTUALIZADA |<br/>CAMBIO DE ESTADO | CANCELADA"]
+        BH["Historial de saldo:<br/>ACUMULACIÓN |<br/>DESCUENTO POR APROBACIÓN |<br/>RESTAURACIÓN POR CANCELACIÓN"]
+        Q["RRHH y empleados<br/>pueden consultar<br/>el historial"]
+        CU17 --> VRH
+        CU17 --> BH
+        CU17 --> Q
     end
     Sis["«actor» Sistema"] --> CU17
 ```
 
 ---
 
-## CU-18 — Auditoría y trazabilidad global
-
-```mermaid
-graph LR
-    subgraph S["Sistema de Vacaciones"]
-        CU18(("CU-18: Auditoría<br/>y trazabilidad"))
-        VRH["Historial de solicitudes:<br/>CREADA | ACTUALIZADA |<br/>CAMBIO DE ESTADO | CANCELADA"]
-        BH["Historial de saldo:<br/>ACUMULACIÓN |<br/>DESCUENTO POR APROBACIÓN |<br/>RESTAURACIÓN POR CANCELACIÓN"]
-        Q["RRHH y empleados<br/>pueden consultar<br/>el historial"]
-        CU18 --> VRH
-        CU18 --> BH
-        CU18 --> Q
-    end
-    Sis["«actor» Sistema"] --> CU18
-```
-
----
-
-## CU-19 — Filtrado y consultas para RRHH
+## CU-18 — Filtrado y consultas para RRHH
 
 ```mermaid
 graph TB
     subgraph S["Sistema de Vacaciones"]
-        CU19(("CU-19: Consultas<br/>para RRHH"))
+        CU18(("CU-18: Consultas<br/>para RRHH"))
         V1{¿Usuario tiene<br/>permisos de RRHH?}
         V2[Denegar acceso]
         F1[Aplicar filtros:<br/>estado, empleado,<br/>rango de fechas]
@@ -492,30 +471,30 @@ graph TB
         F4{¿Sin resultados?}
         F5[Mostrar que no se<br/>encontraron solicitudes]
 
-        CU19 --> V1
+        CU18 --> V1
         V1 -->|No| V2
         V1 -->|Sí| F1 --> F2 --> F3
         F4 -->|Sí| F5
         F4 -->|No| F6[Mostrar resultados]
     end
-    RRHH["«actor» RRHH"] --> CU19
+    RRHH["«actor» RRHH"] --> CU18
 ```
 
 ---
 
-## CU-20 — Mensajes UX y manejo de errores
+## CU-19 — Mensajes UX y manejo de errores
 
 ```mermaid
 graph LR
     subgraph S["Sistema de Vacaciones"]
-        CU20(("CU-20: Mensajes y<br/>errores"))
+        CU19(("CU-19: Mensajes y<br/>errores"))
         M1["El sistema entrega<br/>mensajes claros cuando<br/>algo no es válido"]
         M2["La pantalla muestra<br/>el mensaje al usuario"]
         M3["Errores inesperados:<br/>mensaje genérico<br/>sin detalles técnicos"]
         M4["Confirmación antes de<br/>acciones importantes:<br/>ej. cancelar solicitud"]
-        CU20 --> M1 --> M2
-        CU20 --> M3
-        CU20 --> M4
+        CU19 --> M1 --> M2
+        CU19 --> M3
+        CU19 --> M4
     end
-    Sis["«actor» Sistema"] --> CU20
+    Sis["«actor» Sistema"] --> CU19
 ```
