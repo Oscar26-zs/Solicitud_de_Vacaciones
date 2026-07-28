@@ -34,8 +34,8 @@
 
 - Entity Framework Core
 - ASP.NET Core Identity
-- FluentValidation (validación de entrada)
-- Middleware de Rate Limiting nativo de .NET
+- FluentValidation (validación de entrada, ejecución explícita vía `ValidateAsync` — prohibido pipeline auto-validation)
+- Middleware de Rate Limiting nativo de .NET (límites por endpoint: auth 5/min, escritura moderado, lectura amplio)
 - `TimeProvider` (abstracción nativa de .NET)
 
 ### Puntos abiertos del contexto técnico
@@ -70,7 +70,7 @@
 | Diagramas como código Mermaid (sección 5) | PASS | Se crearán diagramas en `docs/diagrams/` |
 | Restricciones tecnológicas (sección 6) | PASS | ASP.NET Core MVC, EF Core, Identity, SQL Server/SQLite, FluentValidation |
 | Invariantes universales (sección 7) | PASS | Saldo no negativo, fecha inicio ≤ fin, sin fechas pasadas, estado inicial Pending, transiciones válidas, inmutabilidad de estados finales, prohibición de auto-aprobación, trazabilidad obligatoria, cálculo en servidor |
-| Seguridad (sección 8) | PASS | Roles por endpoint, ViewModels contra overposting, validación explícita FluentValidation, secretos fuera del repo, cabeceras de seguridad, rate limiting, casos de abuso documentados |
+| Seguridad (sección 8) | PASS | Roles por endpoint, ViewModels contra overposting, validación explícita FluentValidation vía `ValidateAsync` (no auto-validation pipeline), secretos fuera del repo, cabeceras de seguridad (CSP, HSTS, X-Content-Type-Options, X-Frame-Options), rate limiting por tipo de endpoint (auth 5/min, escritura moderado, lectura amplio), casos de abuso documentados |
 | Pirámide de pruebas (sección 9) | PASS | Unitarias (xUnit + Moq), Integración (xUnit + WebApplicationFactory), E2E (Playwright) |
 | Meta de cobertura ≥ 80% en Domain y Application (sección 9.2) | PASS | Se planifica cobertura |
 | Gate de CI obligatorio (sección 9.3) | PASS | Build, formato, analyzers, tests, cobertura, dependencias, diagramas |
@@ -80,7 +80,7 @@
 
 ### Resultado del Gate: **PASS**
 
-No se detectan violaciones. La Constitución y la Spec están alineadas. El punto abierto sobre carry-over (`spec.md` RN-24 vs `docs/Preguntas_Pendientes.md` D.3) requiere resolución pero no bloquea el plan.
+No se detectan violaciones. La Constitución y la Spec están alineadas. Existe una contradicción en carry-over (`spec.md` RN-24 dice carry-over ilimitado; `docs/Preguntas_Pendientes.md` D.3 registra decisión del PO: "Sin carry-over; caducan en aniversario"). La decisión del PO prevalece — requiere actualizar `spec.md` RN-24 para reflejarla.
 
 ---
 
@@ -407,7 +407,7 @@ No existen excepciones arquitectónicas. La Constitución y la Spec están aline
 
 | Riesgo | Impacto | Probabilidad | Mitigación |
 |---|---|---|---|
-| Contradicción carry-over (spec vs Preguntas_Pendientes) | Medio: afecta cálculo de saldo anual | Alta | Resolver con PO antes de implementar `SaldoEmpleado` |
+| Contradicción carry-over: `spec.md` RN-24 sin actualizar vs decisión PO en `Preguntas_Pendientes.md` D.3 ("Sin carry-over") | Medio: afecta cálculo de saldo anual | Alta | Actualizar `spec.md` RN-24 para reflejar la decisión del PO antes de implementar `SaldoEmpleado` |
 | Scaffold existente no cumple Clean Architecture | Medio: requiere refactorización de estructura | Alta | Migrar scaffold a `Vacations.Web` o crear desde cero. **NEEDS CLARIFICATION** |
 | Condiciones de carrera en aprobación/cancelación concurrente | Alto: saldo negativo o doble descuento | Media | `RowVersion` + manejo de `DbUpdateConcurrencyException` en cada handler de aprobación |
 | Cálculo de días hábiles sin feriados definidos | Medio: puede requerir cambios posteriores | Alta | Aislar lógica en método `CalcularDiasHabiles` con interfaz intercambiable |
@@ -453,7 +453,7 @@ Feature 005 (HR Monitoring Dashboard)
 | 4 | Volumen de usuarios concurrentes esperado | Configuración de Rate Limiting y pooling |
 | 5 | Estrategia de migración del scaffold existente | Estimación inicial del setup |
 | 6 | Valor numérico de `[N]` para auto-expiración (RN-26) | Configuración por defecto del BackgroundService |
-| 7 | **Contradicción carry-over:** `spec.md` RN-24 dice carry-over ilimitado; `docs/Preguntas_Pendientes.md` D.3 dice "Sin carry-over; caducan en aniversario" | Afecta lógica de `SaldoEmpleado` y acumulación anual |
+| 7 | **Contradicción carry-over resuelta por PO:** `docs/Preguntas_Pendientes.md` D.3 decide "Sin carry-over; caducan en aniversario". `spec.md` RN-24 aún no actualizado. | Afecta lógica de `SaldoEmpleado` y acumulación anual — requiere sync del spec |
 | 8 | Horizonte futuro máximo para solicitar (RN-31) | Validación de fechas |
 | 9 | Manejo de feriados en cálculo de días (RN-25) | Lógica de `CalcularDiasHabiles` |
 | 10 | Nombre técnico del "estado/bloqueo" mencionado por el PO en A.3 (saldo comprometido) | Modelo de datos |
