@@ -8,7 +8,7 @@
 
 ## Resumen
 
-Este feature cubre la gestión del ciclo de vida de empleados y sus saldos de días de vacaciones. Incluye la creación de empleados con saldo inicial en cero, acumulación automática de saldo (1 día por mes laborado completo), consulta de saldo disponible, y el cálculo de saldo consumido. El sistema soporta carry-over ilimitado entre períodos sin límite superior.
+Este feature cubre la gestión del ciclo de vida de empleados y sus saldos de días de vacaciones. Incluye acumulación automática de saldo (1 día por mes laborado completo), consulta de saldo disponible, y el cálculo de saldo consumido. El sistema soporta carry-over ilimitado entre períodos sin límite superior. La creación de empleados se realizará mediante seed inicial de datos (fuera del alcance del MVP).
 
 ---
 
@@ -16,7 +16,6 @@ Este feature cubre la gestión del ciclo de vida de empleados y sus saldos de d�
 
 ### Incluido
 
-- ✅ Crear empleados con saldo inicial = 0
 - ✅ Acumulación automática de saldo (1 día por mes completo laborado desde fecha de ingreso)
 - ✅ Consulta de saldo disponible (HU-04)
 - ✅ Cálculo de saldo consumido (sumatoria de APROBADAS + CANCELADAS incompletas)
@@ -26,6 +25,8 @@ Este feature cubre la gestión del ciclo de vida de empleados y sus saldos de d�
 
 ### Excluido (fuera de MVP)
 
+- ❌ Creación de empleados (se realizará mediante seed inicial de datos)
+- ❌ Creación de aprobadores (se realizará mediante seed inicial de datos)
 - ❌ Offboarding de empleados
 - ❌ Gestión de jefes directos o estructuras jerárquicas
 - ❌ Integración con nómina o sistemas externos
@@ -206,7 +207,7 @@ Ver [tasks.md](./tasks.md) para tareas prácticas.
 
 ## Criterios de Aceptación del Feature
 
-- ✅ Empleados creados con saldo = 0
+- ✅ Datos de empleados cargados mediante seed inicial (creación fuera del MVP)
 - ✅ Acumulación automática (+1 mes) funcionando mensualmente
 - ✅ HU-04 implementada (consulta de saldo)
 - ✅ Saldo consumido calculado correctamente

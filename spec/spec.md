@@ -62,6 +62,7 @@ Audiencia: Product Owner, analistas de negocio, RRHH, aprobadores y stakeholders
 - Acumulación de saldo: 1 día por mes completo laborado desde fecha de ingreso; carry-over ilimitado entre periodos (sin tope definido — **abierto**).
 - Cálculo de duración en **días calendario**, excluyendo **sábados y domingos** (feriados: **abierto**).
 - Un aprobador **no puede aprobar sus propias solicitudes**; un aprobador **inactivo** no puede aprobar.
+- **Creación de empleados y aprobadores**: Los empleados se crearán mediante un seed inicial de datos (fuera del alcance del MVP). Los aprobadores también se crearán por seed de datos.
 
 ## 4. Historias de usuario
 
@@ -138,7 +139,7 @@ HU-09: Filtrar solicitudes por estado, empleado o rango de fechas (RRHH)
 
 ## 5. Reglas de negocio (resumen y criterios de validación)
 
-- RN-01 Saldo anual disponible: Cada empleado **inicia con saldo 0** (cero) al crearse; el saldo se acumula a razón de **1 día por cada mes completo laborado** desde la fecha de ingreso. El valor "días por mes laborado" es configurable (por defecto 1 día/mes). **Se permite crear empleado sin saldo inicial** ya que debe laborar al menos 1 mes completo para ganar su primer día de saldo.
+- RN-01 Saldo anual disponible: Cada empleado de datos cargados mediante seed inicial (sin creación en el sistema). El saldo se acumula a razón de **1 día por cada mes completo laborado** desde la fecha de ingreso. El valor "días por mes laborado" es configurable (por defecto 1 día/mes). Los empleados inician con saldo 0 en el seed, el cual se acumula automáticamente tras cada mes laborado.
 - RN-02 No solicitar más días que los disponibles: El sistema impide crear solicitud que exceda saldo y muestra "Saldo insuficiente para esta solicitud".
 - RN-03 Descuento solo en aprobación: El saldo se actualiza únicamente cuando la solicitud pasa a "aprobada". Si una solicitud aprobada se cancela antes de que inicie el periodo, el saldo se restaura.
 - RN-04 Restaurar saldo al cancelar solicitud aprobada: Si se cancela una solicitud aprobada **antes de que inicie el periodo de vacaciones**, los días se reintegran al saldo. Solo un aprobador puede cancelar solicitudes aprobadas. No se puede cancelar una solicitud aprobada una vez que haya iniciado el periodo (fecha de inicio <= hoy).

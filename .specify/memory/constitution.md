@@ -1,169 +1,304 @@
-# Constitución: Sistema de Gestión de Solicitudes de Permisos/Vacaciones
+# Constitución Técnica — Sistema de Gestión de Solicitudes de Vacaciones
 
-## 1. Nombre y Propósito del Proyecto
-**Nombre del Proyecto:** Sistema de Gestión de Solicitudes de Permisos/Vacaciones
-**Propósito:** Un sistema centralizado para gestionar las solicitudes de permisos y vacaciones de los empleados dentro de una organización. Proporciona una forma confiable para que los empleados soliciten tiempo libre, los gerentes revisen esas solicitudes y RR.HH. controle los saldos y el historial.
+---
 
-## 2. Principios de Arquitectura
+## 1. Actores y Ámbito de Acceso
 
-- **Clean Architecture (Monolito Modular):** El sistema debe seguir Clean Architecture, organizado como un monolito modular. Las dependencias siempre deben apuntar hacia adentro: las capas externas (Infraestructura, Presentación) dependen de las capas internas (Aplicación, Dominio), nunca al revés.
+Esta sección define los roles del sistema y el alcance de sus permisos. Todo comportamiento del sistema DEBE respetar estos límites.
 
-- **Separación de Capas:** Deben mantenerse cuatro capas claramente definidas:
-  - **Dominio:** Entidades de negocio y reglas centrales, sin dependencias externas.
-  - **Aplicación:** Casos de uso que orquestan la lógica de dominio, definiendo interfaces para lo que necesita de infraestructura (ej. IRequestRepository).
-  - **Infraestructura:** Implementa esas interfaces (ej. acceso a base de datos mediante EF Core).
-  - **Presentación:** ASP.NET Core MVC + Razor Views. Los Controllers solo reciben la entrada, llaman a los casos de uso de Aplicación, y retornan las vistas — sin lógica de negocio aquí.
+| Actor | Ámbito de acceso |
+|-------|------------------|
+| **Empleado** | DEBE poder crear, consultar, editar y cancelar sus propias solicitudes en estado `Pending`. DEBE poder consultar su saldo e historial. NO DEBE poder ver solicitudes de otros empleados. |
+| **Aprobador** | DEBE poder ver todas las solicitudes `Pending` del sistema (rol plano, sin jerarquía). DEBE poder aprobar o rechazar cualquier solicitud salvo las propias. DEBE poder cancelar solicitudes `Approved` cuyo periodo aún no haya iniciado. NO DEBE poder auto-aprobarse. |
+| **RRHH** | DEBE tener acceso de solo lectura al historial y saldo de cualquier empleado. NO DEBE poder crear, editar, aprobar, rechazar ni cancelar solicitudes. |
 
-- **Independencia del Framework:** Las capas de Dominio y Aplicación no deben hacer referencia directa a ASP.NET Core, Entity Framework, ni a ningún otro framework, de modo que las reglas de negocio principales puedan probarse y analizarse independientemente de la tecnología web.
+Toda acción sobre el sistema DEBE validar el rol del actor autenticado antes de ejecutarse. Cualquier intento de acceso fuera del ámbito definido DEBE ser rechazado con HTTP 403 (Forbidden).
 
-- **Principios SOLID:** Todo el código, especialmente en las capas de Dominio y Aplicación, debe seguir SOLID (Responsabilidad Única, Abierto/Cerrado, Sustitución de Liskov, Segregación de Interfaces, Inversión de Dependencias). La Inversión de Dependencias se aplica mediante la Inyección de Dependencias nativa de ASP.NET Core.
+---
 
-- **Justificación:** Esto asegura que las reglas de negocio (Sección 4) permanezcan protegidas, comprobables y fáciles de mantener, y que cualquier desarrollador o generación de código asistida por IA coloque el nuevo código en la capa correcta.
-- 
-## 3. Actores y Roles del Sistema
+## 2. Estados y Transiciones
 
-El sistema opera con 3 actores distintos, cada uno con permisos de acceso claramente delimitados:
+El ciclo de vida de una solicitud DEBE ajustarse al siguiente modelo de estados. Los estados terminales son inmutables una vez alcanzados.
 
-- **Empleado:** Solicita permisos (especificando fechas, tipo y motivo) y consulta el estado y el historial de sus propias solicitudes. No tiene acceso a las solicitudes de otros empleados.
+```mermaid
+stateDiagram-v2
+    [*] --> Pending : Empleado crea solicitud
+    Pending --> Approved : Aprobador (≠ autor)
+    Pending --> Rejected : Aprobador (≠ autor)
+    Pending --> Cancelled : Empleado (autor)
+    Pending --> Expired : Sistema (auto-expiracion)
+    Approved --> Cancelled : Aprobador (si fecha inicio > hoy)
+```
 
-- **Gerente Directo:** Revisa, aprueba o rechaza las solicitudes enviadas únicamente por los miembros de su propio equipo (relación jerárquica empleado-gerente). No puede aprobar ni ver solicitudes de equipos que no le pertenecen.
+### Reglas de transición
 
-- **RR.HH. (Recursos Humanos):** Tiene acceso de **solo lectura** al historial completo de solicitudes de todos los empleados y a los saldos de días disponibles. No participa en el flujo de aprobación/rechazo.
+| Transición | Actor válido | ¿Inmutable después? |
+|------------|-------------|---------------------|
+| `Pending → Approved` | Aprobador activo (≠ autor) | Sí |
+| `Pending → Rejected` | Aprobador activo (≠ autor) | Sí |
+| `Pending → Cancelled` | Empleado (autor) | Sí |
+| `Pending → Expired` | Sistema | Sí |
+| `Approved → Cancelled` | Aprobador activo | Sí |
 
-**Nota:** Un mismo usuario puede tener más de un rol simultáneamente (por ejemplo, un Gerente Directo también es Empleado y puede solicitar sus propios permisos, los cuales serán aprobados por su propio superior).
+### Estados finales (inmutables)
 
-## 4. Reglas de Negocio No Negociables
+Una vez que una solicitud alcanza `Approved`, `Rejected`, `Cancelled` o `Expired`, su estado NO DEBE cambiar bajo ninguna circunstancia, excepto la transición `Approved → Cancelled` documentada.
 
-- **Una Solicitud Pendiente a la Vez:** Un empleado no puede tener más de una solicitud en estado Pendiente simultáneamente. Para solicitar otras fechas, debe primero cancelar su solicitud pendiente actual.
+---
 
-- **Límites de Días:** Un empleado no puede solicitar más días de los que tiene disponibles en su saldo acumulado. Esta validación de saldo aplica a todos los tipos de permiso, **excepto al tipo Médico**, el cual no requiere saldo disponible para ser solicitado.
+## 3. Principios de Arquitectura
 
-- **Validación de Fechas:**
-  - No se permiten solicitudes para fechas pasadas.
-  - Las fechas de la solicitud deben ser válidas (fecha de inicio anterior o igual a la fecha de fin).
+El sistema DEBE seguir los principios de Clean Architecture y SOLID.
 
-- **Flujo de Aprobación:** Toda solicitud debe pasar por un flujo de aprobación explícito (Gerente Directo) antes de afectar oficialmente el saldo final del empleado, según corresponda a su tipo.
+1. **Clean Architecture**: La capa de dominio NO DEBE tener dependencias de infraestructura, frameworks ni bases de datos. Las reglas de negocio DEBEN residir en el centro de la arquitectura.
+2. **SOLID**: Cada clase DEBE tener una única responsabilidad. Las dependencias DEBEN invertirse: las capas externas DEBEN depender de abstracciones definidas en capas internas.
+3. **Independencia de framework**: El dominio NO DEBE contener referencias a ASP.NET Core, Entity Framework ni ningún otro framework. Las dependencias externas DEBEN inyectarse en los bordes.
+4. **Controladores delgados**: Los controladores MVC DEBEN limitarse a orquestar la interacción HTTP. NO DEBEN contener lógica de negocio ni de dominio. Toda lógica DEBE delegarse a servicios de aplicación o de dominio.
+5. **Validación en el servidor**: Toda validación de negocio DEBE ejecutarse en el servidor. Las validaciones del cliente son solo para experiencia de usuario y NUNCA DEBEN considerarse como seguridad.
+6. **Separación de tipos de validación**:
+    - **Validación de entrada** (formato, campos requeridos, longitud, estructura de ViewModels/Commands/DTOs): se implementa con FluentValidation en la capa de Aplicación o Presentación. Es una validación sintáctica y de contrato, no de negocio.
+    - **Regla de negocio** (saldo disponible, solape de fechas, transiciones de estado, autoridad del actor para aprobar/rechazar, políticas de fecha, restauración de saldo, etc.): DEBE implementarse en el Dominio. NUNCA DEBE delegarse a FluentValidation ni a ninguna librería de validación de entrada.
 
-- **Prohibición de Auto-Aprobación (Separación de Intereses):** Ningún usuario puede aprobar ni rechazar su propia solicitud. Si un Gerente Directo solicita un permiso (actuando como Empleado), esta solicitud queda bloqueada para él mismo y solo puede ser gestionada (aprobada/rechazada) por su superior jerárquico.
+---
 
-- **Impacto en el Saldo según Estado y Tipo:**
-  - Una solicitud **Aprobada** de tipo distinto a Médico descuenta los días del saldo definitivo del empleado.
-  - Una solicitud **Aprobada** de tipo **Médico** no descuenta días del saldo, independientemente de su duración.
-  - Una solicitud **Rechazada**, de cualquier tipo, no afecta el saldo.
+## 4. Convenciones de Nomenclatura
 
-- **Cancelación:** Un empleado puede cancelar su propia solicitud únicamente mientras se encuentre en estado **Pendiente**. Una vez aprobada o rechazada, la solicitud no puede cancelarse.
+1. **Archivos de dominio (`Domain/`)**: En español, PascalCase. Ej.: `SolicitudVacaciones`, `SaldoEmpleado`.
+2. **Archivos de aplicación (`Application/`)**: En español, PascalCase. Ej.: `CrearSolicitudHandler`, `AprobarSolicitudCommand`.
+3. **Archivos de infraestructura (`Infrastructure/`)**: En español, PascalCase. Ej.: `VacationRequestRepository`.
+4. **Controladores (`Controllers/`)**: En español, sufijo `Controller`. Ej.: `SolicitudVacacionesController`.
+5. **Vistas (`Views/`)**: En español, coincidiendo con el nombre del controlador. Ej.: `Views/SolicitudVacaciones/`.
+6. **Propiedades y métodos**: En español, PascalCase para públicos, `_camelCase` para privados.
+7. **Parámetros y variables locales**: `camelCase` en español.
+8. **Base de datos**: Tablas en español, PascalCase, singular. Columnas en español, PascalCase. Ej.: `SolicitudVacaciones.FechaInicio`.
+9. **Rutas y endpoints**: En español, kebab-case. Ej.: `/solicitudes-vacaciones/pendientes`.
+10. **Mensajes de validación y UI**: En español, con el texto exacto definido en las especificaciones.
 
-## 5. Estados y Transiciones Válidas
+---
 
-- **Estados posibles:** `Pendiente`, `Aprobada`, `Rechazada`, `Cancelada`.
+## 5. Diagramas como Código (Mermaid.js)
 
-- **Ciclo de Vida de la Solicitud:**
-  - `Pendiente` → `Aprobada` (acción exclusiva del Gerente Directo).
-  - `Pendiente` → `Rechazada` (acción exclusiva del Gerente Directo).
-  - `Pendiente` → `Cancelada` (acción exclusiva del Empleado dueño de la solicitud).
+Todo diagrama de estado, flujo o componente DEBE mantenerse como código Mermaid.js incrustado en Markdown. Los diagramas DEBENVersionarse junto con el código y actualizarse cuando cambie la lógica que representan.
 
-- **Diagrama de transición:**
-[Pendiente] --Aprobar (Gerente)--> [Aprobada]
-[Pendiente] --Rechazar (Gerente)--> [Rechazada]
-[Pendiente] --Cancelar (Empleado)--> [Cancelada]
+El repositorio DEBE contener al menos los siguientes diagramas:
 
-- **Inmutabilidad Tras la Resolución:** Una vez que una solicitud transiciona a `Aprobada`, `Rechazada` o `Cancelada`, es un estado final: no puede volver a `Pendiente` ni cambiar a ningún otro estado. La resolución es definitiva.
+1. **Diagrama de máquina de estados** de la solicitud (incluido en la Sección 2 de esta constitución).
+2. **Diagrama de casos de uso** (en `docs/use-case-diagrams.md`) que cubra los 19 casos de uso (CU-01 a CU-19).
+3. **Diagrama de flujo de aprobación** que muestre las validaciones, descuento de saldo y registro de auditoría.
 
-- **RR.HH.:** No puede ejecutar ninguna transición de estado (ver Sección 3) — su rol es exclusivamente de consulta.
+Estos diagramas DEBEN validarse en CI para detectar cambios no reflejados (ver Sección 10).
 
-## 6. Estándares de Calidad y Pruebas
+---
 
-- **Estrategia por Capas (Clean Architecture):**
+## 6. Restricciones Tecnológicas
 
-  - **Dominio:** Las pruebas unitarias deben validar el estado interno, invariantes (ej. fechas pasadas) y cálculos sin usar dependencias externas ni mocks (solo lógica pura).
-  - **Aplicación (Casos de Uso):** Se deben probar los flujos, orquestación y validación de permisos (ej. que un empleado no apruebe su solicitud), haciendo mock de las interfaces de infraestructura (ej. repositorios).
-  - **Infraestructura:** Pruebas de integración puntuales para validar queries de base de datos (Entity Framework Core) y el sistema de traza/auditoría.
+1. **Framework**: ASP.NET Core MVC (versión LTS vigente). NO DEBEN usarse frameworks SPA (React, Angular, Vue) sin un ADR (Architecture Decision Record) aprobado.
+2. **ORM**: Entity Framework Core.
+3. **Base de datos**: SQL Server (o SQLite para desarrollo/pruebas).
+4. **Autenticación**: ASP.NET Core Identity Framework.
+5. **Dependencias de terceros aprobadas y restricción general**:
+    - **FluentValidation**: queda APROBADO como dependencia estándar del proyecto para validación de entrada (formato, campos requeridos, longitud, estructura de ViewModels/DTOs). NO reemplaza las reglas de negocio del dominio (ver Sección 3.6).
+    - Cualquier otra librería externa distinta a FluentValidation (ej. AutoMapper, Newtonsoft.Json, etc.) sigue requiriendo justificación documentada y aprobación del equipo antes de agregarse.
+6. **Lenguaje**: C# para backend. HTML + Razor + CSS vanilla + JavaScript vanilla para frontend MVP.
+7. **Zona horaria**: Zona horaria corporativa única. No se soportan zonas horarias múltiples.
 
-- **Cobertura de Reglas Críticas:** Es obligatorio contar con pruebas unitarias para escenarios de las Reglas No Negociables (Sección 4), como: validaciones de saldo, la regla del permiso médico que no descuenta días, la restricción de una sola solicitud pendiente a la vez, y la estricta máquina de estados.
+---
 
-- **Abstracción del Tiempo:** Dado que hay reglas complejas sobre fechas (no permitir fechas pasadas), está prohibido usar `DateTime.Now` o `DateTime.UtcNow` de forma directa en el código de Dominio/Aplicación. Se debe inyectar una abstracción (ej. `TimeProvider` en .NET 8) que permita fijar el tiempo en las pruebas.
+## 7. Invariantes Universales
 
-- **Controladores Delgados (Thin Controllers):** En ASP.NET Core MVC, los controladores no pueden contener lógica de negocio ni acceso directo a datos; su única responsabilidad es recibir peticiones HTTP, delegar a la capa de Aplicación y devolver vistas Razor.
+Los siguientes invariantes SON independientes de cualquier política de negocio. DEBEN cumplirse siempre, en todo entorno y para toda solicitud, sin excepción.
 
-## 7. Estándares de Seguridad y Permisos
+1. **Saldo aplicable no negativo**: El saldo disponible de un empleado NUNCA DEBE ser negativo. El sistema DEBE bloquear cualquier operación que produzca un saldo negativo.
+2. **Fecha de inicio ≤ fecha de fin**: La fecha de inicio DEBE ser anterior o igual a la fecha de fin.
+3. **Sin fechas pasadas en flujo normal**: Una solicitud nueva NO DEBE tener fecha de inicio en el pasado.
+4. **Estado inicial**: Toda solicitud nueva DEBE crearse en estado `Pending`.
+5. **Transiciones válidas**: Solo se DEBEN permitir las transiciones listadas en la Sección 2. Cualquier otra transición DEBE ser rechazada.
+6. **Estados finales inmutables**: Una vez alcanzado un estado final (`Approved`, `Rejected`, `Cancelled`, `Expired`), el estado NO DEBE cambiar salvo la excepción documentada `Approved → Cancelled`.
+7. **Prohibición de auto-aprobación**: Un aprobador NO DEBE poder aprobar ni rechazar su propia solicitud.
+8. **Trazabilidad obligatoria**: Toda transición de estado DEBE generar un registro de auditoría inmodificable con actor, timestamp y tipo de evento.
+9. **Cálculo de días en servidor**: El número de días solicitados DEBE calcularse siempre en el servidor. El sistema NUNCA DEBE confiar en un valor calculado por el cliente.
 
-- **Políticas de Autorización (Policy-Based Authorization):** En ASP.NET Core se usarán Políticas (`[Authorize(Policy = "...")]`) en lugar de roles estáticos quemados en código, manteniendo gran flexibilidad para segmentar permisos (Empleado, Gerente, RR.HH.).
+> **Políticas específicas**: Las políticas de negocio volátiles (tipos de permiso, reglas de saldo, excepciones médicas/legales, límite de solicitudes pendientes, medios días, acumulación y caducidad de saldo, delegación, correcciones retroactivas, etc.) se definen exclusivamente en las especificaciones de feature (`spec/`) correspondientes. La constitución, el código y cualquier herramienta de generación asistida por IA NO DEBEN asumir una respuesta para esas políticas si no existe una spec aprobada que las defina.
 
-- **Autorización Basada en Recursos (Resource-based Authorization):** Para garantizar el aislamiento de datos (ej. un Gerente solo aprueba a los empleados de su propio equipo, el empleado solo ve sus propias solicitudes), la seguridad verificará en la capa de aplicación el ID del usuario logueado contra el propietario de los datos solicitados.
+---
 
-- **Uso de Reclamaciones (Claims):** La identidad del usuario (ID de Empleado, ID de su Jefe Directo, y su Rol) debe almacenarse en los `Claims` de la cookie de autenticación durante el login, para evitar consultas repetitivas a la base de datos por cada petición HTTP.
+## 8. Seguridad
 
-- **Protección Anti-CSRF:** Todas las mutaciones de estado que se realicen a través de POST en las vistas Razor (crear solicitud, cancelar, aprobar, rechazar) deben incluir obligatoriamente el atributo `[ValidateAntiForgeryToken]` en el controlador y el tag helper correspondiente en el formulario.
+El sistema DEBE cumplir con las siguientes categorías priorizadas de OWASP Top 10 y las prácticas de seguridad detalladas.
 
-- **Prevención de Abuso (Rate Limiting):** Se debe configurar el middleware nativo de Rate Limiting de .NET para rutas críticas (como el Login o el envío de nuevas solicitudes), con el fin de mitigar ataques de fuerza bruta o de denegación de servicio (DoS) por parte de bots.
+### 8.1 Categorías OWASP priorizadas
 
-- **Protección OWASP (Prevención de XSS):** El sistema debe prevenir estrictamente la inyección de scripts maliciosos (Cross-Site Scripting). Se validarán y sanitizarán todas las entradas del usuario (ej. comentarios o motivos de las solicitudes) rechazando cualquier input de texto que contenga etiquetas HTML o scripts no permitidos antes de tocar la base de datos.
+| Categoría | Prácticas exigidas |
+|-----------|-------------------|
+| **A01 — Control de Acceso Roto** | Validación de roles en cada endpoint. Prohibición de auto-aprobación. Acceso a datos propios vs. ajenos verificado con el ID del usuario autenticado. |
+| **A06 — Diseño Inseguro** | Toda validación de negocio DEBE ocurrir en el servidor. No DEBE confiarse en validación de cliente para seguridad. |
+| **A09 — Fallas de Registro y Alertas de Seguridad** | Toda transición de estado, intento de acceso denegado y operación sobre saldo DEBE registrarse con auditoría inmutable. |
 
-## 8. Estándares de Datos y Persistencia
+### 8.2 Configuración de cookies de sesión (ASP.NET Core Identity)
 
-- **Sin Eliminación Física (Soft Delete):** Está terminantemente prohibido hacer `DELETE` físico de la tabla de solicitudes. Se aplicará un patrón de *eliminación lógica* (ej. propiedad `IsDeleted = true`) respaldado por un **Global Query Filter** en Entity Framework Core para ocultarlos automáticamente de las consultas.
+1. **HttpOnly**: `true` — la cookie NO DEBE ser accesible desde JavaScript.
+2. **Secure**: `true` — la cookie SOLO DEBE enviarse por HTTPS.
+3. **SameSite**: `Strict` o `Lax` según el contexto.
+4. **Expiración/renovación**: La sesión DEBE expirar tras un periodo configurable de inactividad. El sistema DEBE renovar la cookie automáticamente mientras el usuario esté activo.
 
-- **Auditoría Automática (EF Core Interceptors):** El registro de auditoría no debe dejarse a la memoria del programador. Se debe implementar sobreescribiendo el método `SaveChangesAsync` en EF Core para registrar automáticamente el usuario (vía *Claims*) y un sello de tiempo exacto (*TimeProvider*).
+### 8.3 Protección contra overposting
 
-- **Control de Concurrencia Optimista:** Para evitar condiciones de carrera (ej. un Empleado intentando cancelar exactamente cuando su Gerente aprueba), la base de datos usará tokens de concurrencia (`RowVersion` o similar) para atrapar y controlar el conflicto sin corrupción de estados.
+Toda acción de escritura (crear, editar) DEBE usar ViewModels dedicados (`*ViewModel` o `*Dto`) en lugar de exponer la entidad del dominio directamente. El enlace de modelos DEBE limitarse a las propiedades permitidas explícitamente mediante `[Bind]` o su equivalente.
 
-## 9. Restricciones Tecnológicas
+### 8.3.1 Ejecución de validadores FluentValidation
 
-- **Core Framework:** ASP.NET Core MVC puro. Queda **estrictamente prohibido** agregar frameworks SPA de JS (React, Angular, Vue) para mantener las vistas simples (Razor) y la infraestructura ligera.
+Los validadores de FluentValidation DEBEN resolverse vía inyección de dependencias (DI) y ejecutarse explícitamente mediante `ValidateAsync` desde el caso de uso de Aplicación o desde un filtro de acción propio del proyecto. NO DEBE utilizarse el pipeline de auto-validación de MVC (`AddFluentValidationAutoValidation`) ni la integración de cliente `FluentValidation.AspNetCore` (deprecada en versiones recientes). La ejecución explícita garantiza que la validación de entrada ocurra en el punto correcto del flujo y no interfiera con la validación de negocio del Dominio.
 
-- **ORM:** Se empleará el estándar de Microsoft, Entity Framework Core.
+### 8.4 Gestión de secretos
 
-- **Baja Fricción:** Está prohibida la dependencia en servicios de terceros (Redis, RabbitMQ, o APIs externas). El sistema debe poder correrse localmente al 100% usando solo SQL Server LocalDB o SQLite.
+Los secretos (connection strings, claves de cifrado, cadenas de Identity) NO DEBEN almacenarse en el repositorio. DEBEN gestionarse mediante Secret Manager en desarrollo y variables de entorno/Key Vault/Azure App Configuration en producción.
 
-## 10. Convenciones de Código y Nomenclatura (Naming Conventions)
+### 8.5 Cabeceras de seguridad en producción
 
-Para mantener un código predecible y uniforme, se aplicarán estrictamente los estándares de la comunidad de C#/.NET y los sufijos de Clean Architecture:
+La aplicación DEBE incluir las siguientes cabeceras HTTP en todas las respuestas de producción:
 
-- **Capitalización Básica:** `PascalCase` para Nombres de Clases, Métricas, Propiedades y Métodos. `camelCase` para variables locales y parámetros.
+- **Content-Security-Policy (CSP)**: Restringir orígenes de scripts, estilos y fuentes.
+- **Strict-Transport-Security (HSTS)**: Forzar HTTPS con `max-age` ≥ 1 año.
+- **X-Content-Type-Options**: `nosniff`.
+- **X-Frame-Options**: `DENY` (o `SAMEORIGIN` si se requiere iframe).
 
-- **Interfaces:** Toda interfaz debe estar precedida por la letra mayúscula **I** (ej. `ILeaveRequestRepository`, `ITimeProvider`).
+### 8.6 Rate limiting
 
-- **Sufijos Arquitectónicos Obligatorios:** 
+El sistema DEBE implementar rate limiting proporcional al riesgo de cada endpoint. Como mínimo:
+- **Endpoints de autenticación** (login): límite estricto (ej. 5 intentos/minuto por IP/usuario).
+- **Endpoints de escritura** (crear/editar solicitudes): límite moderado.
+- **Endpoints de lectura**: límite amplio.
 
-  - **Dominio:** Entidades sin sufijo (ej. `LeaveRequest`, `Employee`). Las excepciones personalizadas usarán el sufijo `Exception` (ej. `InsufficientBalanceException`).
-  - **Aplicación (Casos de Uso):** Dependiendo del patrón (Ej. CQRS clásico o Servicios), deben terminar en `Service`, `UseCase`, `Command` o `Query`. (ej. `ApproveLeaveRequestCommandHandler`).
-  - **Presentación:** Modelos de vista terminarán en `ViewModel` (ej. `LeaveRequestDetailViewModel`). Los controladores terminan obligatoriamente en `Controller`.
-  - **Infraestructura:** Clases que implementan persistencia terminarán en `Repository` o `DbContext` (ej. `SqlLeaveRequestRepository`).
+### 8.7 Casos de abuso — pruebas obligatorias
 
-- **Idioma del Código:** Aunque los requerimientos estén en español, **todo el código fuente (clases, variables, métodos) debe ser escrito en Inglés** para garantizar uniformidad e internacionalidad, salvo el texto mostrado en la Interfaz (UI).
+Los siguientes escenarios DEBEN probarse explícitamente (como pruebas de seguridad) antes de cada release:
 
-## 11. Diagramas y Especificaciones Visuales (Docs as Code)
+| Caso de abuso | Descripción |
+|---------------|-------------|
+| Acceso cruzado entre empleados | Empleado A intenta ver/editar solicitudes del Empleado B |
+| IDOR | Modificar parámetros de ruta/query para acceder a recursos ajenos |
+| Forced browsing | Acceder a rutas de aprobador siendo empleado (o viceversa) |
+| Escalación de privilegios | Usuario sin rol intenta ejecutar acciones de aprobador |
+| Auto-aprobación | Aprobador intenta aprobar su propia solicitud |
+| Fallos de CSRF | Enviar solicitudes POST sin token anti-forgery válido |
+| Transiciones duplicadas | Enviar la misma solicitud de aprobación/rechazo múltiples veces |
+| Envíos duplicados | Crear la misma solicitud múltiples veces por concurrencia |
 
-Para garantizar que la documentación de arquitectura nunca quede obsoleta o "huérfana" en el disco de algún desarrollador, se aplicará el paradigma de **Diagramas como Código**.
+---
 
-- **Prohibición de Imágenes Estáticas:** Queda estrictamente prohibido el uso de imágenes estáticas (PNG, JPG o PDFs) generadas por herramientas de dibujo externas (como Visio, Lucidchart o Draw.io) para documentar flujos. Todo el esquema visual debe ser generado escribiendo texto plano usando la sintaxis de **Mermaid.js** dentro de bloques de código en archivos Markdown.
+## 9. Pruebas y CI
 
-- **Ubicación Centralizada y Trazabilidad:** Todo archivo con diagramas vivirá en la carpeta designada de documentación física (ej. `/docs/diagrams`). Al guardar los diagramas en puro texto junto con el código fuente en Git, cualquier modificación arroja un histórico rastreable (`git diff`). En un Pull Request, el equipo podrá comparar qué línea del diagrama de negocio cambió, y el sistema (GitHub/GitLab/DevOps) lo dibujará automáticamente en la interfaz web.
+### 9.1 Pirámide de pruebas
 
-- **Diagramas Obligatorios Mínimos:**
+El sistema DEBE seguir la pirámide de pruebas clásica:
 
-  1. **Casos de Uso (Use Cases):** Representación de "Quién hace Qué". Delimita los flujos entre los 3 Actores:
-     - *Empleado:* `Solicitar Permiso`, `Cancelar Permiso`, `Consultar Balance/Historial`.
-     - *Gerente Directo:* `Ver Bandeja de Equipo`, `Aprobar Permiso`, `Rechazar Permiso`.
-     - *RR.HH.:* `Auditar Historial General`, `Reporte de Saldos`.
+| Nivel | Tecnología | Cobertura esperada |
+|-------|-----------|-------------------|
+| **Unitarias** | xUnit + Moq / NSubstitute | Reglas de dominio, servicios de aplicación, validadores. Sin dependencias externas. |
+| **Integración** | xUnit + WebApplicationFactory | Repositorios contra BD real (SQLite o SQL Server), controladores, middleware, pipeline completo de una solicitud. |
+| **End-to-End (E2E)** | Playwright | Flujos críticos: crear solicitud, aprobar, rechazar, cancelar. Cubren HU-01 a HU-09. |
 
-  2. **Máquina de Estados (State Diagram):** Representación inquebrantable de los estados y transiciones de la Sección 5 (Pendiente -> Aprobada/Rechazada/Cancelada), demostrando visualmente cuáles son "estados finales" inmutables.
+### 9.2 Meta de cobertura
 
-  3. **Flujo de Ejecución / Secuencia (Sequence Diagram):** Representación técnica que muestre la orquestación de CQRS en la Capa de Aplicación (Cómo entra un Command desde el MVC Controller, pasa por Validaciones, el Value Object valida fechas y la base de datos lo guarda con el Soft Delete y el Audit Interceptor).
+- **Cobertura mínima**: 80 % en las capas de Dominio (`Domain/`) y Aplicación (`Application/`).
+- Esta meta NO reemplaza la obligación de probar cada invariante universal (Sección 7) y cada criterio de aceptación de las especificaciones.
+- La cobertura en Infraestructura y Presentación es deseable pero no tiene un mínimo exigido.
 
+### 9.3 Gate de CI obligatorio
 
-## 12. Gobernanza y Evolución del Sistema
+Antes de fusionar cualquier rama a `main`, el pipeline de CI DEBE ejecutar y pasar todos los siguientes gates. Si alguno falla, la fusión DEBE bloquearse.
 
-- **La Constitución es la Ley Máxima:** Este documento tiene prioridad sobre cualquier otro artefacto del proyecto (spec, plan, código). Ante cualquier conflicto, prevalece lo definido aquí.
+| Gate | Herramienta |
+|------|------------|
+| Build | `dotnet build` sin errores ni warnings |
+| Formato | `dotnet format --verify-no-changes` |
+| Analizadores estáticos | .NET Roslyn analyzers + SonarCloud (si disponible) |
+| Pruebas | `dotnet test` — todas las pruebas DEBEN pasar |
+| Cobertura | `dotnet test --collect:"XPlat Code Coverage"` — mínimo 80 % en Dominio/Aplicación |
+| Escaneo de dependencias | `dotnet list package --vulnerable` — cero vulnerabilidades conocidas |
+| Validación de diagramas | Verificar que los archivos `.md` con diagramas Mermaid no tengan cambios no reflejados respecto a `main` |
 
-- **Rechazo Automático de Violaciones Arquitectónicas:** Cualquier intento de romper las reglas de Clean Architecture será rechazado inmediatamente, por ejemplo:
-  
-  - Un Controller de MVC llamando directamente a Entity Framework (en lugar de pasar por la capa de Aplicación).
-  - Lógica de negocio implementada dentro de una Vista Razor (.cshtml).
-  - La capa de Dominio referenciando directamente a la capa de Infraestructura.
+---
 
-- **Proceso de Cambio:** Las reglas de negocio o restricciones core (Secciones 2 a 9) solo pueden modificarse si el cambio se revisa, se justifica y se aprueba primero, antes de reflejarse en el spec, el plan o el código.
+## 10. Rendimiento y Operación
 
-- **Extensión vs. Violación:** Agregar nuevas reglas (extender la constitution) es válido y bienvenido conforme el proyecto evoluciona, pero sigue el mismo proceso de revisión que modificar una regla existente — ninguna regla se cambia "sobre la marcha" durante el desarrollo.
+### 10.1 Objetivos de rendimiento
 
-- **Control de Versiones:** Cada cambio a este documento debe quedar registrado con número de versión, fecha y motivo del cambio, para mantener trazabilidad de cómo evolucionaron las reglas del proyecto.
+| Operación | Percentil 95 (p95) |
+|-----------|-------------------|
+| Consulta de saldo individual | ≤ 300 ms |
+| Creación de solicitud | ≤ 1 s |
+| Aprobación/rechazo | ≤ 1 s |
+| Listado de solicitudes (paginado) | ≤ 2 s |
+| Páginas MVC estándar | ≤ 500 ms |
+
+### 10.2 Disponibilidad
+
+- **Objetivo de disponibilidad**: 99.5 % (excluyendo ventanas de mantenimiento programado).
+- **RTO (Recovery Time Objective)**: ≤ 4 horas.
+- **RPO (Recovery Point Objective)**: ≤ 15 minutos.
+
+### 10.3 Respaldo y recuperación
+
+- La base de datos DEBE respaldarse automáticamente al menos una vez al día.
+- Los respaldos DEBEN almacenarse en una ubicación distinta al servidor de producción.
+- Se DEBE ejecutar una prueba de recuperación al menos una vez por trimestre.
+
+---
+
+## 11. Clasificación y Retención de Datos
+
+### 11.1 Niveles de clasificación
+
+| Nivel | Descripción | Ejemplos |
+|-------|-------------|----------|
+| **Público** | Información sin restricción | Nombres de roles, descripción del sistema |
+| **Interno** | Uso dentro de la organización | Identificadores de solicitud, fechas |
+| **Sensible / PII** | Datos personales o sensibles | Motivo de la solicitud, saldo de empleados |
+| **Regulado** | Sujeto a normativa específica | Historial de auditoría (posible sujeción a legislación laboral) |
+
+### 11.2 Período de retención por defecto
+
+- Los registros de solicitudes y auditoría DEBEN conservarse durante el período que exija la legislación laboral aplicable (por defecto, 5 años desde la finalización del evento).
+- Pasado ese período, los datos DEBEN anonimizarse o eliminarse según la política de la empresa.
+
+### 11.3 Datos sensibles
+
+El motivo de la solicitud (campo `Motivo`) PUEDE contener información médica del empleado. Este dato:
+- DEBE clasificarse como **Sensible/PII**.
+- DEBE ser visible solo para el empleado dueño de la solicitud, el aprobador autorizado que la resuelve y los usuarios de RRHH.
+- NO DEBE exponerse en listados públicos y DEBE tratarse con el mismo nivel de protección que datos personales sensibles.
+
+---
+
+## 12. Gobernanza de Cambios
+
+### 12.1 Proceso de enmienda
+
+Todo cambio a las reglas definidas en esta constitución DEBE seguir el siguiente proceso:
+
+1. **Propuesta**: Redactar el cambio propuesto con justificación.
+2. **Revisión**: El cambio DEBE ser revisado por al menos un miembro del equipo de desarrollo y un representante del negocio (PO o líder funcional).
+3. **Aprobación**: El cambio DEBE ser aprobado por el equipo antes de reflejarse en especificaciones, plan de trabajo o código.
+4. **Actualización**: Una vez aprobado, la constitución DEBE actualizarse y su versión incrementarse. Todas las specs y planes afectados DEBEN sincronizarse.
+
+### 12.2 Versionado
+
+| Cambio | Tipo | Ejemplo |
+|--------|------|---------|
+| Adición, modificación o eliminación de un invariante universal | **MAJOR** | Cambiar la regla de inmutabilidad de estados finales |
+| Adición de una nueva sección de gobernanza o seguridad | **MINOR** | Añadir rate limiting como requisito |
+| Corrección de redacción, errores tipográficos o aclaraciones sin cambio de regla | **PATCH** | Corregir una referencia a una sección |
+
+### 12.3 Excepciones
+
+Toda excepción a una regla de esta constitución DEBE documentarse explícitamente en el pull request que la introduce. La documentación DEBE incluir:
+
+- Regla afectada (sección y enunciado).
+- Razón de la excepción.
+- Riesgo identificado.
+- Mitigación aplicada.
+- Responsable de la decisión.
+- Fecha de expiración de la excepción (si aplica).
+
+Queda prohibida cualquier desviación silenciosa de las reglas de esta constitución.
