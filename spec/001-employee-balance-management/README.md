@@ -92,7 +92,7 @@ Especificar el sistema de acumulación y gestión de saldos de días de vacacion
 **Sección 5: Modelo de Datos**
 - Employee
 - EmployeeBalance
-- BalanceHistory
+- BalanceHistory 🔶 Fuera de alcance MVP (futura fase)
 
 **Sección 6: Validaciones**
 - Tabla de validaciones

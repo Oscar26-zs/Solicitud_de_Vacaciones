@@ -6,7 +6,7 @@
 
 ## 1. Resumen
 
-**Objetivo principal:** Proveer un sistema web para gestionar el ciclo completo de solicitudes de **vacaciones** (único tipo de permiso en el MVP): creación por el empleado con validación de saldo y fechas, revisión y decisión por un **Aprobador** (rol plano, sin jerarquía), consulta de solo lectura por RRHH, auto-expiración de solicitudes `Pending` no resueltas tras `[N]` días, y cancelación de solicitudes `Approved` antes del inicio del periodo (con restauración de saldo).
+**Objetivo principal:** Proveer un sistema web para gestionar el ciclo completo de solicitudes de **vacaciones** (único tipo de permiso en el MVP): creación por el empleado con validación de saldo y fechas, revisión y decisión por un **Aprobador** (rol plano, sin jerarquía), consulta de solo lectura por RRHH, auto-expiración de solicitudes `Pending` al alcanzar la fecha de inicio solicitada, y cancelación de solicitudes `Approved` antes del inicio del periodo (con restauración de saldo).
 
 **Problema que resuelve:** Elimina la gestión manual y descentralizada de solicitudes de vacaciones. Automatiza validaciones (saldo, fechas, traslapes), el flujo de aprobación/rechazo con comentario obligatorio al rechazar, la expiración automática de pendientes sin resolver, y la consulta histórica filtrada por RRHH.
 
@@ -20,35 +20,38 @@
 |---|---|---|
 | Lenguaje / Versión | C# sobre **.NET 10** (`net10.0`) | `Solicitud_de_Vacaiones.csproj` |
 | Framework principal | ASP.NET Core MVC con Razor Views | `constitution.md` sección 6 |
-| Almacenamiento | SQL Server LocalDB o SQLite (selección concreta: **NEEDS CLARIFICATION**) | `constitution.md` sección 6 |
+| Almacenamiento | **SQL Server** (selección confirmada por PO) | `constitution.md` sección 6, Decisión PO #1 |
 | ORM | Entity Framework Core | `constitution.md` sección 6 |
 | Autenticación | ASP.NET Core Identity Framework | `spec.md` sección 9 |
-| Testing | **NEEDS CLARIFICATION** (se menciona xUnit en constitution.md sección 9 pero no se confirma framework concreto) | `constitution.md` sección 9 |
-| Plataforma objetivo | Aplicación web servida por Kestrel. Despliegue objetivo: **NEEDS CLARIFICATION** | — |
+| Testing | **xUnit** (framework confirmado por PO) | `constitution.md` sección 9, Decisión PO #2 |
+| Plataforma objetivo | Aplicación web servida por Kestrel. **MVP sin despliegue — solo entorno local/desarrollo** (Decisión PO #3) | — |
 | Tipo de proyecto | Monolito modular web | `constitution.md` sección 3 |
 | Objetivos de rendimiento | Consulta de saldo ≤ 300ms p95; creación/aprobación ≤ 1s p95; listados paginados ≤ 2s p95 | `constitution.md` sección 10 |
 | Restricciones técnicas | Prohibido `DateTime.Now`/`DateTime.UtcNow` en Domain/Application. Prohibido `DELETE` físico. Sin dependencias externas (Redis, RabbitMQ, APIs). Prohibidos frameworks SPA (React, Angular, Vue). Auditoría automática vía interceptor de EF Core. Concurrencia optimista con `RowVersion`. FluentValidation aprobado para validación de entrada. Nombre en español (PascalCase). | `constitution.md` secciones 4, 6, 7, 8 |
-| Escala / Alcance | 3 roles (Empleado, Aprobador, RRHH). 47 requisitos funcionales (RF-001 a RF-047). 36 reglas de negocio (RN-01 a RN-36). Número esperado de empleados/solicitudes: **NEEDS CLARIFICATION** | `spec.md` |
+| Escala / Alcance | 3 roles (Empleado, Aprobador, RRHH). 47 requisitos funcionales (RF-001 a RF-047). 36 reglas de negocio (RN-01 a RN-36). **Usuarios concurrentes esperados: 50-100** (supuesto para MVP interno — Decisión PO #4). Número de empleados/solicitudes: depende del tamaño de la organización (se asume ≤ 500 empleados para el MVP). | `spec.md`, Decisión PO #4 |
 
 ### Dependencias principales identificadas
 
 - Entity Framework Core
 - ASP.NET Core Identity
 - FluentValidation (validación de entrada, ejecución explícita vía `ValidateAsync` — prohibido pipeline auto-validation)
-- Middleware de Rate Limiting nativo de .NET (límites por endpoint: auth 5/min, escritura moderado, lectura amplio)
+- Middleware de Rate Limiting nativo de .NET (límites sugeridos para 50-100 usuarios concurrentes: auth 10/min por usuario, escritura 30/min por usuario [crear/editar/aprobar], lectura 120/min por usuario [consultas/listados])
 - `TimeProvider` (abstracción nativa de .NET)
 
-### Puntos abiertos del contexto técnico
+### Decisiones del PO aplicadas al contexto técnico
 
-1. **Motor de base de datos concreto:** `constitution.md` menciona LocalDB o SQLite. **NEEDS CLARIFICATION**
-2. **Framework de pruebas concreto:** no se especifica formalmente. **NEEDS CLARIFICATION**
-3. **Plataforma de despliegue:** no se especifica. **NEEDS CLARIFICATION**
-4. **Volumen de usuarios concurrentes:** no se especifica. **NEEDS CLARIFICATION**
-5. **Valor de `[N]` para auto-expiración:** ABIERTO en `spec.md` RN-26.
-6. **Tope de carry-over de saldo:** `spec.md` RN-24 indica carry-over ilimitado; `docs/Preguntas_Pendientes.md` D.3 indica "Sin carry-over; caducan en aniversario". **CONTRADICCIÓN — NEEDS CLARIFICATION**
-7. **Horizonte futuro máximo para solicitar:** ABIERTO en `spec.md` RN-31.
-8. **Manejo de feriados en cálculo de días:** ABIERTO en `spec.md` RN-25.
-9. **Estrategia de paginación:** Offset-based según `docs/Preguntas_Pendientes.md` H.1.
+| # | Ítem | Decisión | Estado |
+|---|------|----------|--------|
+| 1 | Motor de base de datos | **SQL Server** (no LocalDB ni SQLite) | ✅ Resuelto |
+| 2 | Framework de pruebas | **xUnit** | ✅ Resuelto |
+| 3 | Plataforma de despliegue | **Sin despliegue en MVP** — solo local/desarrollo | ✅ Resuelto |
+| 4 | Usuarios concurrentes | **50-100 usuarios concurrentes** (supuesto para MVP interno) | ✅ Resuelto |
+| 5 | RN-26 — Auto-expiración | La solicitud `Pending` expira cuando se alcanza su fecha de inicio (fecha inicio ≤ hoy). **No es un N fijo.** | ✅ Resuelto |
+| 6 | RN-24 — Carry-over | **SÍ hay carry-over, SIN LÍMITE de acumulación.** Acumulación indefinida entre periodos. | ✅ Resuelto |
+| 7 | RN-31 — Horizonte futuro | **2 meses** desde la fecha actual | ✅ Resuelto |
+| 8 | RN-25 — Feriados | **Los feriados NO se excluyen del cómputo de días hábiles.** Solo se excluyen sábados y domingos. Un feriado en medio del rango cuenta normalmente para el saldo consumido. | ✅ Resuelto |
+| 9 | Estrategia de paginación | Offset-based según `docs/Preguntas_Pendientes.md` H.1 | — |
+| 10 | Saldo comprometido (A.3) | **SÍ se implementa.** Las solicitudes Pending congelan su saldo (`pendingBalance`). `availableBalance = accumulatedBalance - consumedBalance - pendingBalance`. Se valida contra disponible al crear. | ✅ Resuelto |
 
 ---
 
@@ -80,7 +83,7 @@
 
 ### Resultado del Gate: **PASS**
 
-No se detectan violaciones. La Constitución y la Spec están alineadas. Existe una contradicción en carry-over (`spec.md` RN-24 dice carry-over ilimitado; `docs/Preguntas_Pendientes.md` D.3 registra decisión del PO: "Sin carry-over; caducan en aniversario"). La decisión del PO prevalece — requiere actualizar `spec.md` RN-24 para reflejarla.
+No se detectan violaciones. La Constitución y la Spec están alineadas. La contradicción en carry-over (`spec.md` RN-24 vs `docs/Preguntas_Pendientes.md` D.3) ha sido resuelta por el PO: **SÍ hay carry-over, SIN LÍMITE de acumulación**. `spec.md` RN-24 ya refleja carry-over ilimitado; `docs/Preguntas_Pendientes.md` D.3 corregido para alinearse.
 
 ---
 
@@ -114,7 +117,7 @@ Entidad central que encapsula el ciclo de vida completo de una solicitud de vaca
 | `employeeId` | `Guid` | FK → `Empleado` |
 | `startDate` | `DateTime` | Fecha de inicio del periodo solicitado |
 | `endDate` | `DateTime` | Fecha de fin del periodo solicitado |
-| `daysRequested` | `int` | Días hábiles calculados (excluye sábados y domingos) |
+| `daysRequested` | `int` | Días hábiles calculados (excluye sábados y domingos; los feriados sí cuentan para el consumo de saldo) |
 | `status` | `EstadoSolicitud` | Estado actual: `Pending`, `Approved`, `Rejected`, `Cancelled`, `Expired` |
 | `reason` | `string` | Motivo de la solicitud (mín. 10 caracteres) |
 | `approverComment` | `string?` | Comentario del aprobador al rechazar (obligatorio en rechazo, máx. 500 caracteres) |
@@ -127,15 +130,16 @@ Entidad central que encapsula el ciclo de vida completo de una solicitud de vaca
 
 #### `SaldoEmpleado` *(EmployeeBalance)*
 
-Gestiona los días de vacaciones del empleado. Garantiza el invariante de saldo no negativo mediante concurrencia optimista.
+Gestiona los días de vacaciones del empleado. Incluye `pendingBalance` que congela los días de solicitudes Pending, impidiendo que se comprometan más días de los realmente disponibles. `availableBalance = accumulatedBalance - consumedBalance - pendingBalance`. Garantiza el invariante de saldo no negativo mediante concurrencia optimista.
 
 | Atributo | Tipo | Descripción |
 |----------|------|-------------|
 | `id` | `Guid` | Identificador único |
 | `employeeId` | `Guid` | FK → `Empleado` (1:1) |
-| `accumulatedBalance` | `int` | Saldo acumulado (1 día por mes completo laborado) |
+| `accumulatedBalance` | `int` | Saldo acumulado (1 día por mes completo laborado). **Incluye carry-over ilimitado** — los días no usados se acumulan entre periodos sin tope. |
 | `consumedBalance` | `int` | Días consumidos por solicitudes aprobadas |
-| `availableBalance` | `int` | **Propiedad calculada** (`accumulatedBalance - consumedBalance`). No se persiste. |
+| `pendingBalance` | `int` | Días comprometidos por solicitudes en estado `Pending` (congelados). Se libera al aprobar/rechazar/cancelar/expirar. |
+| `availableBalance` | `int` | **Propiedad calculada** (`accumulatedBalance - consumedBalance - pendingBalance`). No se persiste. |
 | `lastUpdatedAt` | `DateTime` | Timestamp del último cambio |
 | `rowVersion` | `byte[]` | Versión de fila para concurrencia optimista. Evita saldos negativos por aprobaciones concurrentes. |
 
@@ -159,7 +163,9 @@ Registro de auditoría inmutable para cada acción sobre una solicitud. **Consol
 
 ---
 
-#### `HistorialSaldo` *(BalanceHistory)*
+#### `HistorialSaldo` *(BalanceHistory)* — 🔶 Fuera de alcance MVP (futura fase)
+
+> Esta entidad está definida pero **no se implementa en el MVP**. Queda disponible para una fase futura donde se requiera auditoría granular de movimientos de saldo.
 
 Registro de auditoría inmutable para cada movimiento de saldo. Insert-only.
 
@@ -167,7 +173,7 @@ Registro de auditoría inmutable para cada movimiento de saldo. Insert-only.
 |----------|------|-------------|
 | `id` | `Guid` | Identificador único |
 | `employeeId` | `Guid` | FK → `Empleado` |
-| `movementType` | `TipoMovimientoSaldo` | `Acumulacion`, `DescuentoPorAprobacion`, `RestauracionPorCancelacion` |
+| `movementType` | `TipoMovimientoSaldo` | `Acumulacion`, `CongelamientoPorCreacion`, `DescuentoPorAprobacion`, `RestauracionPorCancelacion`, `RestauracionPorRechazo`, `RestauracionPorExpiracion` |
 | `previousBalance` | `int` | Saldo disponible antes del movimiento |
 | `newBalance` | `int` | Saldo disponible después del movimiento |
 | `reason` | `string` | Motivo del cambio (ej. "Approved request #123") |
@@ -179,10 +185,10 @@ Registro de auditoría inmutable para cada movimiento de saldo. Insert-only.
 ### Value Objects
 
 #### `RangoFechas` *(DateRange)*
-Encapsula fecha inicio y fecha fin con validaciones: inicio ≤ fin, inicio ≥ mañana. Invariante: el rango nunca puede ser inválido.
+Encapsula fecha inicio y fecha fin con validaciones: inicio ≤ fin, inicio ≥ mañana, fin ≤ inicio + 2 meses. Invariante: el rango nunca puede ser inválido.
 
 #### `DiasHabiles` *(BusinessDays)*
-Valor calculado que representa días solicitados excluyendo sábados y domingos. El cálculo es un invariante de dominio — no se delega al cliente ni a la base de datos.
+Valor calculado que representa días solicitados excluyendo sábados, domingos y feriados. Los feriados se definirán como una lista de fechas configurables (por año) en Infrastructure. El cálculo es un invariante de dominio — se implementa como lógica pura (sin dependencia externa).
 
 ---
 
@@ -191,7 +197,7 @@ Valor calculado que representa días solicitados excluyendo sábados y domingos.
 | Enum | Valores |
 |------|---------|
 | `EstadoSolicitud` *(VacationRequestStatus)* | `Pending`, `Approved`, `Rejected`, `Cancelled`, `Expired` |
-| `TipoMovimientoSaldo` *(BalanceMovementType)* | `Acumulacion`, `DescuentoPorAprobacion`, `RestauracionPorCancelacion` |
+| `TipoMovimientoSaldo` *(BalanceMovementType)* 🔶 Fuera de alcance MVP | `Acumulacion`, `CongelamientoPorCreacion`, `DescuentoPorAprobacion`, `RestauracionPorCancelacion`, `RestauracionPorRechazo`, `RestauracionPorExpiracion` |
 | `RolUsuario` *(UserRole)* | `Empleado`, `Aprobador`, `RRHH` |
 
 > **Regla:** Ninguna entidad contiene atributos de Entity Framework ni depende de Infrastructure. Anotaciones como `rowVersion` (mapeado a `byte[]` por EF) se configuran exclusivamente en la capa de Infrastructure.
@@ -203,13 +209,13 @@ Valor calculado que representa días solicitados excluyendo sábados y domingos.
 | Entidad | Atributos en sub-spec | Plan alineado | Mejora aplicada |
 |---------|----------------------|:------------:|-----------------|
 | `Empleado` | `id`, `email`, `fullName`, `status`, `joinDate` *(001)* | ✅ | Sin cambios. Roles por Identity. |
-| `SaldoEmpleado` | `id`, `employeeId`, `accumulatedBalance`, `consumedBalance`, `availableBalance`, `lastUpdatedAt` *(001)* | ✅ | `availableBalance` → propiedad calculada. `rowVersion` añadido. |
-| `HistorialSaldo` | `id`, `employeeId`, `movementType`, `previousBalance`, `newBalance`, `reason`, `actor`, `timestamp` *(001)* | ✅ | Sin cambios. |
+| `SaldoEmpleado` | `id`, `employeeId`, `accumulatedBalance`, `consumedBalance`, `availableBalance`, `lastUpdatedAt` *(001)* | ✅ | `availableBalance` → propiedad calculada (`accumulated - consumed - pending`). `pendingBalance` añadido. `rowVersion` añadido. |
+| `HistorialSaldo` | `id`, `employeeId`, `movementType`, `previousBalance`, `newBalance`, `reason`, `actor`, `timestamp` *(001)* | 🔶 Fuera de alcance MVP | Definida pero no se implementa en el MVP (futura fase). |
 | `SolicitudVacaciones` | `id`, `employeeId`, `startDate`, `endDate`, `daysRequested`, `status`, `reason`, `approverComment`, `createdAt`, `updatedAt` *(002)* | ✅ | Añadidos `resolvedBy` y `rowVersion`. |
 | `HistorialSolicitud` | `id`, `requestId`, `eventType`, `actor`, `note`, `timestamp` *(002)* | ⚠️ Mejorado | spec/002 usa `note` genérico. Plan añade `previousStatus`/`newStatus` + `changedFields` (JSON) para trazabilidad granular. |
 | `ApprovalAction` | `id`, `requestId`, `approverId`, `action`, `comment`, `timestamp` *(003)* | ⚠️ Consolidado | spec/003 define entidad separada. El plan la consolida dentro de `HistorialSolicitud`, evitando duplicidad de auditoría. |
 
-**Resultado:** 5/5 entidades cubiertas. `ApprovalAction` integrada en `HistorialSolicitud`. Mejoras añadidas: `rowVersion` (×2), `resolvedBy`, trazabilidad granular.
+**Resultado:** 5/5 entidades cubiertas en especificación. `HistorialSaldo` 🔶 fuera de alcance MVP (futura fase). `ApprovalAction` integrada en `HistorialSolicitud`. Mejoras añadidas: `rowVersion` (×2), `resolvedBy`, trazabilidad granular.
 
 ---
 
@@ -219,7 +225,12 @@ Valor calculado que representa días solicitados excluyendo sábados y domingos.
 
 **Responsabilidad:** Contiene las entidades, value objects, enums, excepciones de dominio e interfaces de abstracción (repositorios, `TimeProvider`). No tiene dependencias externas.
 
-**Justificación:** Es el núcleo de Clean Architecture. Las reglas de negocio (transiciones de estado, validación de saldo, prevención de traslapes, anti-auto-aprobación) deben residir aquí sin depender de frameworks.
+**Justificación:** Es el núcleo de Clean Architecture. Las reglas de negocio (transiciones de estado, validación de saldo contra `availableBalance` incluyendo `pendingBalance`, prevención de traslapes, anti-auto-aprobación) deben residir aquí sin depender de frameworks.
+
+**Flujo de `pendingBalance`:**
+1. **Crear solicitud Pending** → incrementa `pendingBalance` en `daysRequested` (se descuenta de `availableBalance`).
+2. **Aprobar solicitud** → mueve `pendingBalance → consumedBalance` (mismo `daysRequested`).
+3. **Rechazar/Cancelar/Expirar solicitud** → decrementa `pendingBalance` (se libera el saldo congelado).
 
 ### Módulo 2: `Vacations.Application` — Casos de uso y orquestación
 
@@ -229,7 +240,7 @@ Valor calculado que representa días solicitados excluyendo sábados y domingos.
 
 ### Módulo 3: `Vacations.Infrastructure` — Persistencia, identidad y servicios externos
 
-**Responsabilidad:** Implementa los repositorios definidos en Domain, el DbContext de EF Core, las configuraciones de entidad, los interceptores de auditoría, la integración con ASP.NET Core Identity, y servicios de background (auto-expiración).
+**Responsabilidad:** Implementa los repositorios definidos en Domain, el DbContext de EF Core (provider SQL Server), las configuraciones de entidad, el interceptor de auditoría de solicitudes (solo `HistorialSolicitud`), la integración con ASP.NET Core Identity, y servicios de background (auto-expiración).
 
 **Justificación:** Aísla los detalles de infraestructura (ORM, base de datos, autenticación) para que Domain y Application permanezcan independientes del framework.
 
@@ -241,7 +252,7 @@ Valor calculado que representa días solicitados excluyendo sábados y domingos.
 
 ### Módulo 5: `tests/` — Pruebas por capa
 
-**Responsabilidad:** Pruebas unitarias (Domain, sin mocks), unitarias con mocks (Application), de integración (Infrastructure contra BD real), y de integración de sistema (Web con WebApplicationFactory).
+**Responsabilidad:** Pruebas unitarias (Domain, sin mocks), unitarias con mocks (Application), de integración (Infrastructure contra BD real — SQL Server LocalDB o Testcontainers), y de integración de sistema (Web con WebApplicationFactory). Framework: **xUnit**.
 
 **Justificación:** La Constitución (sección 9) exige pirámide de pruebas con cobertura ≥ 80% en Domain y Application.
 
@@ -342,10 +353,10 @@ src/
 │   │   ├── SolicitudVacaciones.cs
 │   │   ├── SaldoEmpleado.cs
 │   │   ├── HistorialSolicitud.cs
-│   │   └── HistorialSaldo.cs
+│   │   └── HistorialSaldo.cs                   # 🔶 Fuera de alcance MVP (futura fase)
 │   ├── Enums/
 │   │   ├── EstadoSolicitud.cs
-│   │   ├── TipoMovimientoSaldo.cs
+│   │   ├── TipoMovimientoSaldo.cs               # 🔶 Fuera de alcance MVP (futura fase)
 │   │   └── RolUsuario.cs
 │   ├── ValueObjects/
 │   │   └── RangoFechas.cs
@@ -355,7 +366,7 @@ src/
 │   │   ├── AutoAprobacionNoPermitidaException.cs
 │   │   └── TransicionEstadoInvalidaException.cs
 │   └── Abstractions/
-│       └── IRepositorioSolicitudVacaciones.cs
+│       ├── IRepositorioSolicitudVacaciones.cs
 │       └── IRepositorioSaldoEmpleado.cs
 │
 ├── Vacations.Application/                # Capa de Aplicación (nuevo)
@@ -397,8 +408,9 @@ src/
 │   │   └── UsuarioAplicacion.cs
 │   ├── Time/
 │   │   └── ProveedorTiempoSistema.cs
-│   └── BackgroundServices/
-│       └── ServicioExpiracionAutomatica.cs
+│   ├── BackgroundServices/
+│   │   └── ServicioExpiracionAutomatica.cs
+│   └── Services/
 │
 └── Vacations.Web/                        # Capa de Presentación (nuevo, migrar scaffold)
     ├── Controllers/
@@ -427,11 +439,11 @@ src/
     ├── Program.cs                         # Modificado: Add capas, Identity, DbContext
     └── appsettings.json
 
-tests/                                     # Proyectos de prueba (nuevos)
-├── Vacations.Domain.Tests/
-├── Vacations.Application.Tests/
-├── Vacations.Infrastructure.Tests/
-└── Vacations.Web.Tests/
+tests/                                     # Proyectos de prueba xUnit (nuevos)
+├── Vacations.Domain.Tests/                # Unitarias puras (sin mocks)
+├── Vacations.Application.Tests/           # Unitarias con mocks
+├── Vacations.Infrastructure.Tests/        # Integración contra BD real
+└── Vacations.Web.Tests/                   # Integración de sistema WebApplicationFactory
 
 docs/
 └── diagrams/
@@ -446,9 +458,9 @@ docs/
 |---|---|---|
 | `src/Vacations.Domain` | Crear | Todas (001-005) |
 | `src/Vacations.Application` | Crear | Todas (001-005) |
-| `src/Vacations.Infrastructure` | Crear | Todas (001-005) |
+| `src/Vacations.Infrastructure` | Crear | Todas (001-005). Provider SQL Server + proveedor de feriados |
 | `src/Vacations.Web` | Crear (migrar scaffold existente) | Todas (001-005) |
-| `Solicitud_de_Vacaiones` (existente) | Migrar a `Vacations.Web` o eliminar | — |
+| `Solicitud_de_Vacaiones` (existente) | **Eliminar** (reescritura directa — no migrar). Los 4 proyectos se crean desde cero. | — |
 | `docs/diagrams/` | Crear | — |
 | `tests/` (4 proyectos) | Crear | — |
 
@@ -470,7 +482,7 @@ La estructura de **monolito modular en 4 proyectos separados + proyectos de test
 
 6. **Razor Views, no SPA** (`constitution.md` sección 6.1): Se descartan React, Angular y Vue por prohibición expresa.
 
-7. **El scaffold existente** (`Solicitud_de_Vacaiones/`) es un proyecto MVC vacío en .NET 10 que no cumple la separación de capas. Debe migrarse a `Vacations.Web` o eliminarse. **NEEDS CLARIFICATION** sobre la estrategia de migración concreta.
+7. **El scaffold existente** (`Solicitud_de_Vacaiones/`) es un proyecto MVC vacío en .NET 10 que no cumple la separación de capas. **Estrategia: reescritura directa.** Se crearán los 4 proyectos desde cero (`Vacations.Domain`, `Application`, `Infrastructure`, `Web`) y se eliminará el scaffold original. Esto evita arrastrar deuda técnica y es más rápido que una migración incremental. El único código aprovechable del scaffold es `Program.cs` (configuración base MVC) que sirve como referencia para `Vacations.Web/Program.cs`.
 
 ---
 
@@ -482,9 +494,9 @@ No existen excepciones arquitectónicas. La Constitución y la Spec están aline
 
 | Elemento | Tipo | Motivo | Justificación |
 |---|---|---|---|
-| `ServicioExpiracionAutomatica` | Nuevo BackgroundService | Feature 4 (`004-request-auto-expiration`) requiere un job programado diario que expire solicitudes `Pending` tras `[N]` días. | No existe servicio equivalente. Alternativa: job de BD (descartada por ser menos testeable). Se implementa como `BackgroundService` de ASP.NET Core. |
+| `ServicioExpiracionAutomatica` | Nuevo BackgroundService | Feature 4 (`004-request-auto-expiration`) requiere un job programado diario que expire solicitudes `Pending` cuya fecha de inicio ya haya sido alcanzada (startDate ≤ hoy). | No existe servicio equivalente. Alternativa: job de BD (descartada por ser menos testeable). Se implementa como `BackgroundService` de ASP.NET Core. La lógica de expiración es dinámica: compara `startDate` contra la fecha actual provista por `TimeProvider`. |
 | `ProveedorTiempoSistema` (TimeProvider) | Nueva abstracción | La Constitución (sección 7 invariante 9) exige que el cálculo de días ocurra en el servidor. El Domain no debe depender de `DateTime.Now`. | Se usa `TimeProvider` de .NET (nativo desde .NET 8+). Alternativa: interfaz propia. Se opta por la nativa para reducir código custom. |
-| `InterceptorAuditoriaSaveChanges` | Nuevo interceptor EF Core | La Spec (sección 8) y la Constitución (sección 7 invariante 8) exigen trazabilidad obligatoria en cada transición de estado. | Interceptor de `SaveChangesAsync` que registra automáticamente en `HistorialSolicitud` y `HistorialSaldo`. Alternativa: eventos manuales en cada handler (descartada por riesgo de olvido). |
+| `InterceptorAuditoriaSaveChanges` | Nuevo interceptor EF Core | La Spec (sección 8) y la Constitución (sección 7 invariante 8) exigen trazabilidad obligatoria en cada transición de estado. | Interceptor de `SaveChangesAsync` que registra automáticamente en `HistorialSolicitud` (solo cambios de estado de solicitudes). `HistorialSaldo` queda fuera de alcance MVP (futura fase). Alternativa: eventos manuales en cada handler (descartada por riesgo de olvido). |
 | `RowVersion` para concurrencia optimista | Configuración EF Core | La Constitución (sección 7 invariante 1) exige que el saldo nunca sea negativo. Sin concurrencia, dos aprobaciones simultáneas podrían sobrescribir el saldo. | `RowVersion` en `SaldoEmpleado` y `SolicitudVacaciones`. Manejo de `DbUpdateConcurrencyException` en Application. |
 
 ---
@@ -505,12 +517,12 @@ No existen excepciones arquitectónicas. La Constitución y la Spec están aline
 
 | Riesgo | Impacto | Probabilidad | Mitigación |
 |---|---|---|---|
-| Contradicción carry-over: `spec.md` RN-24 sin actualizar vs decisión PO en `Preguntas_Pendientes.md` D.3 ("Sin carry-over") | Medio: afecta cálculo de saldo anual | Alta | Actualizar `spec.md` RN-24 para reflejar la decisión del PO antes de implementar `SaldoEmpleado` |
-| Scaffold existente no cumple Clean Architecture | Medio: requiere refactorización de estructura | Alta | Migrar scaffold a `Vacations.Web` o crear desde cero. **NEEDS CLARIFICATION** |
+| Scaffold existente no cumple Clean Architecture | Medio: requiere refactorización de estructura | Alta | **Estrategia: reescritura directa.** Se crean los 4 proyectos desde cero (`Vacations.Domain`, `Application`, `Infrastructure`, `Web`) y se migra el código del scaffold (`Solicitud_de_Vacaiones/`) a `Vacations.Web`. El scaffold original se elimina. Esto evita arrastrar deuda técnica. |
 | Condiciones de carrera en aprobación/cancelación concurrente | Alto: saldo negativo o doble descuento | Media | `RowVersion` + manejo de `DbUpdateConcurrencyException` en cada handler de aprobación |
-| Cálculo de días hábiles sin feriados definidos | Medio: puede requerir cambios posteriores | Alta | Aislar lógica en método `CalcularDiasHabiles` con interfaz intercambiable |
-| Auto-expiración con valor `[N]` sin definir | Bajo: el valor es configurable | Baja | Usar `IConfiguration` con valor por defecto (30 días sugerido) |
+| Cálculo de días hábiles sin repositorio de feriados | Bajo: solo sábados y domingos, lógica simple | Baja | Se implementa como método puro en Domain. Sin dependencias externas. |
+| Auto-expiración: lógica dinámica contra fecha de inicio | Bajo: reemplaza la lógica de N fijo | Baja | El `BackgroundService` compara `startDate` ≤ hoy usando `TimeProvider`. Sin valor configurable `[N]`. |
 | Paginación offset-based con concurrencia extrema | Bajo: posibles duplicados/saltos | Baja | Documentado como known limitation aceptada por el PO |
+| Dependencia de SQL Server en entorno local | Bajo: los desarrolladores deben tener SQL Server instalado o usar LocalDB | Media | Documentar prerequisito; usar LocalDB como alternativa de desarrollo ligera. |
 
 ---
 
@@ -540,18 +552,3 @@ Feature 005 (HR Monitoring Dashboard)
 **Orden de implementación:** 001 → 002 → 003 → 004 → 005
 
 ---
-
-## 14. Puntos pendientes (NEEDS CLARIFICATION)
-
-| # | Ítem | Impacto |
-|---|---|---|
-| 1 | Motor de base de datos concreto (LocalDB vs. SQLite) | Configuración de EF Core y scripts de seeding |
-| 2 | Framework de pruebas concreto (xUnit, NUnit, MSTest) | Estructura de proyectos de test |
-| 3 | Plataforma de despliegue objetivo | Configuración de HSTS, CORS, pipelines |
-| 4 | Volumen de usuarios concurrentes esperado | Configuración de Rate Limiting y pooling |
-| 5 | Estrategia de migración del scaffold existente | Estimación inicial del setup |
-| 6 | Valor numérico de `[N]` para auto-expiración (RN-26) | Configuración por defecto del BackgroundService |
-| 7 | **Contradicción carry-over resuelta por PO:** `docs/Preguntas_Pendientes.md` D.3 decide "Sin carry-over; caducan en aniversario". `spec.md` RN-24 aún no actualizado. | Afecta lógica de `SaldoEmpleado` y acumulación anual — requiere sync del spec |
-| 8 | Horizonte futuro máximo para solicitar (RN-31) | Validación de fechas |
-| 9 | Manejo de feriados en cálculo de días (RN-25) | Lógica de `CalcularDiasHabiles` |
-| 10 | Nombre técnico del "estado/bloqueo" mencionado por el PO en A.3 (saldo comprometido) | Modelo de datos |

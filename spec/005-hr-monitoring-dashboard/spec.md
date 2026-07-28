@@ -18,7 +18,7 @@ Este feature provee herramientas de consulta y filtrado para RRHH: historial de 
 - Filtrar solicitudes por estado, empleado, rango de fechas (HU-09)
 - Acceso de solo lectura para RRHH (sin permisos de aprobación ni edición)
 - Paginación y exportación básica (CSV opcional)
-- Visualización de trazabilidad (VacationRequestHistory, BalanceHistory)
+- Visualización de trazabilidad (VacationRequestHistory). 🔶 BalanceHistory fuera de alcance MVP.
 
 ### Excluido
 - Operaciones de escritura (aprobaciones, cancelaciones)
@@ -47,7 +47,7 @@ HU-09: Filtrar solicitudes
 Consumir:
 - VacationRequest (Feature 2)
 - VacationRequestHistory (Feature 2)
-- EmployeeBalance y BalanceHistory (Feature 1)
+- EmployeeBalance (Feature 1). 🔶 BalanceHistory fuera de alcance MVP.
 
 ---
 

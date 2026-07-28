@@ -129,7 +129,9 @@ availableBalance: int (computado: acumulado - consumido)
 lastUpdatedAt: DateTime (timestamp del último cambio)
 ```
 
-### Entidad: BalanceHistory (auditoría)
+### Entidad: BalanceHistory (auditoría) — 🔶 Fuera de alcance MVP (futura fase)
+
+> Esta entidad está definida conceptualmente pero **no se implementa en el MVP**. Queda disponible para una fase futura donde se requiera auditoría granular de movimientos de saldo. En el MVP, la trazabilidad de saldo se deduce indirectamente del `HistorialSolicitud` (transiciones de estado de solicitudes).
 
 ```
 id: UUID (PK)
@@ -163,8 +165,8 @@ timestamp: DateTime
 - **Qué**: 
   1. Calcular meses completos desde `joinDate` hasta hoy
   2. Incrementar `accumulatedBalance` en +1 por cada mes
-  3. Registrar en `BalanceHistory`
-  4. Actualizar `availableBalance` = acumulado - consumido
+  3. Actualizar `availableBalance` = acumulado - consumido
+  4. *(BalanceHistory no se implementa en MVP — futura fase)*
 
 ### Consulta de saldo
 
@@ -178,7 +180,7 @@ timestamp: DateTime
 - **Qué**:
   1. Restar días de `consumedBalance`
   2. Recalcular `availableBalance`
-  3. Registrar en `BalanceHistory` con tipo = "CANCELLATION_RESTORE"
+  3. *(BalanceHistory no se implementa en MVP — futura fase)*
 
 ---
 
@@ -193,7 +195,7 @@ timestamp: DateTime
 
 1. **Performance**: La consulta de saldo debe ser O(1) o O(log n) — precalcular y cachear si es necesario
 2. **Integridad**: Transacciones ACID para cambios de saldo
-3. **Auditoría**: Cada movimiento debe registrarse en `BalanceHistory`
+3. **Auditoría**: 🔶 Fuera de alcance MVP — `BalanceHistory` no se implementa en esta fase. La trazabilidad se obtiene del `HistorialSolicitud` (transiciones de estado).
 4. **Timezone**: Usar UTC para todos los timestamps; conversión local solo en UI
 
 ---
@@ -212,6 +214,6 @@ Ver [tasks.md](./tasks.md) para tareas prácticas.
 - ✅ HU-04 implementada (consulta de saldo)
 - ✅ Saldo consumido calculado correctamente
 - ✅ Carry-over sin límite superior
-- ✅ Auditoría de BalanceHistory completa
+- 🔶 Auditoría de BalanceHistory — fuera de alcance MVP (futura fase)
 - ✅ Tests unitarios y de integración pasando
 

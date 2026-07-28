@@ -17,15 +17,14 @@ Este feature define la gestión CRUD de solicitudes de vacaciones por parte de e
 - Crear solicitud de vacaciones (HU-01)
 - Ver mis solicitudes (HU-02)
 - Editar o cancelar solicitudes PENDING por el empleado (HU-03)
-- Validación de fechas: inicio >= mañana; fin >= inicio
-- Cálculo de días hábiles: excluir sábados y domingos
-- Validación de saldo suficiente (consulta a Feature 1)
+- Validación de fechas: inicio >= mañana; fin >= inicio; horizonte máximo 2 meses
+- Cálculo de días hábiles: excluir sábados y domingos (los feriados cuentan para el consumo de saldo)
+- Validación de saldo suficiente contra `availableBalance` (incluye descuento de `pendingBalance` por solicitudes Pending existentes)
 - Prevención de traslapes con solicitudes APROBADA o PENDIENTE
 - Estados: PENDING, APPROVED, REJECTED, CANCELLED, EXPIRED
 - Auditoría de eventos básicos (creación, edición, estado)
 
 ### Excluido (fuera de MVP)
-- Cálculo de feriados nacionales/locales
 - Cancelación parcial de solicitudes
 - Integraciones externas (calendario, nómina)
 
@@ -36,10 +35,11 @@ Este feature define la gestión CRUD de solicitudes de vacaciones por parte de e
 HU-01: Solicitar vacaciones con fechas y motivo
 - Como empleado quiero solicitar vacaciones con fecha de inicio/fin y motivo.
 - Criterios (EARS):
-  - Cuando el empleado completa fechas, entonces el sistema muestra los días solicitados (excluyendo sábados y domingos) antes de enviar.
+  - Cuando el empleado completa fechas, entonces el sistema muestra los días solicitados (excluyendo sábados y domingos; los feriados sí cuentan) antes de enviar.
   - Si la fecha de inicio < mañana, entonces bloquear con: "La fecha de inicio no puede ser anterior a mañana".
   - Si la fecha de fin < fecha de inicio, entonces bloquear con: "La fecha de fin no puede ser anterior a la de inicio".
-  - Si los días solicitados > saldo disponible, entonces bloquear con: "Saldo insuficiente para esta solicitud".
+  - Si la fecha de inicio > hoy + 2 meses, entonces bloquear con: "La fecha de inicio no puede superar los 2 meses a partir de hoy".
+  - Si los días solicitados > saldo disponible (considerando pendingBalance de otras Pending), entonces bloquear con: "Saldo insuficiente para esta solicitud".
   - Si el rango solicitado traslapa con días en solicitudes APPROVED o PENDING del mismo empleado, entonces bloquear con: "La solicitud incluye días que ya están comprometidos".
   - Cuando todas las validaciones pasen, crear la solicitud en estado PENDING y notificar la bandeja de aprobadores.
 
@@ -60,8 +60,8 @@ HU-03: Editar o cancelar una solicitud PENDING
 
 ## Reglas de Negocio (selectivas)
 
-- RN-02: Validación de fechas (inicio >= mañana, fin >= inicio).
-- RN-05: Cálculo de días hábiles excluyendo sábados y domingos.
+- RN-02: Validación de fechas (inicio >= mañana, fin >= inicio, inicio ≤ hoy + 2 meses).
+- RN-05: Cálculo de días hábiles excluyendo sábados y domingos (los feriados cuentan para el consumo de saldo).
 - RN-06: Validación de saldo suficiente antes de creación / aprobación (consulta a Feature 1).
 - RN-07: Prevención de traslapes con solicitudes APPROVED o PENDING del mismo empleado.
 - RN-09: Al crear PENDING, notificar bandeja de aprobadores.

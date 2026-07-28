@@ -132,7 +132,7 @@ El sistema DEBE cumplir con las siguientes categorías priorizadas de OWASP Top 
 |-----------|-------------------|
 | **A01 — Control de Acceso Roto** | Validación de roles en cada endpoint. Prohibición de auto-aprobación. Acceso a datos propios vs. ajenos verificado con el ID del usuario autenticado. |
 | **A06 — Diseño Inseguro** | Toda validación de negocio DEBE ocurrir en el servidor. No DEBE confiarse en validación de cliente para seguridad. |
-| **A09 — Fallas de Registro y Alertas de Seguridad** | Toda transición de estado, intento de acceso denegado y operación sobre saldo DEBE registrarse con auditoría inmutable. |
+| **A09 — Fallas de Registro y Alertas de Seguridad** | Toda transición de estado e intento de acceso denegado DEBEN registrarse con auditoría inmutable. La auditoría de operaciones sobre saldo (`HistorialSaldo`) queda definida para una fase futura — fuera de alcance MVP. |
 
 ### 8.2 Configuración de cookies de sesión (ASP.NET Core Identity)
 

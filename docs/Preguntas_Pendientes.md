@@ -100,7 +100,7 @@ Cada punto pendiente se documenta con esta estructura:
 
 ---
 
-**✅ RESUELTO — Decisión del PO**: No existe estado `Draft`. Una solicitud en estado `Pending` SÍ puede editarse por el empleado mientras no haya sido resuelta por el aprobador. Además, debe existir un estado de saldo que impida crear nuevas solicitudes mientras haya una solicitud activa que comprometa ese saldo (aclarar con el equipo de desarrollo el nombre exacto de ese estado/bloqueo, ya que la respuesta del PO lo menciona pero no lo formaliza con un nombre; proponer algo como "saldo comprometido" o similar y dejarlo marcado como pendiente de nombre técnico si es ambiguo).
+**✅ RESUELTO — Decisión del PO**: No existe estado `Draft`. Una solicitud en estado `Pending` SÍ puede editarse por el empleado mientras no haya sido resuelta por el aprobador. Además, se implementa **saldo comprometido (`pendingBalance`)** en la entidad `SaldoEmpleado`: las solicitudes Pending congelan sus días en `pendingBalance`, y `availableBalance = accumulatedBalance - consumedBalance - pendingBalance`. Al crear una nueva solicitud se valida contra `availableBalance`, impidiendo que se comprometan más días de los realmente disponibles. El nombre técnico es `pendingBalance`.
 
 ---
 
@@ -402,7 +402,7 @@ Cada punto pendiente se documenta con esta estructura:
 
 ---
 
-**✅ RESUELTO — Decisión del PO**: NO hay carry-over. Los días no usados caducan al finalizar el periodo (año de aniversario del ingreso). No se arrastran al siguiente periodo.
+**✅ RESUELTO — Decisión del PO (revisada)**: **SÍ hay carry-over, SIN LÍMITE de acumulación.** Los días no usados se acumulan indefinidamente de un periodo a otro. No hay tope máximo. (*Nota: esta decisión reemplaza la anterior de "Sin carry-over" documentada en la versión previa de este documento.*)
 
 ---
 
@@ -889,7 +889,7 @@ Cada punto pendiente se documenta con esta estructura:
 |---|---|---|---|---|
 | A.1 Catálogo de tipos de permiso | Sección 1, P1 | — | — | ✅ **RESUELTO** (Solo vacaciones) |
 | A.2 Media jornada | Sección 1, P2 | — | — | ✅ **RESUELTO** (Solo días completos) |
-| A.3 Borrador/edición de Pending | Sección 1, P4 | (relacionado, no cubierto) | — | ✅ **RESUELTO** (Sin Draft; editar Pending SÍ) |
+| A.3 Borrador/edición de Pending + saldo comprometido | Sección 1, P4 | (relacionado, no cubierto) | — | ✅ **RESUELTO** (Sin Draft; editar Pending SÍ; `pendingBalance` en `SaldoEmpleado` para congelar saldo) |
 | A.4 Documentación de respaldo | Sección 1, P5 | — | — | ✅ **RESUELTO** (Fuera de alcance: no hay tipos que requieran comprobantes) |
 | B.1 Solapamiento de fechas | Sección 2, P1 | — | — | ✅ **RESUELTO** (Bloquear contra Approved + Pending) |
 | B.2 Calendario laboral | Sección 2, P2 | Assumptions | — | ✅ **RESUELTO** (Excluir sáb/dom; feriados: ABIERTO) |
@@ -904,7 +904,7 @@ Cada punto pendiente se documenta con esta estructura:
 | C.5 Motivo de rechazo | Sección 3, P5 | — | — | ✅ **RESUELTO** (Obligatorio y visible para empleado) |
 | D.1 Método de acumulación | Sección 4, P1 | — | — | ✅ **RESUELTO** (1 día/mes completo laborado desde fecha ingreso) |
 | D.2 Saldo global vs. pools | Sección 4, P2 | — | — | ✅ **RESUELTO** (Saldo global único) |
-| D.3 Carry-over | Sección 4, P3 | — | — | ✅ **RESUELTO** (Sin carry-over; caducan en aniversario) |
+| D.3 Carry-over | Sección 4, P3 | — | — | ✅ **RESUELTO** (Sí hay carry-over, sin límite de acumulación — decisión PO revisada) |
 | D.4 Ajustes manuales | Sección 4, P4 | — | — | ✅ **RESUELTO** (Solo HR, con motivo + auditoría; retroactivos SÍ; saldo negativo BLOQUEADO) |
 | D.5 Saldo insuficiente | — | Edge Case | — | ✅ **RESUELTO** (Bloquear creación de solicitud) |
 | E.1 US-7 en el MVP | — | US-7, FR-017 | — | ✅ **RESUELTO** (FUERA DE ALCANCE; seeding manual) |

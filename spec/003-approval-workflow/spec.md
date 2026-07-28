@@ -82,7 +82,7 @@ timestamp: DateTime
 - Antes de aprobar, verificar que employee.availableBalance >= daysRequested.
 - Bloquear aprobación si aprobador == request.employeeId.
 - Rechazo requiere campo comment no vacío.
-- Al aprobar: crear ApprovalAction, cambiar status a APPROVED y registrar BalanceHistory en Feature 1.
+- Al aprobar: crear registro en HistorialSolicitud (STATUS_CHANGED), cambiar status a APPROVED, y mover pendingBalance → consumedBalance en SaldoEmpleado. *(BalanceHistory fuera de alcance MVP — futura fase)*.
 - Al cancelar APROVED (por aprobador antes de inicio): crear ApprovalAction con action=CANCELLED_BY_APPROVER y restaurar saldo en Feature 1.
 
 ---

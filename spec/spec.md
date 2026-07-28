@@ -6,7 +6,7 @@
 
 Esta sección resume los cambios aplicados en la última actualización del documento:
 
-1. **Estado EXPIRED para solicitudes**: Las solicitudes pendientes que no sean resueltas tras [N] días ahora cambian su estado a `EXPIRED` (expirada) en lugar de ser rechazadas. El sistema registra actor="SISTEMA_AUTO_EXPIRACION".
+1. **Estado EXPIRED para solicitudes**: Las solicitudes pendientes que no sean resueltas antes de su fecha de inicio ahora cambian su estado a `EXPIRED` (expirada) automáticamente. El sistema registra actor="SISTEMA_AUTO_EXPIRACION".
 
 2. **No hay ciclos jerárquicos**: Confirmado explícitamente que el sistema NO maneja ni permite ciclos jerárquicos en la estructura organizacional.
 
@@ -56,11 +56,11 @@ Audiencia: Product Owner, analistas de negocio, RRHH, aprobadores y stakeholders
 - Validaciones de fecha (inicio ≥ mañana), saldo disponible y solapamiento con solicitudes **Approved o Pending** del mismo empleado.
 - Flujo de notificación y bandeja de **aprobadores** (rol plano, sin jerarquía) con filtros.
 - Aprobación/rechazo con **comentario obligatorio al rechazar**; descuento de saldo solo al aprobar.
-- Auto-rechazo de solicitudes `Pending` tras **[N] días** sin resolver (parámetro configurable); estado de la solicitud pasa a `Expired` (expirada).
+- Auto-expiración de solicitudes `Pending` al alcanzar su fecha de inicio (`startDate ≤ today`); estado de la solicitud pasa a `Expired` (expirada).
 - Consulta y filtrado por RRHH (sin reportes en MVP).
 - Edición y cancelación de solicitudes `Pending` por el empleado, y cancelación de solicitudes `Approved` solo antes de que inicie el periodo de vacaciones (requiere aprobador).
-- Acumulación de saldo: 1 día por mes completo laborado desde fecha de ingreso; carry-over ilimitado entre periodos (sin tope definido — **abierto**).
-- Cálculo de duración en **días calendario**, excluyendo **sábados y domingos** (feriados: **abierto**).
+- Acumulación de saldo: 1 día por mes completo laborado desde fecha de ingreso; carry-over ilimitado entre periodos (sin tope).
+- Cálculo de duración en **días calendario**, excluyendo **sábados y domingos**. Los feriados no se excluyen y cuentan para el consumo de saldo.
 - Un aprobador **no puede aprobar sus propias solicitudes**; un aprobador **inactivo** no puede aprobar.
 - **Creación de empleados y aprobadores**: Los empleados se crearán mediante un seed inicial de datos (fuera del alcance del MVP). Los aprobadores también se crearán por seed de datos.
 
@@ -100,7 +100,7 @@ HU-04: Consultar mi saldo de días disponibles
 - Criterios:
   - Cuando el empleado accede a "Mi saldo", entonces el sistema debe mostrar: Saldo inicial anual, Días consumidos (sumatoria de APROBADAS) y Saldo disponible = Saldo inicial - Días consumidos.
   - Si el usuario selecciona otro año (histórico), entonces el sistema debe recalcular y mostrar los valores correspondientes a ese período.
-  - El saldo se acumula a razón de 1 día por cada mes completo laborado desde la fecha de ingreso (mes calendario completo desde esa fecha, no mes natural); los días no usados se acumulan de un periodo a otro sin tope máximo definido (**abierto**).
+   - El saldo se acumula a razón de 1 día por cada mes completo laborado desde la fecha de ingreso (mes calendario completo desde esa fecha, no mes natural); los días no usados se acumulan de un periodo a otro sin tope máximo (carry-over ilimitado).
 
 HU-05: Ver solicitudes pendientes (bandeja de aprobador)
 - Como aprobador quiero ver solicitudes pendientes de **todos los empleados** con detalles y saldo del empleado; filtrar por empleado y fechas; advertir traslapes.
@@ -162,14 +162,14 @@ HU-09: Filtrar solicitudes por estado, empleado o rango de fechas (RRHH)
 - RN-21 Solicitudes por días completos: La aplicación no soportará solicitudes por horas, medio día ni fracciones; todas las solicitudes serán por días completos.
 - RN-22 RRHH sin permiso para crear/editar solicitudes: RRHH tendrá únicamente permisos de consulta. RRHH no podrá crear, modificar ni registrar solicitudes en nombre de terceros bajo ninguna circunstancia.
 - RN-23 Acumulación de saldo: 1 día por mes completo laborado desde fecha de ingreso (mes calendario completo desde esa fecha, no mes natural). No hay prorrateo fraccionario adicional.
-- RN-24 Carry-over ilimitado: Los días no usados se acumulan de un periodo a otro (no se pierden al cierre de año). Tope máximo de acumulación: **abierto (pendiente de definición)**.
-- RN-25 Cálculo de duración en días hábiles: Se excluyen sábados y domingos del cómputo. Feriados: **abierto (pendiente de definición)**.
-- RN-26 Auto-rechazo por inacción: Solicitud Pending sin resolver tras **[N] días** (parámetro configurable) cambia su estado a **Expired** (expirada) automáticamente por vencimiento. El sistema registra el cambio con actor="SISTEMA_AUTO_EXPIRACION" y timestamp.
+- RN-24 Carry-over ilimitado: Los días no usados se acumulan de un periodo a otro (no se pierden al cierre de año). **No hay tope máximo de acumulación.**
+- RN-25 Cálculo de duración en días hábiles: Se excluyen sábados y domingos del cómputo. Los feriados no se excluyen y cuentan para el consumo de saldo.
+- RN-26 Auto-expiración por cumplimiento de fecha: Una solicitud en estado **Pending** que no haya sido resuelta antes de que su fecha de inicio (`startDate`) sea alcanzada cambia automáticamente a estado **Expired**. El sistema ejecuta un job diario que coteja `startDate ≤ today` usando `TimeProvider`. El cambio se registra con actor="SISTEMA_AUTO_EXPIRACION" y timestamp.
 - RN-27 Zona horaria única: Todos los empleados operan en la misma zona horaria corporativa. No se soportan zonas horarias distintas.
 - RN-28 Antelación mínima: No se puede solicitar para el día actual; fecha de inicio mínima válida = mañana (1 día de antelación).
 - RN-29 Duración máxima: Igual al saldo disponible del empleado (no hay tope fijo independiente del saldo).
 - RN-30 Duración mínima: 1 día completo.
-- RN-31 Horizonte futuro máximo: **Abierto (pendiente de definición - cuántos meses a futuro se puede solicitar)**.
+- RN-31 Horizonte futuro máximo: La fecha de inicio de una solicitud no puede exceder los **2 meses** desde la fecha actual. Validación en servidor contra `TimeProvider`.
 - RN-32 Aprobador no puede auto-aprobarse: Un aprobador que también sea empleado no puede aprobar sus propias solicitudes; debe resolverlas otro aprobador.
 - RN-33 Aprobador inactivo bloqueado: Un usuario/aprobador inactivo no puede aprobar ninguna solicitud.
 - RN-34 Sin US-7, FR-017, FR-018, D-006, FR-019, FR-020: Fuera de alcance todo lo referente a gestión de perfiles/jefes por HR, AssignedDirectManagerId, ciclos jerárquicos, auto-gestión, reasignación de jefe, rol Leave Administrator, auto-escalación. **No hay ciclos jerárquicos en el sistema**.
@@ -193,7 +193,7 @@ Cada regla incluye criterios de éxito y caso de error (ver anexo si se requiere
 - Mientras una solicitud esté en estado PENDIENTE, el empleado podrá editar fechas (inicio/fin) y motivo. Los cambios deberán registrarse en auditoría. Una vez la solicitud cambie a APROBADA/RECHAZADA/CANCELADA, no podrá editarse.
 
 5. Auto-expiración por vencimiento
-- Solicitud `Pending` sin resolver tras **[N] días** (parámetro configurable) -> sistema cambia el estado a `Expired` automáticamente por vencimiento.
+- Solicitud `Pending` cuya fecha de inicio ya fue alcanzada (`startDate ≤ today`) -> sistema cambia el estado a `Expired` automáticamente.
 
 6. Consulta RRHH
 - RRHH busca empleado o aplica filtros -> obtiene listado histórico y saldo (exportación y reportes no incluidos en MVP).
@@ -212,7 +212,7 @@ Cada regla incluye criterios de éxito y caso de error (ver anexo si se requiere
 - **Auditoría se hará únicamente a nivel de trazabilidad de movimientos de solicitudes**: creación, cambio de estado (Pending -> Approved/Rejected/Cancelled/Expired), cancelación de aprobadas, edición de Pending (campo, valor anterior, valor nuevo, actor, timestamp).
 - La auditoría registra: usuario que realizó la acción, marca temporal y comentario (si aplica).
 - RRHH podrá consultar historial de trazabilidad de solicitudes.
-- Auto-expiración por vencimiento: registrar actor="SISTEMA_AUTO_EXPIRACION" con timestamp y motivo "Expiración tras [N] días sin resolución".
+- Auto-expiración por cumplimiento de fecha: registrar actor="SISTEMA_AUTO_EXPIRACION" con timestamp y motivo "Auto-expired — start date reached".
 - **Auditoría a nivel de inicio de sesión, cambios de usuario o acciones administrativas NO está incluida en esta versión** (fuera de alcance).
 
 ## 9. Seguridad, permisos y gestión de sesiones
@@ -239,26 +239,26 @@ Cada regla incluye criterios de éxito y caso de error (ver anexo si se requiere
 - Solicitudes solapadas con Approved: bloquear creación.
 - Solicitudes solapadas con Pending: bloquear creación (no solo advertir).
 - Intento de aprobar que dejaría saldo negativo: impedir aprobación y mostrar advertencia.
-- Solicitud Pending que vence sin resolución tras [N] días: auto-expiración; estado cambia a **Expired**.
+- Solicitud Pending que no fue resuelta antes de su fecha de inicio: auto-expiración; estado cambia a **Expired**.
 - Aprobador intenta auto-aprobar: bloqueado, debe ser otro aprobador.
 - Aprobador inactivo intenta aprobar: bloqueado.
 - Intento de cancelar solicitud aprobada después de que inició el periodo: bloqueado con mensaje "No se puede cancelar: el periodo de vacaciones ya ha iniciado".
-- Horizonte futuro máximo (cuántos meses a futuro): **ABIERTO**.
-- Manejo de feriados en cálculo de días: **ABIERTO**.
-- Tope máximo de acumulación carry-over: **ABIERTO**.
-- Valor numérico exacto de [N] días para auto-expiración: **ABIERTO (parámetro configurable pendiente)**.
+- Horizonte futuro máximo (cuántos meses a futuro): **2 meses**.
+- Manejo de feriados en cálculo de días: **NO se excluyen**. Los feriados cuentan para el consumo de saldo (solo se excluyen sábados y domingos).
+- Tope máximo de acumulación carry-over: **Sin tope (carry-over ilimitado)**.
+- Auto-expiración: **dinámica** — la solicitud expira cuando `startDate ≤ today`. Sin valor N fijo.
 
 - Offboarding / Baja: **No aplica en esta versión del MVP**. El estado activo/inactivo del usuario es suficiente para controlar accesos y permisos.
 
 ## 12. Supuestos y dependencias
 
-- Cálculo de días: **días calendario excluidos sábados y domingos** (feriados: **abierto**).
+- Cálculo de días: **días calendario excluidos sábados y domingos** (los feriados cuentan para el consumo de saldo).
 - **Integraciones externas no se incluyen en esta versión del MVP**: No hay integración con calendarios corporativos, nómina, SSO, AD, ni sistemas externos.
 - Los saldos iniciales por empleado se deben cargar al crear el usuario o por importación masiva previa.
 - Las validaciones de fecha se realizarán usando la zona horaria corporativa única y las fechas se tratarán como fechas puras (sin componente hora).
 - Todas las solicitudes serán por días completos; no se soportarán medios días ni fracciones en esta versión.
 - **No hay jerarquía de jefes directos ni ciclos jerárquicos**; el modelo es plano con rol "aprobador".
-- La acumulación de saldo es: 1 día por mes completo laborado desde fecha de ingreso (mes calendario completo desde esa fecha, no mes natural); carry-over ilimitado entre periodos (**tope: abierto**).
+- La acumulación de saldo es: 1 día por mes completo laborado desde fecha de ingreso (mes calendario completo desde esa fecha, no mes natural); carry-over ilimitado entre periodos (**sin tope**).
 - No se definió tolerancia de segundos/hora para validaciones de fecha; se usa fecha pura en zona corporativa.
 - No hay auto-escalación, ni rol Leave Administrator, ni gestión de perfiles/jefes por HR (fuera de alcance MVP).
 - El sistema realizará las solicitudes y las acciones necesarias de forma directa (sin complejidades adicionales de flujo).
@@ -303,13 +303,13 @@ Cada regla incluye criterios de éxito y caso de error (ver anexo si se requiere
   - **APPROVED** (Aprobada): Solicitud aprobada por un aprobador; saldo descontado.
   - **REJECTED** (Rechazada): Solicitud rechazada por un aprobador con comentario obligatorio.
   - **CANCELLED** (Cancelada): Solicitud cancelada por empleado (si estaba Pending) o por aprobador (si estaba Approved antes del inicio).
-  - **EXPIRED** (Expirada): Solicitud pendiente que no fue resuelta tras [N] días; sistema la expira automáticamente.
+  - **EXPIRED** (Expirada): Solicitud pendiente que no fue resuelta antes de alcanzar su fecha de inicio; el sistema la expira automáticamente.
 - Día hábil (para cálculo de duración): día calendario que no es sábado ni domingo (**feriados: abierto**).
 - Mes completo laborado: mes calendario completo desde la fecha de ingreso del empleado (no mes natural).
 - Carry-over: arrastre de días no usados de un periodo al siguiente sin tope máximo definido (**abierto**).
 - Aprobador: rol plano que puede aprobar/rechazar solicitudes de cualquier empleado (sin asignación 1-a-1); puede cancelar solicitudes aprobadas si el periodo no ha iniciado.
 - Zona horaria corporativa: única zona horaria para todos los empleados.
-- [N]: parámetro configurable de días para auto-expiración de solicitudes Pending sin resolver (**pendiente de valor numérico**).
+- Auto-expiración: dinámica contra la fecha de inicio de cada solicitud (startDate ≤ today). No hay valor N fijo ni parámetro configurable de días.
 - Paginación: **Pendiente de resolución técnica** (estrategia pendiente de definir).
 - Identity Framework: ASP.NET Core Identity Framework para gestión de autenticación y sesiones de usuario.
 
@@ -502,15 +502,15 @@ RF-040 — Cálculo de días solicitados excluyendo sábados y domingos
 - Reglas relacionadas: RN-25
 
 RF-041 — Acumulación de saldo: 1 día por mes completo laborado con carry-over ilimitado
-- Requisito (Ubiquitous): El sistema deberá acumular saldo a razón de 1 día por cada mes completo laborado, contado desde la fecha de ingreso del empleado (mes calendario completo desde esa fecha, no mes natural); los días no usados se acumulan de un periodo a otro sin tope máximo definido (tope: abierto/pendiente de definición).
+- Requisito (Ubiquitous): El sistema deberá acumular saldo a razón de 1 día por cada mes completo laborado, contado desde la fecha de ingreso del empleado (mes calendario completo desde esa fecha, no mes natural); los días no usados se acumulan de un periodo a otro sin tope máximo (carry-over ilimitado).
 - Origen: RN-23, RN-24
 
 RF-042 — Validaciones de fecha usan zona horaria corporativa única
-- Requisito (Ubiquitous): Todas las validaciones de fecha (inicio >= mañana, fin >= inicio, auto-rechazo a los [N] días) se realizarán usando la zona horaria corporativa única; todas las fechas se tratan como fechas puras sin componente hora; no se soportan empleados en zonas horarias distintas.
+- Requisito (Ubiquitous): Todas las validaciones de fecha (inicio >= mañana, fin >= inicio, auto-expiración por fecha de inicio) se realizarán usando la zona horaria corporativa única; todas las fechas se tratan como fechas puras sin componente hora; no se soportan empleados en zonas horarias distintas.
 - Origen: RN-27
 
-RF-043 — Auto-expiración de solicitudes Pending tras [N] días sin resolución
-- Requisito (Event-driven): Cuando una solicitud permanezca en estado PENDIENTE sin ser aprobada ni rechazada durante [N] días (parámetro configurable, valor numérico exacto: abierto), el sistema deberá cambiar su estado a **EXPIRED** (expirada) automáticamente por vencimiento, registrar el cambio de estado con actor "SISTEMA_AUTO_EXPIRACION" y timestamp, y notificar al empleado.
+RF-043 — Auto-expiración de solicitudes Pending al alcanzar la fecha de inicio
+- Requisito (Event-driven): Cuando la fecha de inicio (`startDate`) de una solicitud en estado PENDING sea igual o anterior a la fecha actual (startDate ≤ today), el sistema deberá cambiar su estado a **EXPIRED** (expirada) automáticamente por cumplimiento de fecha, registrar el cambio de estado con actor "SISTEMA_AUTO_EXPIRACION" y timestamp, y notificar al empleado.
 - Origen: RN-26
 
 RF-044 — Bloqueo explícito de auto-aprobación (aprobador == autor)
