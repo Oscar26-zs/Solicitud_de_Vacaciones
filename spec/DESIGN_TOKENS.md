@@ -97,7 +97,8 @@ Las variables `--chart-1` a `--chart-5` y toda la familia `--sidebar-*` están d
 | Pendiente   | `amber-500 / 15%`    | `amber-700`   | `amber-400`        | `#b45309` / `#fbbf24`    |
 | Aprobada    | `emerald-500 / 15%`  | `emerald-700` | `emerald-400`      | `#047857` / `#34d399`    |
 | Rechazada   | `destructive / 15%`  | `destructive` | `destructive`      | `#e5484d`                |
-| Cancelada   | `muted`              | `muted-foreground` | `muted-foreground` | `#8e8e8e`           |
+| Cancelada   | `muted`              | `muted-foreground` | `muted-foreground` | `#8e8e8e`                |
+| Expirada    | `muted`              | `muted-foreground` | `muted-foreground` | `#8e8e8e`                |
 | Info (timeline "creada") | `sky-500 / 15%` | `sky-600` | `sky-400`        | `#0284c7` / `#38bdf8`    |
 
 En CSS: `background: rgba(r,g,b,0.15)` para cada color.
@@ -187,9 +188,9 @@ Tooltip (`.tooltip-content`): `opacity` + `transform: translateY(-4px)` → `tra
 | Prefijo | Ancho    | Efecto principal                                            |
 | ------- | -------- | ----------------------------------------------------------- |
 | base    | <640px   | 1 columna; sheet sube desde abajo; menús compactos          |
-| `sm`    | ≥640px   | Grids 2 cols (Jefe/RRHH) / 3 cols (Empleado); sheet desde la derecha |
+| `sm`    | ≥640px   | Grids 2 cols (Aprobador/RRHH) / 3 cols (Empleado); sheet desde la derecha |
 | `md`    | ≥768px   | Filtros y grids intermedios                                 |
-| `lg`    | ≥1024px  | Grids 4 cols (Jefe/RRHH); layout completo                   |
+| `lg`    | ≥1024px  | Grids 4 cols (Aprobador/RRHH); layout completo                   |
 
 Contenido centrado en `max-width: 72rem (1152px)` con padding lateral 16px.
 
@@ -253,7 +254,7 @@ El sistema utiliza una biblioteca de iconos **inline SVG** (no sprites) para má
 | User check          | `UserCheck`       | Evento "aprobada" en timeline                       |
 | User X              | `UserX`           | Evento "rechazada" en timeline                      |
 | Círculo cortado     | `Slash`           | Evento "cancelada" en timeline                      |
-| Usuarios            | `Users`           | Stat "Colaboradores" (Jefe/RRHH)                    |
+| Usuarios            | `Users`           | Stat "Colaboradores" (Aprobador/RRHH)                    |
 | Reloj check         | `ClockCheck`      | Stat "Pendientes"                                   |
 | Calendario días     | `CalendarDays`    | Stat "Días aprobados"                               |
 | Lista               | `List`            | Stat "Total solicitudes"                            |
@@ -298,7 +299,7 @@ Uso: `@await Html.PartialAsync("_Icon", ("CalendarCheck", "md"))`
 /Controllers/
   AccountController.cs        # Login / logout / cambio de rol
   EmployeeController.cs       # Dashboard, crear/editar/cancelar solicitudes
-  ManagerController.cs        # Bandeja de aprobaciones, aprobar/rechazar
+  BandejaAprobadorController.cs  # Bandeja de aprobaciones, aprobar/rechazar
   HRController.cs             # Historial, filtros, exportar CSV
 
 /Models/
@@ -307,9 +308,9 @@ Uso: `@await Html.PartialAsync("_Icon", ("CalendarCheck", "md"))`
     EmployeeDashboardViewModel.cs  # Saldo, consumido, disponible, solicitudes
     CreateRequestViewModel.cs  # Fecha inicio, fecha fin, motivo
     RequestListViewModel.cs    # Lista paginada + filtros
-    ManagerInboxViewModel.cs   # Solicitudes + conteos por estado
+    BandejaAprobadorViewModel.cs   # Solicitudes + conteos por estado
     RequestDetailViewModel.cs  # Solicitud + empleado + traslapes + saldo
-    ManagerDecisionViewModel.cs # Aprobar/rechazar + comentario
+    DecisionAprobadorViewModel.cs # Aprobar/rechazar + comentario
     HRHistorialViewModel.cs    # Solicitudes filtradas + conteos
     ChangeRoleViewModel.cs     # Rol activo seleccionado
   /Entities/
@@ -324,7 +325,7 @@ Uso: `@await Html.PartialAsync("_Icon", ("CalendarCheck", "md"))`
     AccessDenied.cshtml
   /Employee/
     Index.cshtml               # Dashboard del empleado (usa ViewComponent)
-  /Manager/
+  /BandejaAprobador/
     Index.cshtml               # Bandeja de aprobaciones (usa ViewComponent)
   /HR/
     Index.cshtml               # Panel de RRHH (usa ViewComponent)
@@ -344,8 +345,8 @@ Uso: `@await Html.PartialAsync("_Icon", ("CalendarCheck", "md"))`
   EmployeeDashboardViewComponent.cs     # Calcula saldos y renderiza dashboard
   EmployeeRequestsViewComponent.cs      # Lista de solicitudes del empleado
   NewRequestSheetViewComponent.cs       # Sheet de nueva solicitud (valida saldo en servidor)
-  ManagerInboxViewComponent.cs          # Bandeja con filtros y búsqueda
-  ManagerRequestDetailViewComponent.cs  # Detalle con aprobar/rechazar
+  BandejaAprobadorViewComponent.cs          # Bandeja con filtros y búsqueda
+  DetalleAprobacionViewComponent.cs  # Detalle con aprobar/rechazar
   HRHistorialViewComponent.cs           # Historial con filtros y exportación
 
 /wwwroot/
@@ -454,6 +455,7 @@ Sin esto, el texto del `<option>` es invisible en modo oscuro (blanco sobre blan
 | aprobada  | "Aprobada"  | `border-transparent bg-\[rgba(16,185,129,.15)\] text-\[#047857\]` (claro) / `text-\[#34d399\]` (oscuro) |
 | rechazada | "Rechazada" | `border-transparent bg-\[rgba(229,72,77,.15)\] text-\[#e5484d\]` |
 | cancelada | "Cancelada" | `border-transparent bg-muted text-muted-foreground` |
+| expirada  | "Expirada"  | `border-transparent bg-muted text-muted-foreground` |
 
 ### 3.6 Tabla (`.table`)
 
@@ -500,9 +502,9 @@ Reutiliza la misma estructura que el modal de detalle de revisión del Aprobador
 
 ### 3.9 Calendario de rango
 
-Rejilla de 7 columnas (días de semana), locale español. Cada día es un botón de 32px. Navegación entre meses con flechas. Días anteriores a hoy deshabilitados. Rango seleccionado se resalta con color primario. Días que exceden el saldo se pintan con fondo `--destructive` y texto blanco.
+Rejilla de 7 columnas (días de semana), locale español. Cada día es un botón de 32px. Navegación entre meses con flechas. Días anteriores a hoy deshabilitados. **Sábados y domingos deshabilitados (no seleccionables)**. Rango seleccionado se resalta con color primario. Días que exceden el saldo se pintan con fondo `--destructive` y texto blanco.
 
-**Comportamiento:** al hacer clic en una nueva fecha con rango completo, la selección se reinicia. Cuando un día es simultáneamente rango y excede saldo, prevalece el rojo.
+**Comportamiento:** al hacer clic en una nueva fecha con rango completo, la selección se reinicia. Cuando un día es simultáneamente rango y excede saldo, prevalece el rojo. Los fines de semana no cuentan en el cómputo de días solicitados ni pueden seleccionarse como inicio o fin del rango.
 
 **Estructura HTML:**
 ```html
@@ -522,6 +524,7 @@ Rejilla de 7 columnas (días de semana), locale español. Cada día es un botón
   <div class="calendar-days">
     <button class="calendar-day" data-date="2025-03-10">10</button>
     <button class="calendar-day calendar-day--disabled" disabled>5</button>
+    <button class="calendar-day calendar-day--weekend" data-date="2025-03-08" disabled>8</button>
     <button class="calendar-day calendar-day--in-range" data-date="2025-03-15">15</button>
     <button class="calendar-day calendar-day--range-start" data-date="2025-03-12">12</button>
     <button class="calendar-day calendar-day--range-end" data-date="2025-03-18">18</button>
@@ -618,6 +621,18 @@ Rejilla de 7 columnas (días de semana), locale español. Cada día es un botón
 
 .calendar-day--today {
   border-color: var(--primary);
+}
+
+/* Fines de semana: no seleccionables */
+.calendar-day--weekend {
+  color: var(--muted-foreground);
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.calendar-day--weekend:hover {
+  background: transparent;
 }
 ```
 
@@ -736,9 +751,9 @@ Dropdown que aparece al hacer clic en el avatar del header. Contiene informació
           <span>Empleado</span>
           <svg class="user-menu-item-check"><!-- Check --></svg>
         </button>
-        <button type="button" class="user-menu-item" data-role="jefe">
+        <button type="button" class="user-menu-item" data-role="aprobador">
           <svg><!-- UserCheck --></svg>
-          <span>Jefe / Aprobador</span>
+          <span>Aprobador</span>
         </button>
       </form>
     </div>
@@ -1413,13 +1428,14 @@ Estos archivos `.cshtml` no contienen lógica de datos propia. Reciben el modelo
 ### `_StatusBadge.cshtml`
 
 ```razor
-@model string @* "pendiente" | "aprobada" | "rechazada" | "cancelada" *@
+@model string @* "pendiente" | "aprobada" | "rechazada" | "cancelada" | "expirada" *@
 @{
   var (label, cls) = Model switch {
     "pendiente" => ("Pendiente", "badge--pending"),
     "aprobada"  => ("Aprobada", "badge--approved"),
     "rechazada" => ("Rechazada", "badge--rejected"),
     "cancelada" => ("Cancelada", "badge--canceled"),
+    "expirada"  => ("Expirada", "badge--expired"),
     _ => (Model, "")
   };
 }
@@ -1491,12 +1507,12 @@ Se usan para cualquier bloque que necesite lógica propia (calcular saldo, consu
 - **InvokeAsync:** recibe `employeeId` y opcionalmente `editingRequestId`. Calcula saldo disponible para validación del lado servidor.
 - **View:** renderiza el HTML del Sheet (inicialmente oculto). El JS del cliente maneja la selección de rango, validación en vivo, y el envío vía `fetch` a `EmployeeController.Create` / `EmployeeController.Update`.
 
-### `ManagerRequestDetailViewComponent`
+### `DetalleAprobacionViewComponent`
 
 - **InvokeAsync:** recibe `requestId`, determina traslapes con solicitudes aprobadas/pendientes del mismo empleado, calcula saldo post-aprobación.
 - **View:** renderiza el diálogo de detalle con botones de aprobar/rechazar. El JS maneja el flujo de confirmación de rechazo y envía decisiones vía fetch.
 
-### `ManagerInboxViewComponent`
+### `BandejaAprobadorViewComponent`
 
 - **InvokeAsync:** recibe filtro y búsqueda opcionales, devuelve lista paginada con conteos por estado.
 - **View:** renderiza tabla + toggle group de filtros + paginación.
@@ -1530,14 +1546,14 @@ Se usan para cualquier bloque que necesite lógica propia (calcular saldo, consu
 | `List`        | GET    | `/employee/requests/list`    | Lista paginada de solicitudes (JSON o Partial) |
 | `Validate`    | POST   | `/employee/requests/validate`| Valida campos sin persistir (JSON)             |
 
-### `ManagerController`
+### `BandejaAprobadorController`
 
 | Action          | Método | URL                          | Descripción                                    |
 | --------------- | ------ | ---------------------------- | ---------------------------------------------- |
-| `Index`         | GET    | `/manager`                   | Bandeja de aprobaciones                        |
-| `Detail`        | GET    | `/manager/requests/detail`   | Detalle de solicitud (JSON o Partial)          |
-| `Approve`       | POST   | `/manager/requests/approve`  | Aprueba solicitud (JSON)                       |
-| `Reject`        | POST   | `/manager/requests/reject`   | Rechaza solicitud con comentario (JSON)        |
+| `Index`         | GET    | `/bandeja-aprobador`         | Bandeja de aprobaciones                        |
+| `Detail`        | GET    | `/bandeja-aprobador/detalle` | Detalle de solicitud (JSON o Partial)          |
+| `Approve`       | POST   | `/bandeja-aprobador/aprobar` | Aprueba solicitud (JSON)                       |
+| `Reject`        | POST   | `/bandeja-aprobador/rechazar`| Rechaza solicitud con comentario (JSON)        |
 
 ### `HRController`
 
@@ -1560,7 +1576,7 @@ public class Employee
     public string Email { get; set; }
     public string AvatarColor { get; set; }  // hex o clase CSS
     public string Initials { get; set; }
-    public string Role { get; set; }         // "empleado" | "jefe" | "rrhh"
+    public string Role { get; set; }         // "empleado" | "aprobador" | "rrhh"
     public List<string> Roles { get; set; }  // todos los roles asignados
     public int AnnualBalance { get; set; }   // días de saldo anual
 }
@@ -1574,11 +1590,11 @@ public class LeaveRequest
     public string EndDate { get; set; }
     public int Days { get; set; }
     public string Reason { get; set; }
-    public string Status { get; set; }       // "pendiente" | "aprobada" | "rechazada" | "cancelada"
+    public string Status { get; set; }       // "pendiente" | "aprobada" | "rechazada" | "cancelada" | "expirada"
     public DateTime CreatedAt { get; set; }
     public DateTime? DecisionAt { get; set; }
     public string DecisionBy { get; set; }
-    public string ManagerComment { get; set; }
+    public string ComentarioAprobador { get; set; }
     public List<RequestEvent> History { get; set; }
 }
 
@@ -1597,8 +1613,8 @@ public class CreateRequestViewModel
     public string EditingRequestId { get; set; }  // si es edición
 }
 
-// Models/ViewModels/ManagerDecisionViewModel.cs
-public class ManagerDecisionViewModel
+// Models/ViewModels/DecisionAprobadorViewModel.cs
+public class DecisionAprobadorViewModel
 {
     [Required]
     public string RequestId { get; set; }
@@ -1641,8 +1657,9 @@ Dado que Razor MVC es renderizado en servidor sin reactividad automática, toda 
 ### 8.2 `calendar-range.js` — Selección de rango y días excedentes
 
 - Renderiza el calendario como grid de botones.
+- **Sábados y domingos tienen clase `.calendar-day--weekend` y no son seleccionables** (no responden a clics).
 - Maneja clics para seleccionar rango (inicio → fin; si hay rango completo, reinicia).
-- Calcula días seleccionados, consulta `data-available-balance` del empleado.
+- Calcula días seleccionados (excluye sábados y domingos del cómputo), consulta `data-available-balance` del empleado.
 - **Pinta en rojo (clase `.calendar-day--exceeding`) los días que exceden el saldo** disponible.
 - Actualiza el resumen de selección: "Has seleccionado X días · Saldo disponible: Y días".
 - Muestra el warning "⚠️ Has seleccionado más días de los disponibles" cuando corresponda.
@@ -1666,6 +1683,7 @@ function updateExceedingDays() {
     return;
   }
 
+  // calculateDaysBetween excluye sábados y domingos (días hábiles)
   const selectedDays = calculateDaysBetween(rangeStart, rangeEnd);
   const exceededDays = Math.max(0, selectedDays - availableBalance);
 
@@ -1757,13 +1775,13 @@ function updateExceedingDays() {
 
 ### 8.11 Flujo de aprobación/rechazo (ejemplo completo)
 
-1. Jefe hace clic en "Revisar" en la tabla → JS abre diálogo de detalle (`dialog.js`), carga datos vía `fetch GET /manager/requests/detail?id=X` como HTML parcial o JSON.
-2. Jefe ve detalle con saldo, traslapes, historial.
-3. Jefe hace clic en "Aprobar" → `fetch POST /manager/requests/approve` con `{ requestId }`.
+1. Aprobador hace clic en "Revisar" en la tabla → JS abre diálogo de detalle (`dialog.js`), carga datos vía `fetch GET /bandeja-aprobador/detalle?id=X` como HTML parcial o JSON.
+2. Aprobador ve detalle con saldo, traslapes, historial.
+3. Aprobador hace clic en "Aprobar" → `fetch POST /bandeja-aprobador/aprobar` con `{ requestId }`.
 4. Servidor valida (traslape con aprobadas al momento de aprobar), devuelve `{ ok }`.
 5. JS: si ok → toast éxito + cierra diálogo + refresca la tabla; si no → toast error.
-6. Jefe hace clic en "Rechazar" → se muestra textarea de comentario (JS, sin recargar).
-7. Jefe escribe comentario (obligatorio), hace clic en "Confirmar rechazo" → `fetch POST /manager/requests/reject` con `{ requestId, comment }`.
+6. Aprobador hace clic en "Rechazar" → se muestra textarea de comentario (JS, sin recargar).
+7. Aprobador escribe comentario (obligatorio), hace clic en "Confirmar rechazo" → `fetch POST /bandeja-aprobador/rechazar` con `{ requestId, comment }`.
 
 ---
 
@@ -1862,7 +1880,7 @@ Panel lateral (Sheet) que sirve tanto para crear como para editar.
 
 ---
 
-## 12. Módulo: Jefe / Aprobador (`Manager/Index.cshtml`)
+## 12. Módulo: Aprobador (`BandejaAprobador/Index.cshtml`)
 
 ### 12.1 Fila de StatCards — Layout de grids
 
@@ -1893,7 +1911,7 @@ Las 4 StatCards ("Pendientes" (ámbar), "Aprobadas" (esmeralda), "Colaboradores"
    - El botón usa `event.stopPropagation()` en el `<td>` contenedor para evitar doble apertura.
 
 4. **Filas clicables:**
-   - El `<tr>` completo tiene `onclick="openManagerDetail('@r.Id')"`.
+   - El `<tr>` completo tiene `onclick="openDetalleAprobacion('@r.Id')"`.
    - El `<td>` que contiene el botón tiene `onclick="event.stopPropagation()"` para que el clic en el botón no dispare dos veces la apertura del modal.
    - CSS base ya define `cursor: pointer` y `hover: background` en `tbody tr`.
 
@@ -1949,7 +1967,7 @@ Diálogo modal:
 - textarea de comentario (obligatorio, máx. 500 caracteres, placeholder `"Indica el motivo del rechazo…"`).
 - Botón "Confirmar rechazo" (`.btn--destructive`) deshabilitado hasta que el comentario tenga texto.
 
-**Acciones vía fetch:** `POST /Manager/Index?handler=Approve` / `POST /Manager/Index?handler=Reject`.
+**Acciones vía fetch:** `POST /BandejaAprobador/Index?handler=Approve` / `POST /BandejaAprobador/Index?handler=Reject`.
 
 ---
 
@@ -1994,7 +2012,7 @@ Diálogo modal:
 
 5. **Partial Views vs View Components:**
    - **Partial Views** (`_StatusBadge.cshtml`, `_StatCard.cshtml`, `_RequestTimeline.cshtml`, `_UserAvatar.cshtml`, `_ThemeToggle.cshtml`, `_UserMenu.cshtml`, `_TablePagination.cshtml`) para bloques puramente visuales sin lógica de datos propia. Reciben el modelo ya calculado.
-   - **View Components** (`EmployeeDashboardViewComponent`, `NewRequestSheetViewComponent`, `ManagerInboxViewComponent`, `ManagerRequestDetailViewComponent`, `HRHistorialViewComponent`) para cualquier bloque que necesite lógica de datos (calcular saldo, determinar traslapes, consultar repositorio).
+   - **View Components** (`EmployeeDashboardViewComponent`, `NewRequestSheetViewComponent`, `BandejaAprobadorViewComponent`, `DetalleAprobacionViewComponent`, `HRHistorialViewComponent`) para cualquier bloque que necesite lógica de datos (calcular saldo, determinar traslapes, consultar repositorio).
 
 6. **Validación de formularios:** Data Annotations en los ViewModels de C# (`[Required]` para motivo y comentario de rechazo, `[StringLength(500)]` para comentario) para la validación en servidor. JavaScript en cliente para feedback inmediato (deshabilitar el botón de envío hasta que todos los campos sean válidos). La validación del lado servidor siempre se ejecuta al enviar, incluso si el JS falla.
 

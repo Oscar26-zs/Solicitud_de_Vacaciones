@@ -88,30 +88,128 @@ No se detectan violaciones. La Constitución y la Spec están alineadas. Existe 
 
 Las siguientes entidades emergen exclusivamente de los casos de uso definidos en `docs/use-cases.md` (CU-01 a CU-19) y las reglas de negocio de `spec.md`:
 
-| Entidad | Casos de Uso | Responsabilidad |
-|---|---|---|
-| `Empleado` (Employee) | CU-01, CU-02, CU-04, CU-05, CU-06, CU-07, CU-10, CU-16, CU-18 | Representa un usuario del sistema con datos de empleo (fecha de ingreso, rol, activo/inactivo). Es el actor que crea solicitudes y sobre quien se verifican saldos y permisos. |
-| `SolicitudVacaciones` (VacationRequest) | CU-04, CU-05, CU-06, CU-07, CU-10, CU-11, CU-12, CU-14, CU-15 | Entidad central que encapsula el ciclo de vida de una solicitud de vacaciones: fechas, motivo, estado (Pending/Approved/Rejected/Cancelled/Expired), aprobador que resolvió, comentario de rechazo. Contiene las reglas de negocio para transiciones de estado. |
-| `SaldoEmpleado` (EmployeeBalance) | CU-01, CU-02, CU-03, CU-04, CU-11, CU-13, CU-14 | Gestiona el saldo acumulado (1 día/mes completo laborado), saldo consumido (días de solicitudes aprobadas) y saldo disponible. Garantiza el invariante de saldo no negativo. |
-| `HistorialSolicitud` (VacationRequestHistory) | CU-05, CU-17 | Registro de auditoría inmutable para cada cambio de estado, edición o acción sobre una solicitud. Contiene: tipo de evento, actor, timestamp, valor anterior/nuevo. |
-| `HistorialSaldo` (BalanceHistory) | CU-03, CU-17 | Registro de auditoría inmutable para cada movimiento de saldo (acumulación, descuento por aprobación, restauración por cancelación). |
+---
+
+#### `Empleado` *(Employee)*
+
+Representa un usuario del sistema. Es el actor que crea solicitudes y sobre quien se verifican saldos y permisos. Sus roles (Empleado, Aprobador, RRHH) se gestionan a través de ASP.NET Core Identity, no como campo directo de la entidad.
+
+| Atributo | Tipo | Descripción |
+|----------|------|-------------|
+| `id` | `Guid` | Identificador único |
+| `email` | `string` | Correo electrónico (único) |
+| `fullName` | `string` | Nombre completo |
+| `joinDate` | `DateTime` | Fecha de ingreso a la empresa. Determina la acumulación mensual de saldo. |
+| `isActive` | `bool` | Indica si el empleado está activo. Empleados inactivos no pueden crear solicitudes; aprobadores inactivos no pueden aprobar. |
+
+---
+
+#### `SolicitudVacaciones` *(VacationRequest)*
+
+Entidad central que encapsula el ciclo de vida completo de una solicitud de vacaciones. Contiene las reglas de negocio para transiciones de estado y validaciones de fechas.
+
+| Atributo | Tipo | Descripción |
+|----------|------|-------------|
+| `id` | `Guid` | Identificador único |
+| `employeeId` | `Guid` | FK → `Empleado` |
+| `startDate` | `DateTime` | Fecha de inicio del periodo solicitado |
+| `endDate` | `DateTime` | Fecha de fin del periodo solicitado |
+| `daysRequested` | `int` | Días hábiles calculados (excluye sábados y domingos) |
+| `status` | `EstadoSolicitud` | Estado actual: `Pending`, `Approved`, `Rejected`, `Cancelled`, `Expired` |
+| `reason` | `string` | Motivo de la solicitud (mín. 10 caracteres) |
+| `approverComment` | `string?` | Comentario del aprobador al rechazar (obligatorio en rechazo, máx. 500 caracteres) |
+| `resolvedBy` | `Guid?` | Id del aprobador que aprobó/rechazó/canceló la solicitud |
+| `createdAt` | `DateTime` | Timestamp de creación |
+| `updatedAt` | `DateTime` | Timestamp de última modificación |
+| `rowVersion` | `byte[]` | Versión de fila para concurrencia optimista. Impide doble aprobación simultánea. |
+
+---
+
+#### `SaldoEmpleado` *(EmployeeBalance)*
+
+Gestiona los días de vacaciones del empleado. Garantiza el invariante de saldo no negativo mediante concurrencia optimista.
+
+| Atributo | Tipo | Descripción |
+|----------|------|-------------|
+| `id` | `Guid` | Identificador único |
+| `employeeId` | `Guid` | FK → `Empleado` (1:1) |
+| `accumulatedBalance` | `int` | Saldo acumulado (1 día por mes completo laborado) |
+| `consumedBalance` | `int` | Días consumidos por solicitudes aprobadas |
+| `availableBalance` | `int` | **Propiedad calculada** (`accumulatedBalance - consumedBalance`). No se persiste. |
+| `lastUpdatedAt` | `DateTime` | Timestamp del último cambio |
+| `rowVersion` | `byte[]` | Versión de fila para concurrencia optimista. Evita saldos negativos por aprobaciones concurrentes. |
+
+---
+
+#### `HistorialSolicitud` *(VacationRequestHistory)*
+
+Registro de auditoría inmutable para cada acción sobre una solicitud. **Consolida** la entidad `ApprovalAction` definida en spec/003, evitando duplicidad de registro.
+
+| Atributo | Tipo | Descripción |
+|----------|------|-------------|
+| `id` | `Guid` | Identificador único |
+| `requestId` | `Guid` | FK → `SolicitudVacaciones` |
+| `eventType` | `string` | Tipo de evento: `CREATED`, `UPDATED`, `STATUS_CHANGED`, `CANCELLED` |
+| `previousStatus` | `EstadoSolicitud?` | Estado anterior (útil en transiciones) |
+| `newStatus` | `EstadoSolicitud?` | Nuevo estado (útil en transiciones) |
+| `changedFields` | `string?` | JSON con campos modificados en ediciones (`{"campo": {"old": "...", "new": "..."}}`) |
+| `actor` | `string` | Quién realizó la acción (email del usuario o `SISTEMA_AUTO_EXPIRACION`) |
+| `timestamp` | `DateTime` | Momento del evento |
+| `comment` | `string?` | Comentario adicional (motivo de rechazo, nota de expiración, etc.) |
+
+---
+
+#### `HistorialSaldo` *(BalanceHistory)*
+
+Registro de auditoría inmutable para cada movimiento de saldo. Insert-only.
+
+| Atributo | Tipo | Descripción |
+|----------|------|-------------|
+| `id` | `Guid` | Identificador único |
+| `employeeId` | `Guid` | FK → `Empleado` |
+| `movementType` | `TipoMovimientoSaldo` | `Acumulacion`, `DescuentoPorAprobacion`, `RestauracionPorCancelacion` |
+| `previousBalance` | `int` | Saldo disponible antes del movimiento |
+| `newBalance` | `int` | Saldo disponible después del movimiento |
+| `reason` | `string` | Motivo del cambio (ej. "Approved request #123") |
+| `actor` | `string` | Quién generó el movimiento (email o `SISTEMA_ACUMULACION`) |
+| `timestamp` | `DateTime` | Momento del movimiento |
+
+---
 
 ### Value Objects
 
-| Value Object | Uso |
-|---|---|
-| `RangoFechas` (DateRange) | Encapsula fecha inicio y fecha fin con validaciones (inicio ≤ fin, inicio futura). Utilizado por `SolicitudVacaciones`. |
-| `DiasHabiles` (BusinessDays) | Valor calculado que representa días solicitados excluyendo sábados y domingos. |
+#### `RangoFechas` *(DateRange)*
+Encapsula fecha inicio y fecha fin con validaciones: inicio ≤ fin, inicio ≥ mañana. Invariante: el rango nunca puede ser inválido.
+
+#### `DiasHabiles` *(BusinessDays)*
+Valor calculado que representa días solicitados excluyendo sábados y domingos. El cálculo es un invariante de dominio — no se delega al cliente ni a la base de datos.
+
+---
 
 ### Enums
 
 | Enum | Valores |
-|---|---|
-| `EstadoSolicitud` (VacationRequestStatus) | `Pending`, `Approved`, `Rejected`, `Cancelled`, `Expired` |
-| `TipoMovimientoSaldo` (BalanceMovementType) | `Acumulacion`, `DescuentoPorAprobacion`, `RestauracionPorCancelacion` |
-| `RolUsuario` (UserRole) | `Empleado`, `Aprobador`, `RRHH` |
+|------|---------|
+| `EstadoSolicitud` *(VacationRequestStatus)* | `Pending`, `Approved`, `Rejected`, `Cancelled`, `Expired` |
+| `TipoMovimientoSaldo` *(BalanceMovementType)* | `Acumulacion`, `DescuentoPorAprobacion`, `RestauracionPorCancelacion` |
+| `RolUsuario` *(UserRole)* | `Empleado`, `Aprobador`, `RRHH` |
 
-Ninguna entidad contiene atributos de Entity Framework ni depende de Infrastructure.
+> **Regla:** Ninguna entidad contiene atributos de Entity Framework ni depende de Infrastructure. Anotaciones como `rowVersion` (mapeado a `byte[]` por EF) se configuran exclusivamente en la capa de Infrastructure.
+
+---
+
+### 4.1 Validación de Entidades vs. Especificaciones
+
+| Entidad | Atributos en sub-spec | Plan alineado | Mejora aplicada |
+|---------|----------------------|:------------:|-----------------|
+| `Empleado` | `id`, `email`, `fullName`, `status`, `joinDate` *(001)* | ✅ | Sin cambios. Roles por Identity. |
+| `SaldoEmpleado` | `id`, `employeeId`, `accumulatedBalance`, `consumedBalance`, `availableBalance`, `lastUpdatedAt` *(001)* | ✅ | `availableBalance` → propiedad calculada. `rowVersion` añadido. |
+| `HistorialSaldo` | `id`, `employeeId`, `movementType`, `previousBalance`, `newBalance`, `reason`, `actor`, `timestamp` *(001)* | ✅ | Sin cambios. |
+| `SolicitudVacaciones` | `id`, `employeeId`, `startDate`, `endDate`, `daysRequested`, `status`, `reason`, `approverComment`, `createdAt`, `updatedAt` *(002)* | ✅ | Añadidos `resolvedBy` y `rowVersion`. |
+| `HistorialSolicitud` | `id`, `requestId`, `eventType`, `actor`, `note`, `timestamp` *(002)* | ⚠️ Mejorado | spec/002 usa `note` genérico. Plan añade `previousStatus`/`newStatus` + `changedFields` (JSON) para trazabilidad granular. |
+| `ApprovalAction` | `id`, `requestId`, `approverId`, `action`, `comment`, `timestamp` *(003)* | ⚠️ Consolidado | spec/003 define entidad separada. El plan la consolida dentro de `HistorialSolicitud`, evitando duplicidad de auditoría. |
+
+**Resultado:** 5/5 entidades cubiertas. `ApprovalAction` integrada en `HistorialSolicitud`. Mejoras añadidas: `rowVersion` (×2), `resolvedBy`, trazabilidad granular.
 
 ---
 

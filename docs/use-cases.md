@@ -213,7 +213,7 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
    - Saldo actual disponible.
    - Saldo que quedaría después de la solicitud.
 8. Empleado confirma que desea crear la solicitud.
-9. Sistema guarda la solicitud con estado "Pendiente de Aprobación".
+9. Sistema guarda la solicitud con estado "PENDING".
 10. Sistema registra en el historial que la solicitud fue creada, indicando quién la creó y cuándo.
 11. Sistema hace visible la solicitud en la bandeja de los aprobadores para que la revisen.
 12. Sistema confirma la creación exitosa y entrega el identificador de la solicitud.
@@ -233,7 +233,7 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 | 500 | Error interno | "Error interno al crear solicitud" |
 
 ### Postcondiciones:
-- Solicitud creada con estado "Pendiente de Aprobación".
+- Solicitud creada con estado "PENDING".
 - Historial de la solicitud registrado con el evento de creación.
 - Solicitud visible en la bandeja de aprobadores.
 - El saldo del empleado no se modifica (el descuento ocurre solo cuando se aprueba).
@@ -254,7 +254,7 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 - Empleado autenticado con permisos de empleado.
 
 ### Flujo principal (lista):
-1. Empleado solicita ver sus solicitudes de vacaciones, con opción de filtrar por estado (pendiente, aprobada, rechazada, cancelada, expirada).
+1. Empleado solicita ver sus solicitudes de vacaciones, con opción de filtrar por estado (PENDING, APPROVED, REJECTED, CANCELLED, EXPIRED).
 2. Sistema verifica que el empleado solo pueda ver sus propias solicitudes.
 3. Sistema aplica el filtro de estado si el empleado lo indicó.
 4. Sistema entrega la lista ordenada de la más reciente a la más antigua, mostrando los resultados por páginas.
@@ -297,7 +297,7 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 
 ### Precondiciones:
 - Empleado autenticado.
-- La solicitud existe y está en estado "Pendiente de Aprobación".
+- La solicitud existe y está en estado "PENDING".
 - El empleado es el autor de la solicitud.
 
 ### Flujo principal:
@@ -350,7 +350,7 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 
 ### Precondiciones:
 - Empleado autenticado.
-- La solicitud existe y está en estado "Pendiente de Aprobación".
+- La solicitud existe y está en estado "PENDING".
 - El empleado es el autor de la solicitud.
 
 ### Flujo principal:
@@ -361,7 +361,7 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
    - El empleado sea el autor de la solicitud.
 3. El sistema muestra un mensaje de confirmación: "¿Está seguro de cancelar esta solicitud?".
 4. Empleado confirma que desea cancelarla.
-5. Sistema cambia el estado de la solicitud a "Cancelada".
+5. Sistema cambia el estado de la solicitud a "CANCELLED".
 6. Sistema registra en el historial que la solicitud fue cancelada, indicando quién la canceló y cuándo.
 7. Sistema notifica a los aprobadores que la solicitud fue cancelada.
 8. **El saldo del empleado no se modifica** porque nunca se descontaron los días (solo se descuentan al aprobar).
@@ -377,13 +377,13 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 | 404 | Solicitud no existe | "Solicitud no encontrada" |
 
 ### Postcondiciones:
-- Estado de la solicitud actualizado a "Cancelada".
+- Estado de la solicitud actualizado a "CANCELLED".
 - Evento registrado en el historial de la solicitud.
 - Saldo del empleado sin cambios.
 
 ### Criterios de aceptación:
-- Dado solicitud pendiente propia, cuando empleado confirma cancelación, entonces estado = Cancelada y saldo no se modifica.
-- Dado solicitud aprobada, cuando empleado intenta cancelar, entonces operación rechazada.
+- Dado solicitud pendiente propia, cuando empleado confirma cancelación, entonces estado = CANCELLED y saldo no se modifica.
+- Dado solicitud APPROVED, cuando empleado intenta cancelar, entonces operación rechazada.
 
 ---
 
@@ -437,7 +437,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 ### Lógica:
 1. Recibir: empleado, fecha de inicio, fecha de fin y, opcionalmente, una solicitud que se debe ignorar (útil al editar).
 2. Buscar solicitudes del mismo empleado que:
-   - Estén en estado "Pendiente de Aprobación" o "Aprobada".
+   - Estén en estado "PENDING" o "APPROVED".
    - Tengan fechas que se empalmen con el período consultado (una solicitud existente comienza antes de que termine la nueva, y viceversa).
    - Si se indicó una solicitud a ignorar, se excluye de la búsqueda.
 3. Si se encuentra empalme:
@@ -451,7 +451,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 
 ### Criterios de aceptación:
 - Dado que existen solicitudes pendientes o aprobadas, cuando se verifica un período que se empalma, entonces la verificación falla.
-- Dado que solo existen solicitudes canceladas, rechazadas o expiradas, cuando se verifica un período que se empalma, entonces la verificación pasa.
+- Dado que solo existen solicitudes CANCELLED, REJECTED o EXPIRED, cuando se verifica un período que se empalma, entonces la verificación pasa.
 
 ---
 
@@ -470,7 +470,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 ### Flujo principal:
 1. Aprobador ingresa a su bandeja de solicitudes pendientes, con opción de filtrar por empleado, rango de fechas o cantidad de días.
 2. Sistema verifica que el usuario tenga permisos de aprobador activo.
-3. Sistema busca todas las solicitudes en estado "Pendiente de Aprobación".
+3. Sistema busca todas las solicitudes en estado "PENDING".
 4. Sistema excluye las solicitudes creadas por el mismo aprobador (no puede aprobar sus propias solicitudes).
 5. Sistema aplica los filtros que el aprobador haya indicado:
    - Por nombre o correo del empleado solicitante.
@@ -513,7 +513,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 **Trazabilidad**: `spec/003-approval-workflow/spec.md` (HU-06, RF-022, RF-024, RF-044, RN-08, RN-12, RN-13, RN-14), `spec/spec.md`
 
 ### Precondiciones:
-- La solicitud existe y está en estado "Pendiente de Aprobación".
+- La solicitud existe y está en estado "PENDING".
 - Aprobador autenticado y activo en el sistema.
 - El aprobador no es el autor de la solicitud (no se puede auto-aprobar).
 
@@ -526,12 +526,12 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 3. Sistema verifica que el empleado todavía tenga saldo suficiente (el saldo pudo haber cambiado desde que se creó la solicitud).
 4. Sistema se asegura de que otro aprobador no haya procesado ya esta solicitud al mismo tiempo.
 5. Sistema realiza los siguientes pasos de forma conjunta (todo se guarda o no se guarda nada):
-   a. Cambia el estado de la solicitud a "Aprobada".
+   a. Cambia el estado de la solicitud a "APPROVED".
    b. Guarda un registro de la acción de aprobación, indicando quién aprobó, cuándo y el comentario (si lo hay).
    c. Descuenta los días solicitados del saldo consumido del empleado.
    d. Recalcula el saldo disponible del empleado.
    e. Registra el movimiento en el historial de saldo, indicando el tipo "DESCUENTO POR APROBACIÓN", el valor anterior y nuevo, el motivo y quién lo hizo.
-   f. Registra en el historial de la solicitud que cambió a "Aprobada".
+   f. Registra en el historial de la solicitud que cambió a "APPROVED".
 6. Sistema notifica al empleado que su solicitud fue aprobada.
 7. Sistema confirma la aprobación exitosa.
 
@@ -548,7 +548,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 | 409 | Ya fue procesada | "La solicitud ya fue procesada por otro aprobador" |
 
 ### Postcondiciones:
-- Estado de la solicitud actualizado a "Aprobada".
+- Estado de la solicitud actualizado a "APPROVED".
 - Saldo consumido del empleado incrementado en los días solicitados.
 - Saldo disponible del empleado recalculado.
 - Movimientos registrados en el historial de saldo y en el historial de la solicitud.
@@ -569,7 +569,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 **Trazabilidad**: `spec/003-approval-workflow/spec.md` (HU-06, RF-023, RF-024, RN-04, RN-12, RN-14)
 
 ### Precondiciones:
-- La solicitud existe y está en estado "Pendiente de Aprobación".
+- La solicitud existe y está en estado "PENDING".
 - Aprobador autenticado y activo en el sistema.
 - El aprobador no es el autor de la solicitud.
 
@@ -583,7 +583,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
    - No puede estar vacío.
    - No puede exceder los 500 caracteres.
 4. Sistema realiza los siguientes pasos:
-   a. Cambia el estado de la solicitud a "Rechazada".
+   a. Cambia el estado de la solicitud a "REJECTED".
    b. Guarda un registro de la acción de rechazo, indicando quién rechazó, cuándo y el comentario.
    c. Guarda el comentario del aprobador en la solicitud para que el empleado lo vea.
    d. Registra en el historial de la solicitud el cambio de estado.
@@ -603,13 +603,13 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 | 403 | Aprobador inactivo | "Aprobador inactivo" |
 
 ### Postcondiciones:
-- Estado de la solicitud actualizado a "Rechazada".
+- Estado de la solicitud actualizado a "REJECTED".
 - Comentario del rechazo visible para el empleado en el detalle de la solicitud.
 - Evento registrado en el historial de la solicitud.
 - Saldo del empleado sin cambios.
 
 ### Criterios de aceptación:
-- Dado solicitud pendiente, cuando aprobador rechaza con comentario válido, entonces estado = Rechazada y el comentario queda registrado y visible al empleado.
+- Dado solicitud pendiente, cuando aprobador rechaza con comentario válido, entonces estado = REJECTED y el comentario queda registrado y visible al empleado.
 - Dado intento de rechazo sin comentario, entonces la operación es rechazada.
 
 ---
@@ -655,7 +655,7 @@ Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitu
 **Trazabilidad**: `spec/spec.md` (RN-04, RN-14, RF-047), `spec/003-approval-workflow/spec.md`
 
 ### Precondiciones:
-- La solicitud existe y está en estado "Aprobada".
+- La solicitud existe y está en estado "APPROVED".
 - Aprobador autenticado y activo en el sistema.
 - La fecha de inicio de las vacaciones aún no ha llegado (es posterior a hoy).
 
@@ -666,7 +666,7 @@ Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitu
    - La fecha de inicio de las vacaciones sea posterior a hoy (no se puede cancelar si ya empezaron).
    - El aprobador esté activo (cualquier aprobador activo puede cancelar, no necesariamente el que aprobó).
 3. Sistema realiza los siguientes pasos de forma conjunta:
-   a. Cambia el estado de la solicitud a "Cancelada".
+   a. Cambia el estado de la solicitud a "CANCELLED".
    b. Guarda un registro de la acción de cancelación, indicando quién canceló, cuándo y el comentario (si lo hay).
    c. Restaura el saldo del empleado: devuelve los días al saldo consumido (los quita del consumo).
    d. Recalcula el saldo disponible del empleado.
@@ -686,13 +686,13 @@ Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitu
 | 404 | Solicitud no encontrada | "Solicitud no encontrada" |
 
 ### Postcondiciones:
-- Estado de la solicitud actualizado a "Cancelada".
+- Estado de la solicitud actualizado a "CANCELLED".
 - Saldo del empleado restaurado: los días vuelven del saldo consumido al saldo disponible.
 - Movimientos registrados en el historial de saldo y en el historial de la solicitud.
 - Acción de cancelación guardada.
 
 ### Criterios de aceptación:
-- Dado solicitud aprobada con inicio futuro, cuando aprobador la cancela, entonces estado = Cancelada y el saldo se restaura completamente.
+- Dado solicitud aprobada con inicio futuro, cuando aprobador la cancela, entonces estado = CANCELLED y el saldo se restaura completamente.
 - Dado solicitud aprobada con inicio ya vencido, cuando aprobador intenta cancelarla, entonces la operación es bloqueada.
 
 ---
@@ -710,9 +710,9 @@ Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitu
 - El proceso automático está configurado para ejecutarse diariamente.
 
 ### Flujo principal:
-1. El proceso automático diario busca todas las solicitudes en estado "Pendiente de Aprobación" que fueron creadas hace más de N días.
+1. El proceso automático diario busca todas las solicitudes en estado "PENDING" que fueron creadas hace más de N días.
 2. Por cada solicitud encontrada:
-   a. Cambia su estado a "Expirada".
+   a. Cambia su estado a "EXPIRED".
    b. Registra en el historial que la solicitud expiró, indicando que lo hizo el sistema automático, la fecha y el motivo.
    c. Deja una notificación pendiente para el empleado (aún no se envía correo electrónico).
 3. El sistema guarda un registro de cuántas solicitudes expiraron en esta ejecución.
@@ -728,7 +728,7 @@ Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitu
 | 500 | Error al actualizar solicitudes en lote |
 
 ### Postcondiciones:
-- Las solicitudes pendientes con más de N días de antigüedad pasan a estado "Expirada".
+- Las solicitudes pendientes con más de N días de antigüedad pasan a estado "EXPIRED".
 - Cada expiración queda registrada en el historial de la solicitud.
 - Si el proceso se ejecuta de nuevo, no afecta solicitudes que ya están expiradas.
 
@@ -836,7 +836,7 @@ Cada registro incluye: employeeId, movementType, previousBalance, newBalance, re
 1. Usuario de RRHH solicita consultar solicitudes de vacaciones, pudiendo filtrar por estado, empleado o rango de fechas.
 2. Sistema verifica que el usuario tenga permisos de RRHH.
 3. Sistema aplica los filtros indicados:
-   - Por estado (pendiente, aprobada, rechazada, cancelada, expirada).
+   - Por estado (PENDING, APPROVED, REJECTED, CANCELLED, EXPIRED).
    - Por empleado específico.
    - Por rango de fechas de creación.
 4. Sistema entrega la lista ordenada de la más reciente a la más antigua, mostrando los resultados por páginas.

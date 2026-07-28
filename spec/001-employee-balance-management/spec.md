@@ -71,11 +71,11 @@ Este feature cubre la gestión del ciclo de vida de empleados y sus saldos de d�
 
 - **Descripción**: Cada empleado acumula 1 día de vacaciones por cada mes completo laborado desde su fecha de ingreso.
 - **Cálculo**: 
-  - Mes completo laborado = período de 30 días (o calendario completo, según política)
-  - Acumulación = (Meses desde ingreso) × 1 día
+  - Mes completo laborado = mes calendario completo desde la fecha de ingreso (no mes natural)
+  - Acumulación = (Meses completos desde ingreso) × 1 día
   - Sin tope máximo (carry-over ilimitado)
 - **Casos especiales**:
-  - Empleado ingresa a mitad de mes: cuenta como mes incompleto (no acumula hasta completar 30 días)
+  - Empleado ingresa a mitad de mes: cuenta como mes incompleto (no acumula hasta completar un mes calendario desde su fecha de ingreso)
   - Transferencia de período a período: saldo sobrante pasa completo al siguiente período
 
 ### RN-23: Cálculo de saldo consumido
@@ -138,7 +138,7 @@ movementType: Enum (ACUMULATION, APPROVAL_DISCOUNT, CANCELLATION_RESTORE)
 previousBalance: int
 newBalance: int
 reason: string (e.g., "Approved request #123")
-actor: string (SISTEMA_ACUMULACION, SISTEMA_AUTO_APROBACION, user@email)
+actor: string (SISTEMA_ACUMULACION, SISTEMA_AUTO_EXPIRACION, user@email)
 timestamp: DateTime
 ```
 
