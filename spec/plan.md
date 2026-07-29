@@ -548,3 +548,106 @@ Feature 005 (HR Monitoring Dashboard)
 **Orden de implementación:** 001 → 002 → 003 → 004 → 005
 
 ---
+
+## 14. Checklist de Validación del Plan
+
+Esta checklist permite verificar que el plan está completo y alineado con todos los documentos de especificación antes de proceder a la implementación.
+
+### 14.1 Alineación con Constitución (`constitution.md`)
+
+- [ ] **Actores definidos:** Los 3 roles (Empleado, Aprobador, RRHH) están documentados con sus permisos
+- [ ] **Estados y transiciones:** Los 5 estados (Pending, Approved, Rejected, Cancelled, Expired) están definidos con reglas de transición
+- [ ] **Clean Architecture:** 4 capas definidas (Domain, Application, Infrastructure, Web)
+- [ ] **Independencia de framework:** Domain y Application sin dependencias de ASP.NET Core ni EF Core
+- [ ] **Nomenclatura español PascalCase:** Entidades, controladores y rutas siguen la convención
+- [ ] **Restricciones tecnológicas:** ASP.NET Core MVC, EF Core, Identity, SQL Server, FluentValidation
+- [ ] **Invariantes universales:** Saldo no negativo, fecha inicio ≤ fin, anti-auto-aprobación, trazabilidad
+- [ ] **Seguridad:** Roles por endpoint, ViewModels, rate limiting, cabeceras de seguridad
+- [ ] **Pirámide de pruebas:** xUnit definido, cobertura ≥80% en Domain y Application
+
+### 14.2 Cobertura de Especificación (`spec.md`)
+
+- [ ] **Requisitos funcionales:** RF-001 a RF-047 tienen trazabilidad en el plan
+- [ ] **Reglas de negocio:** RN-01 a RN-36 están reflejadas en entidades o handlers
+- [ ] **Historias de usuario:** HU-01 a HU-09 tienen endpoints y vistas asignados
+- [ ] **Decisiones del PO:** Las 10 decisiones están documentadas y resueltas
+- [ ] **Fuera de alcance:** Funcionalidades excluidas del MVP están claramente listadas
+
+### 14.3 Cobertura de Casos de Uso (`use-cases.md`)
+
+| Caso de Uso | Endpoint | Handler | Vista | Cubierto |
+|-------------|----------|---------|-------|:--------:|
+| CU-01 Acumular saldo | N/A (job) | `AcumularSaldoMensualCommand` | N/A | [ ] |
+| CU-02 Consultar saldo | `GET /saldo` | `ObtenerSaldoQuery` | `Saldo/Index` | [ ] |
+| CU-04 Crear solicitud | `POST /solicitudes-vacaciones` | `CrearSolicitudCommand` | `SolicitudVacaciones/Crear` | [ ] |
+| CU-05 Ver mis solicitudes | `GET /solicitudes-vacaciones` | `ObtenerMisSolicitudesQuery` | `SolicitudVacaciones/Index` | [ ] |
+| CU-06 Editar solicitud | `PUT /solicitudes-vacaciones/{id}` | `EditarSolicitudCommand` | `SolicitudVacaciones/Editar` | [ ] |
+| CU-07 Cancelar pending | `POST .../cancelar` | `CancelarSolicitudCommand` | N/A (acción) | [ ] |
+| CU-08 Días hábiles | N/A (interno) | `RangoFechas.CalcularDiasHabiles()` | N/A | [ ] |
+| CU-09 Prevención traslapes | N/A (interno) | `IRepositorioSolicitud.ExisteTraslapeAsync()` | N/A | [ ] |
+| CU-10 Bandeja aprobador | `GET /bandeja-aprobador` | `ObtenerBandejaAprobadorQuery` | `BandejaAprobador/Index` | [ ] |
+| CU-11 Aprobar solicitud | `POST .../aprobar` | `AprobarSolicitudCommand` | N/A (acción) | [ ] |
+| CU-12 Rechazar solicitud | `POST .../rechazar` | `RechazarSolicitudCommand` | N/A (acción) | [ ] |
+| CU-13 Ver impacto saldo | `GET /bandeja-aprobador/{id}` | `ObtenerBandejaAprobadorQuery` | `BandejaAprobador/Detalle` | [ ] |
+| CU-14 Cancelar aprobada | `POST .../cancelar-aprobada` | `CancelarAprobadaCommand` | N/A (acción) | [ ] |
+| CU-15 Auto-expiración | N/A (job) | `ServicioExpiracionAutomatica` | N/A | [ ] |
+| CU-16 Gestión roles | N/A (Identity) | ASP.NET Core Identity | N/A | [ ] |
+| CU-17 Auditoría | N/A (interceptor) | `HistorialSolicitud` + Interceptor | N/A | [ ] |
+| CU-18 Consultas RRHH | `GET /rrhh/solicitudes` | `ObtenerHistorialRRHHQuery` | `RRHH/Solicitudes` | [ ] |
+| CU-19 Mensajes UX | N/A (transversal) | Excepciones de dominio | Vistas | [ ] |
+
+### 14.4 Entidades del Dominio
+
+- [ ] **Empleado:** Propiedades definidas (Id, Email, NombreCompleto, FechaIngreso, EstaActivo)
+- [ ] **SolicitudVacaciones:** Propiedades + máquina de estados + RowVersion
+- [ ] **SaldoEmpleado:** Propiedades + fórmula availableBalance + RowVersion
+- [ ] **HistorialSolicitud:** Propiedades de auditoría inmutable
+- [ ] **RangoFechas (VO):** Validaciones de fechas + cálculo días hábiles
+- [ ] **EstadoSolicitud (Enum):** 5 valores definidos
+- [ ] **RolUsuario (Enum):** 3 valores definidos
+
+### 14.5 Endpoints API
+
+- [ ] `POST /solicitudes-vacaciones` — Crear solicitud (Empleado)
+- [ ] `GET /solicitudes-vacaciones` — Listar mis solicitudes (Empleado)
+- [ ] `GET /solicitudes-vacaciones/{id}` — Detalle solicitud (Empleado)
+- [ ] `PUT /solicitudes-vacaciones/{id}` — Editar solicitud (Empleado)
+- [ ] `POST /solicitudes-vacaciones/{id}/cancelar` — Cancelar pending (Empleado)
+- [ ] `GET /saldo` — Consultar mi saldo (Empleado/RRHH)
+- [ ] `GET /bandeja-aprobador` — Bandeja de pendientes (Aprobador)
+- [ ] `GET /bandeja-aprobador/{id}` — Detalle con impacto (Aprobador)
+- [ ] `POST /bandeja-aprobador/{id}/aprobar` — Aprobar (Aprobador)
+- [ ] `POST /bandeja-aprobador/{id}/rechazar` — Rechazar (Aprobador)
+- [ ] `POST /solicitudes-vacaciones/{id}/cancelar-aprobada` — Cancelar aprobada (Aprobador)
+- [ ] `GET /rrhh/solicitudes` — Consultas filtradas (RRHH)
+- [ ] `GET /rrhh/saldos/{empleadoId}` — Saldo de empleado (RRHH)
+
+### 14.6 Infraestructura
+
+- [ ] **DbContext:** Configurado con Identity y entidades del dominio
+- [ ] **Configurations:** Fluent API para todas las entidades
+- [ ] **Repositories:** Implementaciones de interfaces del dominio
+- [ ] **BackgroundService:** Servicio de auto-expiración configurado
+- [ ] **Seed Data:** Usuarios de prueba con roles asignados
+
+### 14.7 Documentos Posteriores
+
+- [ ] `tasks.md` — Desglose de tareas con estimaciones y criterios de aceptación
+- [ ] `design.md` — Diseño técnico detallado (pendiente)
+- [ ] `docs/diagrams/state-machine.md` — Diagrama de estados Mermaid (pendiente)
+- [ ] `docs/diagrams/sequence-approval.md` — Diagrama de secuencia de aprobación (pendiente)
+- [ ] `test-plan.md` — Estrategia y casos de prueba (pendiente)
+
+### 14.8 Validación Final
+
+- [ ] **Sin contradicciones:** El plan no contradice constitution.md ni spec.md
+- [ ] **Sin ambigüedades:** Todas las decisiones del PO están resueltas
+- [ ] **Orden de implementación:** Features ordenadas por dependencias (001→002→003→004→005)
+- [ ] **Riesgos identificados:** Todos los riesgos tienen mitigación documentada
+- [ ] **Complejidades técnicas:** BackgroundService, TimeProvider, RowVersion documentados
+
+---
+
+**Estado del Plan:** ⬜ Pendiente de validación | ✅ Validado | ❌ Requiere corrección
+
+---
