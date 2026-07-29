@@ -20,15 +20,15 @@
 |---|---|---|
 | Lenguaje / Versión | C# sobre **.NET 10** (`net10.0`) | `Solicitud_de_Vacaiones.csproj` |
 | Framework principal | ASP.NET Core MVC con Razor Views | `constitution.md` sección 6 |
-| Almacenamiento | **SQL Server** (selección confirmada por PO) | `constitution.md` sección 6, Decisión PO #1 |
+| Almacenamiento | **SQL Server**  | `constitution.md` sección 6 |
 | ORM | Entity Framework Core | `constitution.md` sección 6 |
 | Autenticación | ASP.NET Core Identity Framework | `spec.md` sección 9 |
 | Testing | **xUnit**  | `constitution.md` sección 9 |
-| Plataforma objetivo | Aplicación web servida por Kestrel. **MVP sin despliegue — solo entorno local/desarrollo** (Decisión PO #3) | — |
+| Plataforma objetivo | Aplicación web servida por Kestrel. **MVP sin despliegue — solo entorno local/desarrollo**  | — |
 | Tipo de proyecto | Monolito modular web | `constitution.md` sección 3 |
 | Objetivos de rendimiento | Consulta de saldo ≤ 300ms p95; creación/aprobación ≤ 1s p95; listados paginados ≤ 2s p95 | `constitution.md` sección 10 |
 | Restricciones técnicas | Prohibido `DateTime.Now`/`DateTime.UtcNow` en Domain/Application. Prohibido `DELETE` físico. Sin dependencias externas (Redis, RabbitMQ, APIs). Prohibidos frameworks SPA (React, Angular, Vue). Auditoría automática vía interceptor de EF Core. Concurrencia optimista con `RowVersion`. FluentValidation aprobado para validación de entrada. Nombre en español (PascalCase). | `constitution.md` secciones 4, 6, 7, 8 |
-| Escala / Alcance | 3 roles (Empleado, Aprobador, RRHH). 47 requisitos funcionales (RF-001 a RF-047). 36 reglas de negocio (RN-01 a RN-36). **Usuarios concurrentes esperados: 50-100** (supuesto para MVP interno — Decisión PO #4). Número de empleados/solicitudes: depende del tamaño de la organización (se asume ≤ 500 empleados para el MVP). | `spec.md`, Decisión PO #4 |
+| Escala / Alcance | 3 roles (Empleado, Aprobador, RRHH). 47 requisitos funcionales (RF-001 a RF-047). 36 reglas de negocio (RN-01 a RN-36). **Usuarios concurrentes esperados: 50-100** (supuesto para MVP interno — Decisión PO #4). Número de empleados/solicitudes: depende del tamaño de la organización (se asume ≤ 500 empleados para el MVP). | `spec.md` |
 
 ### Dependencias principales identificadas
 
