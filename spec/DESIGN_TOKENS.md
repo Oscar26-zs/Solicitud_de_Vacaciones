@@ -468,6 +468,7 @@ Sin esto, el texto del `<option>` es invisible en modo oscuro (blanco sobre blan
 
 Fila flex con `justify-content: space-between`, gap 12px:
 - Izquierda: "Mostrando **X**–**Y** de **Z**" (números en `--foreground` peso 500).
+- Centro/izquierda (inmediatamente después del texto): `<select class="page-size-select">` con opciones **5, 10, 15, 25**. El valor seleccionado se envía como `pageSize` en cada petición. Al cambiar, se resetea a página 1 y se recargan los datos.
 - Derecha: botones "‹ Anterior" + "página / total" + "Siguiente ›".
 
 ### 3.8 Diálogo (`.dialog`) y Sheet (`.sheet`)
@@ -1865,7 +1866,7 @@ Fila (columna en móvil) con `justify-content: space-between` y `margin-bottom: 
    - **Fila superior:** paginación con texto "Mostrando X–Y de Z" a la izquierda y botones "‹ Anterior · N/N · Siguiente ›" a la derecha.
    - **Fila inferior:** botón "Crear solicitud" de ancho completo (btn btn--default btn--full) que abre el Sheet. Este botón es adicional al que ya existe en el encabezado de la página.
 
-5. **Paginación:** 8 registros por página. La paginación se muestra incluso en página 1 de N (no ocultarla cuando totalPages <= 1).
+5. **Paginación:** 10 registros por página por defecto. El usuario puede cambiar el tamaño de página mediante un `<select class="page-size-select">` con opciones [5, 10, 15, 25] ubicado en la fila de paginación, junto al texto "Mostrando X–Y de Z". Al seleccionar un nuevo valor, se resetea a página 1 y se recarga la tabla vía fetch. La paginación se muestra incluso en página 1 de N (no ocultarla cuando totalPages <= 1).
 
 **Regla de layout vertical:** Los 3 bloques de la página Empleado (dashboard, tabla mis solicitudes, sheet) van envueltos en un contenedor `<div class="flex flex-col gap-6">` para garantizar un gap uniforme de **24px (`gap-6`)** entre cada bloque, incluyendo el espacio antes de "Mis solicitudes". Nunca usar `margin-bottom` independiente en cada componente.
 
@@ -1915,7 +1916,7 @@ Las 4 StatCards ("Pendientes" (ámbar), "Aprobadas" (esmeralda), "Colaboradores"
    - El `<td>` que contiene el botón tiene `onclick="event.stopPropagation()"` para que el clic en el botón no dispare dos veces la apertura del modal.
    - CSS base ya define `cursor: pointer` y `hover: background` en `tbody tr`.
 
-5. **Paginación:** 10 registros por página. Misma estructura que Employee: "Mostrando X–Y de Z" + botones.
+5. **Paginación:** 10 registros por página por defecto. Misma estructura que Employee: "Mostrando X–Y de Z" + `<select class="page-size-select">` con [5, 10, 15, 25] + botones "‹ Anterior · N/N · Siguiente ›".
 
 ### 12.3 Detalle de revisión (JS + diálogo modal)
 
@@ -1996,7 +1997,7 @@ Diálogo modal:
     - **Tabla** — columnas en este orden exacto:
       | Colaborador (avatar + nombre + email) | Folio (mono) | Periodo | Días | Estado | Creada |
     - **Filas clicables:** igual que Aprobador — `<tr onclick="openHRDetail('@r.Id')">`, el modal se abre vía fetch a `HR/Index?handler=Detail&id=...`. No tiene botones de acción, solo "Cerrar".
-    - **Paginación:** 10 registros por página. Misma estructura que Employee.
+    - **Paginación:** 10 registros por página por defecto. Misma estructura que Employee: "Mostrando X–Y de Z" + `<select class="page-size-select">` con [5, 10, 15, 25] + botones "‹ Anterior · N/N · Siguiente ›".
 
 ---
 

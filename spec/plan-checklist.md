@@ -81,7 +81,7 @@
 | 5.3 | Flujo de aprobación completo (bandeja, aprobar, rechazar) | ✅ | |
 | 5.4 | Cancelación de Approved antes del inicio | ✅ | |
 | 5.5 | Consultas RRHH (listar, filtrar, ver saldo de empleado) | ✅ | |
-| 5.6 | Parámetros de paginación documentados (`?page=&pageSize=`) | ❌ | No se muestran |
+| 5.6 | Parámetros de paginación documentados (`?page=&pageSize=`) | ✅ | Se agregó pageSize: opcional, default 10, valores aceptados [5, 10, 15, 25]
 | 5.7 | Formatos de respuesta / códigos HTTP documentados | ❌ | No hay códigos de respuesta |
 | 5.8 | Endpoints de autenticación (login, logout) incluidos | ⚠️ | Mencionados en DESIGN_TOKENS pero no en plan |
 

@@ -607,10 +607,10 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - `src/Vacations.Application/Solicitudes/Queries/ObtenerMisSolicitudesQuery.cs`
   - `src/Vacations.Application/Solicitudes/Queries/ObtenerMisSolicitudesQueryHandler.cs`
 - **Trazabilidad:** CU-05, HU-02
-- **Descripción:** Query para que un empleado liste sus propias solicitudes.
+- **Descripción:** Query para que un empleado liste sus propias solicitudes. El `pageSize` se recibe como parámetro opcional (default: 10) y puede ser 5, 10, 15 o 25.
 - **Criterios de aceptación:**
   - [ ] Filtro opcional por estado
-  - [ ] Paginación (offset-based)
+  - [ ] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
   - [ ] Ordenado de más reciente a más antiguo
   - [ ] Retorna DTO con: Id, Fechas, Días, Estado, Motivo, ComentarioAprobador
 
@@ -637,10 +637,11 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - `src/Vacations.Application/Solicitudes/Queries/ObtenerBandejaAprobadorQuery.cs`
   - `src/Vacations.Application/Solicitudes/Queries/ObtenerBandejaAprobadorQueryHandler.cs`
 - **Trazabilidad:** CU-10, HU-05
-- **Descripción:** Query para listar solicitudes Pending para aprobadores.
+- **Descripción:** Query para listar solicitudes Pending para aprobadores. El `pageSize` se recibe como parámetro opcional (default: 10) y puede ser 5, 10, 15 o 25.
 - **Criterios de aceptación:**
   - [ ] Excluye solicitudes del propio aprobador
   - [ ] Filtros opcionales: empleado, rango fechas, días
+  - [ ] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
   - [ ] Incluye saldo disponible del empleado
   - [ ] Indica si hay traslape con otras solicitudes
   - [ ] Ordenado de más antiguo a más reciente
@@ -670,11 +671,11 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - `src/Vacations.Application/Solicitudes/Queries/ObtenerHistorialRRHHQuery.cs`
   - `src/Vacations.Application/Solicitudes/Queries/ObtenerHistorialRRHHQueryHandler.cs`
 - **Trazabilidad:** CU-18, HU-08, HU-09
-- **Descripción:** Query para que RRHH consulte y filtre solicitudes de cualquier empleado.
+- **Descripción:** Query para que RRHH consulte y filtre solicitudes de cualquier empleado. El `pageSize` se recibe como parámetro opcional (default: 10) y puede ser 5, 10, 15 o 25.
 - **Criterios de aceptación:**
   - [ ] Solo accesible por rol RRHH
   - [ ] Filtros: estado, empleado, rango de fechas
-  - [ ] Paginación
+  - [ ] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
   - [ ] Incluye información del empleado
 
 ## TASK-039: Crear comando AcumularSaldoMensualCommand + Handler
@@ -710,7 +711,8 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
 - **Criterios de aceptación:**
   - [ ] Records inmutables
   - [ ] Sin lógica de negocio
-  - [ ] `PagedResult<T>` con: Items, TotalCount, PageNumber, PageSize
+  - [ ] `PagedResult<T>` con: Items, TotalCount, PageNumber, PageSize, AvailablePageSizes (List<int> con [5, 10, 15, 25])
+  - [ ] El ViewModel de paginación expone `AvailablePageSizes` y `SelectedPageSize` para que la vista renderice el `<select class="page-size-select">`
 
 ## TASK-041: Crear extensión DependencyInjection para Application
 - **Fase:** 4

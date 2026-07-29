@@ -50,7 +50,7 @@
 | 6 | RN-24 — Carry-over | **SÍ hay carry-over, SIN LÍMITE de acumulación.** Acumulación indefinida entre periodos. | ✅ Resuelto |
 | 7 | RN-31 — Horizonte futuro | **2 meses** desde la fecha actual | ✅ Resuelto |
 | 8 | RN-25 — Feriados | **Los feriados NO se excluyen del cómputo de días hábiles.** Solo se excluyen sábados y domingos. Un feriado en medio del rango cuenta normalmente para el saldo consumido. | ✅ Resuelto |
-| 9 | Estrategia de paginación | Offset-based según `docs/Preguntas_Pendientes.md` H.1 | — |
+| 9 | Estrategia de paginación | Offset-based según `docs/Preguntas_Pendientes.md` H.1. Dropdown con [5, 10, 15, 25] registros por página en todas las tablas (`_TablePagination.cshtml`). Default: 10. | ✅ Resuelto |
 | 10 | Saldo comprometido (A.3) | **SÍ se implementa.** Las solicitudes Pending congelan su saldo (`pendingBalance`). `availableBalance = accumulatedBalance - consumedBalance - pendingBalance`. Se valida contra disponible al crear. | ✅ Resuelto |
 
 ---
@@ -258,23 +258,30 @@ Valor calculado que representa días solicitados excluyendo sábados, domingos y
 
 Cada endpoint responde a un caso de uso documentado en `docs/use-cases.md`:
 
-| Método | Ruta | Caso de Uso | Descripción |
-|---|---|---|---|
-| `POST` | `/solicitudes-vacaciones` | CU-04 — Crear solicitud | Empleado crea una solicitud de vacaciones |
-| `GET` | `/solicitudes-vacaciones` | CU-05 — Ver mis solicitudes | Empleado lista sus solicitudes paginadas |
-| `GET` | `/solicitudes-vacaciones/{id}` | CU-05 — Ver detalle | Empleado ve detalle + historial de una solicitud |
-| `PUT` | `/solicitudes-vacaciones/{id}` | CU-06 — Editar solicitud Pending | Empleado edita fechas o motivo |
-| `POST` | `/solicitudes-vacaciones/{id}/cancelar` | CU-07 — Cancelar Pending | Empleado cancela solicitud pendiente |
-| `GET` | `/saldo` | CU-02 — Consultar saldo | Empleado/HR consulta saldo e historial |
-| `GET` | `/bandeja-aprobador` | CU-10 — Bandeja aprobador | Aprobador lista solicitudes Pending de todos los empleados |
-| `GET` | `/bandeja-aprobador/{id}` | CU-13 — Ver impacto saldo | Aprobador ve detalle con saldo estimado |
-| `POST` | `/bandeja-aprobador/{id}/aprobar` | CU-11 — Aprobar | Aprobador aprueba con descuento de saldo |
-| `POST` | `/bandeja-aprobador/{id}/rechazar` | CU-12 — Rechazar | Aprobador rechaza con comentario obligatorio |
-| `POST` | `/solicitudes-vacaciones/{id}/cancelar-aprobada` | CU-14 — Cancelar Approved | Aprobador cancela Approved antes del inicio |
-| `GET` | `/rrhh/solicitudes` | CU-18 — Consultas RRHH | RRHH lista/filtra solicitudes de cualquier empleado |
-| `GET` | `/rrhh/salarios/{empleadoId}` | CU-02/CU-18 — Saldo empleado | RRHH consulta saldo de un empleado específico |
+| Método | Ruta | Caso de Uso | Descripción | Parámetros de Paginación |
+|---|---|---|---|---|
+| `POST` | `/solicitudes-vacaciones` | CU-04 — Crear solicitud | Empleado crea una solicitud de vacaciones | — |
+| `GET` | `/solicitudes-vacaciones` | CU-05 — Ver mis solicitudes | Empleado lista sus solicitudes paginadas | `?page=&pageSize=` (pageSize opcional, default 10, valores: 5,10,15,25) |
+| `GET` | `/solicitudes-vacaciones/{id}` | CU-05 — Ver detalle | Empleado ve detalle + historial de una solicitud | — |
+| `PUT` | `/solicitudes-vacaciones/{id}` | CU-06 — Editar solicitud Pending | Empleado edita fechas o motivo | — |
+| `POST` | `/solicitudes-vacaciones/{id}/cancelar` | CU-07 — Cancelar Pending | Empleado cancela solicitud pendiente | — |
+| `GET` | `/saldo` | CU-02 — Consultar saldo | Empleado/HR consulta saldo e historial | — |
+| `GET` | `/bandeja-aprobador` | CU-10 — Bandeja aprobador | Aprobador lista solicitudes Pending | `?page=&pageSize=` (pageSize opcional, default 10, valores: 5,10,15,25) |
+| `GET` | `/bandeja-aprobador/{id}` | CU-13 — Ver impacto saldo | Aprobador ve detalle con saldo estimado | — |
+| `POST` | `/bandeja-aprobador/{id}/aprobar` | CU-11 — Aprobar | Aprobador aprueba con descuento de saldo | — |
+| `POST` | `/bandeja-aprobador/{id}/rechazar` | CU-12 — Rechazar | Aprobador rechaza con comentario obligatorio | — |
+| `POST` | `/solicitudes-vacaciones/{id}/cancelar-aprobada` | CU-14 — Cancelar Approved | Aprobador cancela Approved antes del inicio | — |
+| `GET` | `/rrhh/solicitudes` | CU-18 — Consultas RRHH | RRHH lista/filtra solicitudes paginadas | `?page=&pageSize=&estado=&empleadoId=` (pageSize opcional, default 10, valores: 5,10,15,25) |
+| `GET` | `/rrhh/saldos/{empleadoId}` | CU-02/CU-18 — Saldo empleado | RRHH consulta saldo de un empleado específico | — |
 
 No se proponen endpoints adicionales. Cada ruta tiene trazabilidad directa a un caso de uso del Spec.
+
+### Notas de paginación
+
+- Todos los endpoints de listado paginado aceptan `?page=` (1-based, default 1) y `?pageSize=` (opcional, default 10, valores permitidos: 5, 10, 15, 25).
+- La respuesta incluye un `PagedResult<T>` con: `Items`, `TotalCount`, `PageNumber`, `PageSize`, `AvailablePageSizes` (List<int> con [5, 10, 15, 25]).
+- El ViewModel correspondiente expone `SelectedPageSize` y `AvailablePageSizes` para que la vista `_TablePagination.cshtml` renderice el `<select class="page-size-select">`.
+- Al cambiar el `pageSize` desde el dropdown, el JS (`pagination.js`) resetea a página 1 y recarga los datos vía fetch.
 
 ---
 
@@ -517,7 +524,7 @@ No existen excepciones arquitectónicas. La Constitución y la Spec están aline
 | Condiciones de carrera en aprobación/cancelación concurrente | Alto: saldo negativo o doble descuento | Media | `RowVersion` + manejo de `DbUpdateConcurrencyException` en cada handler de aprobación |
 | Cálculo de días hábiles sin repositorio de feriados | Bajo: solo sábados y domingos, lógica simple | Baja | Se implementa como método puro en Domain. Sin dependencias externas. |
 | Auto-expiración: lógica dinámica contra fecha de inicio | Bajo: reemplaza la lógica de N fijo | Baja | El `BackgroundService` compara `startDate` ≤ hoy usando `TimeProvider`. Sin valor configurable `[N]`. |
-| Paginación offset-based con concurrencia extrema | Bajo: posibles duplicados/saltos | Baja | Documentado como known limitation aceptada por el PO |
+| Paginación offset-based con concurrencia extrema | Bajo: posibles duplicados/saltos | Baja | Documentado como known limitation aceptada por el PO. Dropdown de pageSize con valores [5, 10, 15, 25] en todas las tablas. |
 | Dependencia de SQL Server en entorno local | Bajo: los desarrolladores deben tener SQL Server instalado o usar LocalDB | Media | Documentar prerequisito; usar LocalDB como alternativa de desarrollo ligera. |
 
 ---
@@ -609,17 +616,17 @@ Esta checklist permite verificar que el plan está completo y alineado con todos
 ### 14.5 Endpoints API
 
 - [ ] `POST /solicitudes-vacaciones` — Crear solicitud (Empleado)
-- [ ] `GET /solicitudes-vacaciones` — Listar mis solicitudes (Empleado)
+- [ ] `GET /solicitudes-vacaciones` — Listar mis solicitudes (Empleado) — `?page=&pageSize=` (5,10,15,25)
 - [ ] `GET /solicitudes-vacaciones/{id}` — Detalle solicitud (Empleado)
 - [ ] `PUT /solicitudes-vacaciones/{id}` — Editar solicitud (Empleado)
 - [ ] `POST /solicitudes-vacaciones/{id}/cancelar` — Cancelar pending (Empleado)
 - [ ] `GET /saldo` — Consultar mi saldo (Empleado/RRHH)
-- [ ] `GET /bandeja-aprobador` — Bandeja de pendientes (Aprobador)
+- [ ] `GET /bandeja-aprobador` — Bandeja de pendientes (Aprobador) — `?page=&pageSize=` (5,10,15,25)
 - [ ] `GET /bandeja-aprobador/{id}` — Detalle con impacto (Aprobador)
 - [ ] `POST /bandeja-aprobador/{id}/aprobar` — Aprobar (Aprobador)
 - [ ] `POST /bandeja-aprobador/{id}/rechazar` — Rechazar (Aprobador)
 - [ ] `POST /solicitudes-vacaciones/{id}/cancelar-aprobada` — Cancelar aprobada (Aprobador)
-- [ ] `GET /rrhh/solicitudes` — Consultas filtradas (RRHH)
+- [ ] `GET /rrhh/solicitudes` — Consultas filtradas (RRHH) — `?page=&pageSize=&estado=&empleadoId=` (pageSize: 5,10,15,25)
 - [ ] `GET /rrhh/saldos/{empleadoId}` — Saldo de empleado (RRHH)
 
 ### 14.6 Infraestructura
