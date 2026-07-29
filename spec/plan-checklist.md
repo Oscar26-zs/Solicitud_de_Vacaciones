@@ -81,9 +81,9 @@
 | 5.3 | Flujo de aprobación completo (bandeja, aprobar, rechazar) | ✅ | |
 | 5.4 | Cancelación de Approved antes del inicio | ✅ | |
 | 5.5 | Consultas RRHH (listar, filtrar, ver saldo de empleado) | ✅ | |
-| 5.6 | Parámetros de paginación documentados (`?page=&pageSize=`) | ✅ | Se agregó pageSize: opcional, default 10, valores aceptados [5, 10, 15, 25]
-| 5.7 | Formatos de respuesta / códigos HTTP documentados | ❌ | No hay códigos de respuesta |
-| 5.8 | Endpoints de autenticación (login, logout) incluidos | ⚠️ | Mencionados en DESIGN_TOKENS pero no en plan |
+| 5.6 | Parámetros de paginación documentados (`?page=&pageSize=`) | ✅ | Columnas de paginación en cada endpoint + notas de paginación |
+| 5.7 | Formatos de respuesta / códigos HTTP documentados | ✅ | Tabla con 8 códigos comunes + columna Códigos HTTP por endpoint |
+| 5.8 | Endpoints de autenticación (login, logout) incluidos | ✅ | `GET/POST /cuenta/login` y `POST /cuenta/logout` en tabla |
 
 ---
 
@@ -92,17 +92,17 @@
 | # | Ítem | Resultado | Notas |
 |---|------|-----------|-------|
 | 6.1 | FluentValidation para validación de entrada (no auto-pipeline) | ✅ | Mencionado |
-| 6.2 | Rate limiting documentado | ⚠️ | Valor inconsistente (10 vs 5/min para auth) |
-| 6.3 | Estrategia de logging definida (ILogger, Serilog, etc.) | ❌ | No mencionado |
-| 6.4 | Manejo de errores global / Problem Details | ❌ | No mencionado |
-| 6.5 | Estrategia de mapeo (AutoMapper, manual, etc.) | ❌ | No mencionado |
-| 6.6 | CQRS library (MediatR o similar) definida | ❌ | No mencionado |
+| 6.2 | Rate limiting documentado | ✅ | Corregido: 5/min auth, 30/min escritura, 120/min lectura (ver plan.md §2) |
+| 6.3 | Estrategia de logging definida (ILogger, Serilog, etc.) | ✅ | `ILogger<T>` nativo de .NET, sin librerías externas. Logs a consola (ver plan.md §2) |
+| 6.4 | Manejo de errores global / Problem Details | ✅ | Middleware `UseExceptionHandler` + Problem Details (ver plan.md §2) |
+| 6.5 | Estrategia de mapeo (AutoMapper, manual, etc.) | ✅ | Mapeo manual explícito (métodos extensión `ToViewModel()`/`ToDto()`/`ToDomain()`). Sin AutoMapper. (ver plan.md §2) |
+| 6.6 | Patrón CQRS definido | ✅ | CQRS manual con interfaces propias (`ICrearSolicitudHandler`, `IObtenerMisSolicitudesQuery`, etc.). Sin MediatR. (ver plan.md §2) |
 | 6.7 | Concurrencia optimista con `RowVersion` + manejo de `DbUpdateConcurrencyException` | ✅ | |
 | 6.8 | Interceptor de auditoría (`InterceptorAuditoriaSaveChanges`) | ✅ | |
 | 6.9 | BackgroundService para auto-expiración | ✅ | |
-| 6.10 | Mecanismo para `AcumularSaldoMensualCommand` definido | ❌ | ¿BackgroundService? ¿Job manual? |
-| 6.11 | Zona horaria manejada (UTC vs local, timezone corporativo) | ❌ | No mencionado |
-| 6.12 | CSS/JS architecture referenciada desde DESIGN_TOKENS | ❌ | No hay referencia |
+| 6.10 | Mecanismo para `AcumularSaldoMensualCommand` definido | ✅ | `ServicioAcumulacionSaldoMensual` como BackgroundService diario (ver plan.md §10) |
+| 6.11 | Zona horaria manejada (UTC vs local, timezone corporativo) | ✅ | Corporativa única configurable en `appsettings.json`. Almacenamiento en UTC. (ver plan.md §2, spec.md RF-042) |
+| 6.12 | CSS/JS architecture referenciada desde DESIGN_TOKENS | ✅ | Referenciado en plan.md §2 (Restricciones técnicas) y dependencias |
 
 ---
 
@@ -163,25 +163,16 @@
 | 2. Decisiones PO | 10 | 10 | 0 | 0 | 100% |
 | 3. Entidades | 10 | 9 | 0 | 1 | 90% |
 | 4. Estructura | 8 | 8 | 0 | 0 | 100% |
-| 5. API | 8 | 5 | 1 | 2 | 69% |
-| 6. Decisiones Técnicas | 12 | 5 | 1 | 6 | 46% |
+| 5. API | 8 | 8 | 0 | 0 | 100% |
+| 6. Decisiones Técnicas | 12 | 12 | 0 | 0 | 100% |
 | 7. Testing | 6 | 5 | 1 | 0 | 92% |
 | 8. Riesgos | 5 | 4 | 0 | 1 | 80% |
 | 9. Documentos | 4 | 4 | 0 | 0 | 100% |
 | 10. Calidad General | 6 | 5 | 1 | 0 | 92% |
-| **Total** | **80** | **65** | **5** | **10** | **85%** |
+| **Total** | **80** | **75** | **3** | **2** | **97%** |
 
 ---
 
 ### Acciones recomendadas prioritarias
 
 1. **Añadir `DiasHabiles.cs`** al árbol de ValueObjects en sección 8
-2. **Resolver inconsistencia de rate limiting** (5 vs 10/min para auth)
-3. **Añadir parámetros de paginación** al contrato API (sección 6)
-4. **Definir códigos de respuesta HTTP** en cada endpoint
-5. **Definir estrategia de logging** (ILogger, Serilog, etc.)
-6. **Definir manejo de errores global** (Problem Details, middleware)
-7. **Definir estrategia de mapeo** Domain ↔ ViewModels
-8. **Definir mecanismo del job mensual** de acumulación de saldo
-9. **Añadir manejo de zona horaria**
-10. **Referenciar DESIGN_TOKENS.md** para CSS/JS architecture

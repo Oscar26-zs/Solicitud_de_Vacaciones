@@ -27,16 +27,24 @@
 | Plataforma objetivo | Aplicación web servida por Kestrel. **MVP sin despliegue — solo entorno local/desarrollo**  | — |
 | Tipo de proyecto | Monolito modular web | `constitution.md` sección 3 |
 | Objetivos de rendimiento | Consulta de saldo ≤ 300ms p95; creación/aprobación ≤ 1s p95; listados paginados ≤ 2s p95 | `constitution.md` sección 10 |
-| Restricciones técnicas | Prohibido `DateTime.Now`/`DateTime.UtcNow` en Domain/Application. Prohibido `DELETE` físico. Sin dependencias externas (Redis, RabbitMQ, APIs). Prohibidos frameworks SPA (React, Angular, Vue). Auditoría automática vía interceptor de EF Core. Concurrencia optimista con `RowVersion`. FluentValidation aprobado para validación de entrada. Nombre en español (PascalCase). | `constitution.md` secciones 4, 6, 7, 8 |
+| Restricciones técnicas | Prohibido `DateTime.Now`/`DateTime.UtcNow` en Domain/Application. Prohibido `DELETE` físico. Sin dependencias externas (Redis, RabbitMQ, APIs). Prohibidos frameworks SPA (React, Angular, Vue). Auditoría automática vía interceptor de EF Core. Concurrencia optimista con `RowVersion`. FluentValidation aprobado para validación de entrada. Nombre en español (PascalCase). CSS/JS: diseño basado en tokens de `spec/DESIGN_TOKENS.md`. | `constitution.md` secciones 4, 6, 7, 8 |
 | Escala / Alcance | 3 roles (Empleado, Aprobador, RRHH). 47 requisitos funcionales (RF-001 a RF-047). 36 reglas de negocio (RN-01 a RN-36). **Usuarios concurrentes esperados: 50-100** (supuesto para MVP interno). Número de empleados/solicitudes: depende del tamaño de la organización (se asume ≤ 500 empleados para el MVP). | `spec.md` |
+| Logging | `ILogger<T>` nativo de .NET. Sin Serilog/NLog. Logs a consola (stdout) en desarrollo. | — |
+| Manejo de errores global | Middleware `UseExceptionHandler` con formato **Problem Details** (`application/problem+json`). Custom middleware que traduce excepciones de dominio a códigos HTTP: `SaldoInsuficienteException`/`TransicionEstadoInvalidaException` → 400/409; `DbUpdateConcurrencyException` → 409; `UnauthorizedAccessException` → 403; no esperado → 500. | — |
+| Estrategia de mapeo | **Mapeo manual explícito** (métodos de extensión `ToViewModel()`/`ToDto()`/`ToDomain()` en carpetas `Mappings/` por capa). Sin AutoMapper. | `constitution.md` sección 6.5 |
+| Patrón CQRS | **CQRS manual** con interfaces de handlers propias (`ICrearSolicitudHandler`, `IObtenerMisSolicitudesQuery`, etc.). Comandos y queries como records inmutables. Sin MediatR. | `constitution.md` sección 6.5 |
+| Zona horaria | **Zona corporativa única** configurable en `appsettings.json` (`"CorporateTimeZone"`). Almacenamiento en UTC en BD. Conversión vía `TimeZoneInfo` inyectado en `ProveedorTiempoSistema`. No se soportan zonas múltiples. | `spec.md` RF-042, RN-27 |
 
 ### Dependencias principales identificadas
 
 - Entity Framework Core
 - ASP.NET Core Identity
 - FluentValidation (validación de entrada, ejecución explícita vía `ValidateAsync` — prohibido pipeline auto-validation)
-- Middleware de Rate Limiting nativo de .NET (límites sugeridos para 50-100 usuarios concurrentes: auth 10/min por usuario, escritura 30/min por usuario [crear/editar/aprobar], lectura 120/min por usuario [consultas/listados])
+- Middleware de Rate Limiting nativo de .NET (límites: auth 5/min por usuario, escritura 30/min por usuario [crear/editar/aprobar], lectura 120/min por usuario [consultas/listados])
 - `TimeProvider` (abstracción nativa de .NET)
+- `ILogger<T>` nativo de .NET (logging a consola stdout, sin Serilog/NLog)
+- Middleware `UseExceptionHandler` con formato Problem Details (`application/problem+json`)
+- CSS/JS: diseño basado en tokens de `spec/DESIGN_TOKENS.md` — CSS vanilla con variables CSS, JavaScript vanilla, sin frameworks frontend
 
 ### Decisiones del PO aplicadas al contexto técnico
 
@@ -184,7 +192,7 @@ Registro de auditoría inmutable para cada movimiento de saldo. Insert-only.
 Encapsula fecha inicio y fecha fin con validaciones: inicio ≤ fin, inicio ≥ mañana, fin ≤ inicio + 2 meses. Invariante: el rango nunca puede ser inválido.
 
 #### `DiasHabiles` *(BusinessDays)*
-Valor calculado que representa días solicitados excluyendo sábados, domingos y feriados. Los feriados se definirán como una lista de fechas configurables (por año) en Infrastructure. El cálculo es un invariante de dominio — se implementa como lógica pura (sin dependencia externa).
+Valor calculado que representa días solicitados excluyendo sábados y domingos. Los feriados NO se excluyen del cómputo (RN-25). El cálculo es un invariante de dominio — se implementa como lógica pura (sin dependencia externa).
 
 ---
 
@@ -256,25 +264,41 @@ Valor calculado que representa días solicitados excluyendo sábados, domingos y
 
 ## 6. Contrato de API
 
-Cada endpoint responde a un caso de uso documentado en `docs/use-cases.md`:
+Cada endpoint responde a un caso de uso documentado en `docs/use-cases.md`. Todos los endpoints requieren autenticación vía ASP.NET Core Identity (cookie auth). El formato de respuesta es JSON para acciones AJAX y HTML Razor para navegación directa.
 
-| Método | Ruta | Caso de Uso | Descripción | Parámetros de Paginación |
-|---|---|---|---|---|
-| `POST` | `/solicitudes-vacaciones` | CU-04 — Crear solicitud | Empleado crea una solicitud de vacaciones | — |
-| `GET` | `/solicitudes-vacaciones` | CU-05 — Ver mis solicitudes | Empleado lista sus solicitudes paginadas | `?page=&pageSize=` (pageSize opcional, default 10, valores: 5,10,15,25) |
-| `GET` | `/solicitudes-vacaciones/{id}` | CU-05 — Ver detalle | Empleado ve detalle + historial de una solicitud | — |
-| `PUT` | `/solicitudes-vacaciones/{id}` | CU-06 — Editar solicitud Pending | Empleado edita fechas o motivo | — |
-| `POST` | `/solicitudes-vacaciones/{id}/cancelar` | CU-07 — Cancelar Pending | Empleado cancela solicitud pendiente | — |
-| `GET` | `/saldo` | CU-02 — Consultar saldo | Empleado/HR consulta saldo e historial | — |
-| `GET` | `/bandeja-aprobador` | CU-10 — Bandeja aprobador | Aprobador lista solicitudes Pending | `?page=&pageSize=` (pageSize opcional, default 10, valores: 5,10,15,25) |
-| `GET` | `/bandeja-aprobador/{id}` | CU-13 — Ver impacto saldo | Aprobador ve detalle con saldo estimado | — |
-| `POST` | `/bandeja-aprobador/{id}/aprobar` | CU-11 — Aprobar | Aprobador aprueba con descuento de saldo | — |
-| `POST` | `/bandeja-aprobador/{id}/rechazar` | CU-12 — Rechazar | Aprobador rechaza con comentario obligatorio | — |
-| `POST` | `/solicitudes-vacaciones/{id}/cancelar-aprobada` | CU-14 — Cancelar Approved | Aprobador cancela Approved antes del inicio | — |
-| `GET` | `/rrhh/solicitudes` | CU-18 — Consultas RRHH | RRHH lista/filtra solicitudes paginadas | `?page=&pageSize=&estado=&empleadoId=` (pageSize opcional, default 10, valores: 5,10,15,25) |
-| `GET` | `/rrhh/saldos/{empleadoId}` | CU-02/CU-18 — Saldo empleado | RRHH consulta saldo de un empleado específico | — |
+| Método | Ruta | Caso de Uso | Roles | Descripción | Request Body | Códigos HTTP | Paginación |
+|---|---|---|---|---|---|---|---|
+| `GET` | `/cuenta/login` | — | Anónimo | Muestra formulario de inicio de sesión | — | `200 OK` | — |
+| `POST` | `/cuenta/login` | — | Anónimo | Procesa credenciales e inicia sesión | `{ email, password }` | `302 Redirect` a home según rol; `400 Bad Request` si inválido | — |
+| `POST` | `/cuenta/logout` | — | Todos | Cierra sesión | — | `302 Redirect` a login | — |
+| `POST` | `/solicitudes-vacaciones` | CU-04 | Empleado | Crea una solicitud de vacaciones | `{ startDate, endDate, reason }` | `201 Created` + redirige a detalle; `400` si validación falla; `409 Conflict` si saldo insuficiente o traslape | — |
+| `GET` | `/solicitudes-vacaciones` | CU-05 | Empleado | Lista sus solicitudes paginadas | — | `200 OK` | `?page=&pageSize=` (opcional; default 10; valores: 5,10,15,25) |
+| `GET` | `/solicitudes-vacaciones/{id}` | CU-05 | Empleado | Detalle + historial de una solicitud | — | `200 OK`; `404 Not Found`; `403 Forbidden` si no es su solicitud | — |
+| `PUT` | `/solicitudes-vacaciones/{id}` | CU-06 | Empleado | Edita fechas o motivo de una Pending | `{ startDate?, endDate?, reason? }` | `200 OK`; `400` si validación falla; `404`; `409` si ya no está Pending | — |
+| `POST` | `/solicitudes-vacaciones/{id}/cancelar` | CU-07 | Empleado | Cancela su solicitud Pending | — | `200 OK`; `404`; `409` si ya no está Pending | — |
+| `GET` | `/saldo` | CU-02 | Empleado/RRHH | Consulta saldo disponible, pendiente y acumulado | — | `200 OK` | — |
+| `GET` | `/bandeja-aprobador` | CU-10 | Aprobador | Lista solicitudes Pending del sistema | — | `200 OK` | `?page=&pageSize=` (opcional; default 10; valores: 5,10,15,25) |
+| `GET` | `/bandeja-aprobador/{id}` | CU-13 | Aprobador | Detalle con impacto en saldo | — | `200 OK`; `404` | — |
+| `POST` | `/bandeja-aprobador/{id}/aprobar` | CU-11 | Aprobador | Aprueba solicitud con descuento de saldo | — | `200 OK`; `404`; `409 Conflict` si concurrencia; `403` si auto-aprobación | — |
+| `POST` | `/bandeja-aprobador/{id}/rechazar` | CU-12 | Aprobador | Rechaza solicitud con comentario obligatorio | `{ comment }` | `200 OK`; `400` si comment vacío; `404`; `409` si ya no está Pending | — |
+| `POST` | `/solicitudes-vacaciones/{id}/cancelar-aprobada` | CU-14 | Aprobador | Cancela Approved antes del inicio | — | `200 OK` + restaura saldo; `404`; `409` si ya inició el periodo | — |
+| `GET` | `/rrhh/solicitudes` | CU-18 | RRHH | Lista/filtra solicitudes paginadas de cualquier empleado | — | `200 OK` | `?page=&pageSize=&estado=&empleadoId=` (opcional; default 10; valores: 5,10,15,25) |
+| `GET` | `/rrhh/saldos/{empleadoId}` | CU-02/CU-18 | RRHH | Consulta saldo de un empleado específico | — | `200 OK`; `404` | — |
 
 No se proponen endpoints adicionales. Cada ruta tiene trazabilidad directa a un caso de uso del Spec.
+
+### Códigos HTTP comunes
+
+| Código | Significado |
+|--------|-------------|
+| `200 OK` | Operación exitosa |
+| `201 Created` | Recurso creado exitosamente |
+| `302 Redirect` | Redirección post-autenticación o post-acción |
+| `400 Bad Request` | Error de validación de entrada (FluentValidation) |
+| `403 Forbidden` | El rol no tiene permiso para la operación (ej. auto-aprobación, IDOR) |
+| `404 Not Found` | Recurso no existe |
+| `409 Conflict` | Conflicto de estado o concurrencia (saldo insuficiente, transición inválida, `DbUpdateConcurrencyException`) |
+| `500 Internal Server Error` | Error no esperado (manejado por middleware Problem Details) |
 
 ### Notas de paginación
 
@@ -461,7 +485,7 @@ docs/
 |---|---|---|
 | `src/Vacations.Domain` | Crear | Todas (001-005) |
 | `src/Vacations.Application` | Crear | Todas (001-005) |
-| `src/Vacations.Infrastructure` | Crear | Todas (001-005). Provider SQL Server + proveedor de feriados |
+| `src/Vacations.Infrastructure` | Crear | Todas (001-005). Provider SQL Server |
 | `src/Vacations.Web` | Crear (migrar scaffold existente) | Todas (001-005) |
 | `Solicitud_de_Vacaiones` (existente) | **Eliminar** (reescritura directa — no migrar). Los 4 proyectos se crean desde cero. | — |
 | `docs/diagrams/` | Crear | — |
@@ -501,6 +525,7 @@ No existen excepciones arquitectónicas. La Constitución y la Spec están aline
 | `ProveedorTiempoSistema` (TimeProvider) | Nueva abstracción | La Constitución (sección 7 invariante 9) exige que el cálculo de días ocurra en el servidor. El Domain no debe depender de `DateTime.Now`. | Se usa `TimeProvider` de .NET (nativo desde .NET 8+). Alternativa: interfaz propia. Se opta por la nativa para reducir código custom. |
 | `InterceptorAuditoriaSaveChanges` | Nuevo interceptor EF Core | La Spec (sección 8) y la Constitución (sección 7 invariante 8) exigen trazabilidad obligatoria en cada transición de estado. | Interceptor de `SaveChangesAsync` que registra automáticamente en `HistorialSolicitud` (solo cambios de estado de solicitudes). `HistorialSaldo` queda fuera de alcance MVP (futura fase). Alternativa: eventos manuales en cada handler (descartada por riesgo de olvido). |
 | `RowVersion` para concurrencia optimista | Configuración EF Core | La Constitución (sección 7 invariante 1) exige que el saldo nunca sea negativo. Sin concurrencia, dos aprobaciones simultáneas podrían sobrescribir el saldo. | `RowVersion` en `SaldoEmpleado` y `SolicitudVacaciones`. Manejo de `DbUpdateConcurrencyException` en Application. |
+| `ServicioAcumulacionSaldoMensual` | Nuevo BackgroundService | Feature 1 (`001-employee-balance-management`) requiere un job programado que acumule 1 día de saldo por mes completo laborado para empleados activos. | Se implementa como `BackgroundService` de ASP.NET Core, similar a `ServicioExpiracionAutomatica`. Se ejecuta 1 vez al día (02:00 AM) usando `PeriodicTimer`. Procesa solo empleados activos, calcula meses completos no contabilizados desde `joinDate`. Carry-over ilimitado. Alternativa: job manual (descartado por riesgo de olvido). |
 
 ---
 
@@ -522,7 +547,7 @@ No existen excepciones arquitectónicas. La Constitución y la Spec están aline
 |---|---|---|---|
 | Scaffold existente no cumple Clean Architecture | Medio: requiere refactorización de estructura | Alta | **Estrategia: reescritura directa.** Se crean los 4 proyectos desde cero (`Vacations.Domain`, `Application`, `Infrastructure`, `Web`) y se migra el código del scaffold (`Solicitud_de_Vacaiones/`) a `Vacations.Web`. El scaffold original se elimina. Esto evita arrastrar deuda técnica. |
 | Condiciones de carrera en aprobación/cancelación concurrente | Alto: saldo negativo o doble descuento | Media | `RowVersion` + manejo de `DbUpdateConcurrencyException` en cada handler de aprobación |
-| Cálculo de días hábiles sin repositorio de feriados | Bajo: solo sábados y domingos, lógica simple | Baja | Se implementa como método puro en Domain. Sin dependencias externas. |
+| Cálculo de días hábiles (solo excluye sáb/dom, feriados no aplican) | Bajo: solo sábados y domingos, lógica simple | Baja | Se implementa como método puro en Domain. Sin dependencias externas. |
 | Auto-expiración: lógica dinámica contra fecha de inicio | Bajo: reemplaza la lógica de N fijo | Baja | El `BackgroundService` compara `startDate` ≤ hoy usando `TimeProvider`. Sin valor configurable `[N]`. |
 | Paginación offset-based con concurrencia extrema | Bajo: posibles duplicados/saltos | Baja | Documentado como known limitation aceptada por el PO. Dropdown de pageSize con valores [5, 10, 15, 25] en todas las tablas. |
 | Dependencia de SQL Server en entorno local | Bajo: los desarrolladores deben tener SQL Server instalado o usar LocalDB | Media | Documentar prerequisito; usar LocalDB como alternativa de desarrollo ligera. |
