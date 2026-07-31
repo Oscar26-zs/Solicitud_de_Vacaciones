@@ -1,48 +1,65 @@
-# Tareas de Implementación — Sistema de Solicitudes de Vacaciones
+# Tareas de Implementación — Sistema de Solicitudes de Vacaciones (MVP)
 
-**Generado desde:** `plan.md`, `use-cases.md`, `spec.md`, `constitution.md`  
-**Fecha:** 2026-07-29  
-**Versión:** 1.0 (MVP)
-
----
-
-## Resumen Ejecutivo
-
-| Fase | Descripción | Tareas | Estimación |
-|------|-------------|:------:|:----------:|
-| 1 | Estructura de Solución | 4 | 2h |
-| 2 | Domain | 12 | 8h |
-| 3 | Infrastructure | 10 | 7h |
-| 4 | Application | 16 | 12h |
-| 5 | Web (Presentación) | 18 | 14h |
-| 6 | Tests | 8 | 10h |
-| **Total** | | **68** | **53h** |
+**Input**: `spec/spec.md`, `spec/001-*-005-*`, `docs/use-cases.md`, `spec/plan.md`, `.specify/memory/constitution.md`, `spec/DESIGN_TOKENS.md`
+**Prerequisites**: `plan.md` (obligatorio), `spec.md` (obligatorio — historias de usuario HU-01 a HU-09), `constitution.md`
+**Tests**: obligatorios por la constitución (§9 — cobertura ≥ 80% en Domain y Application). Se crean en la fase de la historia que verifican.
+**Organización**: las tareas se agrupan por fase de implementación y por historia de usuario (HU-01 a HU-09) para permitir la implementación y verificación independiente de cada historia como entregable funcional.
+**Fecha:** 2026-07-29
+**Versión:** 2.0 (MVP — adaptado a template spec-driven)
 
 ---
 
-## Dependencias entre Fases
+## Formato de tarea
 
-```
-Fase 1 (Estructura)
-	↓
-Fase 2 (Domain) ←──────────────────┐
-	↓                              │
-Fase 3 (Infrastructure) ───────────┤
-	↓                              │
-Fase 4 (Application) ──────────────┘
-	↓
-Fase 5 (Web)
-	↓
-Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
-```
+Cada tarea usa el siguiente bloque:
+
+`## [TASK-XXX] Título`
+
+- **Prioridad:** Alta | Media | Baja
+- **Estado:** [ ] Pendiente · [~] En Progreso · [x] Completada
+- **Paralela:** Sí (puede ejecutarse en paralelo: no comparte archivos ni dependencias) | No
+- **HU:** Historia de usuario asociada (HU-01…HU-09) o «—» si es transversal/fundacional
+- **Fase:** número de fase de ejecución (1-7)
+- **Dependencias:** tareas que deben completarse ANTES (en este documento se listan primero)
+- **Capa:** Domain | Application | Infrastructure | Web | Tests
+- **Archivos a crear:** rutas exactas
+- **Trazabilidad:** plan.md / spec.md / CU-XX / RN-XX / RF-XX / constitution.md
+- **Descripción:** qué se implementa y por qué
+- **Criterios de aceptación:** lista verificable (todos deben cumplirse para dar por completa la tarea)
+
+> **Regla de orden:** dentro de cada fase las tareas se listan en orden de ejecución. Si una tarea B depende de A, A aparece antes que B y B no se inicia hasta completar A. Las tareas marcadas como `Paralela: Sí` pueden ejecutarse en paralelo (archivos distintos, sin dependencias entre ellas).
 
 ---
 
-# Fase 1: Estructura de Solución
+## Resumen de Fases
 
-## TASK-001: Crear solución y proyectos de Clean Architecture
+| Fase | Descripción | Tareas |
+|------|-------------|:------:|
+| 1 | Setup (Estructura de Solución) | 4 |
+| 2 | Foundational (Base Bloqueante) | 33 |
+| 3 | HU-01 · HU-02 · HU-04 — Empleado (P1 · MVP) | 12 |
+| 4 | HU-03 — Editar / Cancelar (P2) | 2 |
+| 5 | HU-05 · HU-06 · HU-07 — Aprobador (P2) | 8 |
+| 6 | HU-08 · HU-09 — RRHH (P3) | 4 |
+| 7 | Polish, Transversal y Tests de Integración | 5 |
+| **Total** | | **68** |
+
+> **Nota sobre tiempos:** Este documento no incluye estimaciones de duración por tarea. La implementación la ejecuta un agente (IA), no un desarrollador humano, y en marcos ágiles se planifica por entregables funcionales completos, no por horas por tarea. Los tiempos a nivel macro (funcionalidades completas) se gestionan en la administración del proyecto.
+
+---
+
+# Phase 1: Setup (Estructura de Solución)
+
+**Propósito:** Inicialización del proyecto y estructura base.
+
+**Checkpoint:** Solución compilando, estructura limpia y scaffold eliminado. Se puede iniciar la base.
+
+## [TASK-001] Crear solución y proyectos de Clean Architecture
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
 - **Fase:** 1
-- **Estimación:** 30min
 - **Dependencias:** Ninguna
 - **Capa:** Todas
 - **Archivos a crear:**
@@ -59,9 +76,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Referencias entre proyectos configuradas correctamente
   - [ ] `dotnet build` exitoso sin errores
 
-## TASK-002: Configurar paquetes NuGet por capa
+## [TASK-002] Configurar paquetes NuGet por capa
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
 - **Fase:** 1
-- **Estimación:** 30min
 - **Dependencias:** TASK-001
 - **Capa:** Todas
 - **Archivos a modificar:**
@@ -78,9 +98,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Web tiene referencias necesarias para MVC con Razor
   - [ ] `dotnet restore` exitoso
 
-## TASK-003: Crear estructura de carpetas por capa
+## [TASK-003] Crear estructura de carpetas por capa
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
 - **Fase:** 1
-- **Estimación:** 30min
 - **Dependencias:** TASK-001
 - **Capa:** Todas
 - **Archivos a crear:**
@@ -109,9 +132,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Estructura de carpetas creada en cada proyecto
   - [ ] Archivos `.gitkeep` o README en carpetas vacías (opcional)
 
-## TASK-004: Eliminar scaffold existente y configurar .gitignore
+## [TASK-004] Eliminar scaffold existente y configurar .gitignore
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
 - **Fase:** 1
-- **Estimación:** 30min
 - **Dependencias:** TASK-001
 - **Capa:** N/A
 - **Archivos a eliminar:**
@@ -127,11 +153,20 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
 
 ---
 
-# Fase 2: Domain (Vacations.Domain)
+# Phase 2: Foundational (Base Bloqueante)
 
-## TASK-005: Crear enum EstadoSolicitud
+**Propósito:** Infraestructura base que DEBE estar completa antes de iniciar cualquier historia de usuario.
+
+**⚠️ CRÍTICO:** Ningún trabajo de historias comienza hasta que esta fase esté completa.
+
+**Checkpoint:** Base lista — Domain, Infrastructure y esqueleto Web compilan, con tests unitarios de Domain pasando.
+
+## [TASK-005] Crear enum EstadoSolicitud
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 15min
 - **Dependencias:** TASK-003
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -142,9 +177,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Enum con valores: `Pending`, `Approved`, `Rejected`, `Cancelled`, `Expired`
   - [ ] Documentación XML en cada valor
 
-## TASK-006: Crear enum RolUsuario
+## [TASK-006] Crear enum RolUsuario
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 15min
 - **Dependencias:** TASK-003
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -154,9 +192,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
 - **Criterios de aceptación:**
   - [ ] Enum con valores: `Empleado`, `Aprobador`, `RRHH`
 
-## TASK-007: Crear Value Object RangoFechas
+## [TASK-007] Crear Value Object RangoFechas
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 45min
 - **Dependencias:** TASK-003
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -171,9 +212,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Método `CalcularDiasHabiles()` que excluye sábados y domingos
   - [ ] Implementa `IEquatable<RangoFechas>`
 
-## TASK-008: Crear excepciones de dominio
+## [TASK-008] Crear excepciones de dominio
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 30min
 - **Dependencias:** TASK-003
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -190,9 +234,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Cada excepción tiene mensaje descriptivo en español
   - [ ] Excepciones son serializables
 
-## TASK-009: Crear entidad Empleado
+## [TASK-009] Crear entidad Empleado
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 30min
 - **Dependencias:** TASK-006
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -205,9 +252,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Método `Desactivar()` y `Activar()`
   - [ ] Validaciones en constructor (email no vacío, nombre no vacío)
 
-## TASK-010: Crear entidad SaldoEmpleado
+## [TASK-010] Crear entidad SaldoEmpleado
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 45min
 - **Dependencias:** TASK-009
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -224,9 +274,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Método `RestaurarSaldo(int dias)` para cancelar aprobada
   - [ ] Invariante: saldo disponible nunca negativo (lanzar `SaldoInsuficienteException`)
 
-## TASK-011: Crear entidad SolicitudVacaciones
+## [TASK-011] Crear entidad SolicitudVacaciones
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 1h 30min
 - **Dependencias:** TASK-005, TASK-007, TASK-008, TASK-009
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -245,9 +298,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Lanzar `TransicionEstadoInvalidaException` en transiciones inválidas
   - [ ] Lanzar `AutoAprobacionNoPermitidaException` si aprobadorId == empleadoId
 
-## TASK-012: Crear entidad HistorialSolicitud
+## [TASK-012] Crear entidad HistorialSolicitud
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 30min
 - **Dependencias:** TASK-005, TASK-011
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -260,9 +316,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Factory method `Crear(...)` 
   - [ ] Entidad inmutable (sin setters públicos)
 
-## TASK-013: Crear interfaz IRepositorioSolicitudVacaciones
+## [TASK-013] Crear interfaz IRepositorioSolicitudVacaciones
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 20min
 - **Dependencias:** TASK-011
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -277,9 +336,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Método `Task AgregarAsync(SolicitudVacaciones solicitud)`
   - [ ] Método `Task ActualizarAsync(SolicitudVacaciones solicitud)`
 
-## TASK-014: Crear interfaz IRepositorioSaldoEmpleado
+## [TASK-014] Crear interfaz IRepositorioSaldoEmpleado
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 15min
 - **Dependencias:** TASK-010
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -291,9 +353,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Método `Task AgregarAsync(SaldoEmpleado saldo)`
   - [ ] Método `Task ActualizarAsync(SaldoEmpleado saldo)`
 
-## TASK-015: Crear interfaz IRepositorioEmpleado
+## [TASK-015] Crear interfaz IRepositorioEmpleado
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 15min
 - **Dependencias:** TASK-009
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -305,9 +370,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Método `Task<IReadOnlyList<Empleado>> ObtenerActivosAsync()`
   - [ ] Método `Task<bool> ExisteConEmailAsync(string email)`
 
-## TASK-016: Crear interfaz IUnitOfWork
+## [TASK-016] Crear interfaz IUnitOfWork
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
 - **Fase:** 2
-- **Estimación:** 15min
 - **Dependencias:** TASK-013, TASK-014, TASK-015
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -318,13 +386,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Método `Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)`
   - [ ] Propiedades de acceso a repositorios (opcional, puede inyectarse por separado)
 
----
-
-# Fase 3: Infrastructure (Vacations.Infrastructure)
-
-## TASK-017: Crear UsuarioAplicacion (Identity)
-- **Fase:** 3
-- **Estimación:** 30min
+## [TASK-017] Crear UsuarioAplicacion (Identity)
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-002, TASK-009
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -336,9 +403,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Propiedad `EmpleadoId` para relacionar con entidad Empleado
   - [ ] Propiedad de navegación a `Empleado` (opcional)
 
-## TASK-018: Crear VacacionesDbContext
-- **Fase:** 3
-- **Estimación:** 1h
+## [TASK-018] Crear VacacionesDbContext
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-017, TASK-009, TASK-010, TASK-011, TASK-012
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -351,9 +421,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Override de `OnModelCreating` para aplicar configuraciones
   - [ ] Configuración de `TimeProvider` inyectado
 
-## TASK-019: Crear configuración EmpleadoConfiguration
-- **Fase:** 3
-- **Estimación:** 20min
+## [TASK-019] Crear configuración EmpleadoConfiguration
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-018
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -366,9 +439,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] `NombreCompleto` requerido, máx 200 caracteres
   - [ ] Índice en `Email`
 
-## TASK-020: Crear configuración SaldoEmpleadoConfiguration
-- **Fase:** 3
-- **Estimación:** 20min
+## [TASK-020] Crear configuración SaldoEmpleadoConfiguration
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-018
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -381,9 +457,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] `RowVersion` configurado como token de concurrencia
   - [ ] `SaldoDisponible` ignorado (propiedad calculada)
 
-## TASK-021: Crear configuración SolicitudVacacionesConfiguration
-- **Fase:** 3
-- **Estimación:** 30min
+## [TASK-021] Crear configuración SolicitudVacacionesConfiguration
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-018
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -399,9 +478,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] `RowVersion` como token de concurrencia
   - [ ] Índices en `EmpleadoId`, `Estado`, `FechaInicio`
 
-## TASK-022: Crear configuración HistorialSolicitudConfiguration
-- **Fase:** 3
-- **Estimación:** 20min
+## [TASK-022] Crear configuración HistorialSolicitudConfiguration
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-018
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -414,9 +496,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] `CamposModificados` como JSON (nvarchar max)
   - [ ] Sin DELETE en cascada (auditoría inmutable)
 
-## TASK-023: Implementar RepositorioSolicitudVacaciones
-- **Fase:** 3
-- **Estimación:** 45min
+## [TASK-023] Implementar RepositorioSolicitudVacaciones
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-018, TASK-013
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -429,9 +514,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Queries optimizadas con `AsNoTracking()` donde aplique
   - [ ] Incluye Empleado en consultas que lo requieran
 
-## TASK-024: Implementar RepositorioSaldoEmpleado
-- **Fase:** 3
-- **Estimación:** 30min
+## [TASK-024] Implementar RepositorioSaldoEmpleado
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-018, TASK-014
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -442,9 +530,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Implementa `IRepositorioSaldoEmpleado`
   - [ ] Manejo de concurrencia con `DbUpdateConcurrencyException`
 
-## TASK-025: Implementar RepositorioEmpleado
-- **Fase:** 3
-- **Estimación:** 30min
+## [TASK-025] Implementar RepositorioEmpleado
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-018, TASK-015
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -455,9 +546,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Implementa `IRepositorioEmpleado`
   - [ ] `ObtenerActivosAsync` filtra por `EstaActivo == true`
 
-## TASK-026: Crear ServicioExpiracionAutomatica (BackgroundService)
-- **Fase:** 3
-- **Estimación:** 1h
+## [TASK-026] Crear ServicioExpiracionAutomatica (BackgroundService)
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-018, TASK-023
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -474,261 +568,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Registra en `HistorialSolicitud` con actor `SISTEMA_AUTO_EXPIRACION`
   - [ ] Maneja errores sin detener el servicio
 
----
-
-# Fase 4: Application (Vacations.Application)
-
-## TASK-027: Crear comando CrearSolicitudCommand + Handler
-- **Fase:** 4
-- **Estimación:** 1h
-- **Dependencias:** TASK-011, TASK-013, TASK-014
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Solicitudes/Commands/CrearSolicitudCommand.cs`
-  - `src/Vacations.Application/Solicitudes/Commands/CrearSolicitudCommandHandler.cs`
-- **Trazabilidad:** CU-04, RF-007, RN-02, RN-06, RN-07, RN-10
-- **Descripción:** Comando para crear una nueva solicitud de vacaciones.
-- **Criterios de aceptación:**
-  - [ ] Command con: `EmpleadoId`, `FechaInicio`, `FechaFin`, `Motivo`
-  - [ ] Handler valida saldo disponible (incluyendo pendingBalance)
-  - [ ] Handler valida no traslape con otras solicitudes
-  - [ ] Handler valida rango de fechas (usa `RangoFechas`)
-  - [ ] Handler congela saldo pendiente
-  - [ ] Handler registra en historial
-  - [ ] Retorna `Guid` de la solicitud creada
-  - [ ] Maneja `DbUpdateConcurrencyException` para reintentar
-
-## TASK-028: Crear validador CrearSolicitudCommandValidator
-- **Fase:** 4
-- **Estimación:** 30min
-- **Dependencias:** TASK-027
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Solicitudes/Commands/CrearSolicitudCommandValidator.cs`
-- **Trazabilidad:** `constitution.md` sección 3.6 (validación de entrada)
-- **Descripción:** Validador FluentValidation para validación de entrada (no reglas de negocio).
-- **Criterios de aceptación:**
-  - [ ] Valida `FechaInicio` no vacía
-  - [ ] Valida `FechaFin` no vacía
-  - [ ] Valida `Motivo` no vacío, mínimo 10 caracteres
-  - [ ] NO valida reglas de negocio (saldo, traslape) — eso es del Domain
-
-## TASK-029: Crear comando EditarSolicitudCommand + Handler
-- **Fase:** 4
-- **Estimación:** 45min
-- **Dependencias:** TASK-027
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Solicitudes/Commands/EditarSolicitudCommand.cs`
-  - `src/Vacations.Application/Solicitudes/Commands/EditarSolicitudCommandHandler.cs`
-- **Trazabilidad:** CU-06, HU-03
-- **Descripción:** Comando para editar una solicitud en estado Pending.
-- **Criterios de aceptación:**
-  - [ ] Solo permite editar si estado es `Pending`
-  - [ ] Puede modificar: `FechaInicio`, `FechaFin`, `Motivo`
-  - [ ] Recalcula días hábiles si cambian fechas
-  - [ ] Ajusta `pendingBalance` si cambian los días
-  - [ ] Registra cambios en historial con `changedFields` JSON
-
-## TASK-030: Crear comando CancelarSolicitudCommand + Handler
-- **Fase:** 4
-- **Estimación:** 30min
-- **Dependencias:** TASK-027
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Solicitudes/Commands/CancelarSolicitudCommand.cs`
-  - `src/Vacations.Application/Solicitudes/Commands/CancelarSolicitudCommandHandler.cs`
-- **Trazabilidad:** CU-07, HU-03
-- **Descripción:** Comando para que un empleado cancele su solicitud Pending.
-- **Criterios de aceptación:**
-  - [ ] Verifica que el usuario sea el dueño de la solicitud
-  - [ ] Solo permite cancelar si estado es `Pending`
-  - [ ] Libera `pendingBalance`
-  - [ ] Registra en historial
-
-## TASK-031: Crear comando AprobarSolicitudCommand + Handler
-- **Fase:** 4
-- **Estimación:** 1h
-- **Dependencias:** TASK-027
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Solicitudes/Commands/AprobarSolicitudCommand.cs`
-  - `src/Vacations.Application/Solicitudes/Commands/AprobarSolicitudCommandHandler.cs`
-- **Trazabilidad:** CU-11, HU-06, RN-03, RN-08, RN-12, RN-13, RN-14
-- **Descripción:** Comando para que un aprobador apruebe una solicitud.
-- **Criterios de aceptación:**
-  - [ ] Verifica que el aprobador no sea el autor (anti-auto-aprobación)
-  - [ ] Verifica que el aprobador esté activo
-  - [ ] Verifica estado `Pending`
-  - [ ] Verifica saldo disponible actual (puede haber cambiado)
-  - [ ] Mueve días de `pendingBalance` a `consumedBalance`
-  - [ ] Registra en historial con actor = email aprobador
-  - [ ] Maneja concurrencia optimista
-
-## TASK-032: Crear comando RechazarSolicitudCommand + Handler
-- **Fase:** 4
-- **Estimación:** 45min
-- **Dependencias:** TASK-027
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Solicitudes/Commands/RechazarSolicitudCommand.cs`
-  - `src/Vacations.Application/Solicitudes/Commands/RechazarSolicitudCommandHandler.cs`
-- **Trazabilidad:** CU-12, HU-06, RN-11
-- **Descripción:** Comando para que un aprobador rechace una solicitud con comentario obligatorio.
-- **Criterios de aceptación:**
-  - [ ] Verifica aprobador activo y no es autor
-  - [ ] Verifica estado `Pending`
-  - [ ] Comentario obligatorio (1-500 caracteres)
-  - [ ] Libera `pendingBalance`
-  - [ ] Registra en historial con comentario
-
-## TASK-033: Crear comando CancelarAprobadaCommand + Handler
-- **Fase:** 4
-- **Estimación:** 45min
-- **Dependencias:** TASK-031
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Solicitudes/Commands/CancelarAprobadaCommand.cs`
-  - `src/Vacations.Application/Solicitudes/Commands/CancelarAprobadaCommandHandler.cs`
-- **Trazabilidad:** CU-14, HU-03, RN-04
-- **Descripción:** Comando para que un aprobador cancele una solicitud ya aprobada.
-- **Criterios de aceptación:**
-  - [ ] Solo si estado es `Approved`
-  - [ ] Solo si fecha inicio > fecha actual
-  - [ ] Restaura saldo (mueve de `consumedBalance` a disponible)
-  - [ ] Registra en historial
-
-## TASK-034: Crear query ObtenerMisSolicitudesQuery + Handler
-- **Fase:** 4
-- **Estimación:** 30min
-- **Dependencias:** TASK-013
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Solicitudes/Queries/ObtenerMisSolicitudesQuery.cs`
-  - `src/Vacations.Application/Solicitudes/Queries/ObtenerMisSolicitudesQueryHandler.cs`
-- **Trazabilidad:** CU-05, HU-02
-- **Descripción:** Query para que un empleado liste sus propias solicitudes.
-- **Criterios de aceptación:**
-  - [ ] Filtro opcional por estado
-  - [ ] Paginación (offset-based)
-  - [ ] Ordenado de más reciente a más antiguo
-  - [ ] Retorna DTO con: Id, Fechas, Días, Estado, Motivo, ComentarioAprobador
-
-## TASK-035: Crear query ObtenerSolicitudDetalleQuery + Handler
-- **Fase:** 4
-- **Estimación:** 30min
-- **Dependencias:** TASK-013
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Solicitudes/Queries/ObtenerSolicitudDetalleQuery.cs`
-  - `src/Vacations.Application/Solicitudes/Queries/ObtenerSolicitudDetalleQueryHandler.cs`
-- **Trazabilidad:** CU-05, HU-02
-- **Descripción:** Query para obtener el detalle de una solicitud incluyendo historial.
-- **Criterios de aceptación:**
-  - [ ] Incluye historial de eventos
-  - [ ] Verifica que el usuario tenga acceso (es dueño, es aprobador, o es RRHH)
-
-## TASK-036: Crear query ObtenerBandejaAprobadorQuery + Handler
-- **Fase:** 4
-- **Estimación:** 45min
-- **Dependencias:** TASK-013
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Solicitudes/Queries/ObtenerBandejaAprobadorQuery.cs`
-  - `src/Vacations.Application/Solicitudes/Queries/ObtenerBandejaAprobadorQueryHandler.cs`
-- **Trazabilidad:** CU-10, HU-05
-- **Descripción:** Query para listar solicitudes Pending para aprobadores.
-- **Criterios de aceptación:**
-  - [ ] Excluye solicitudes del propio aprobador
-  - [ ] Filtros opcionales: empleado, rango fechas, días
-  - [ ] Incluye saldo disponible del empleado
-  - [ ] Indica si hay traslape con otras solicitudes
-  - [ ] Ordenado de más antiguo a más reciente
-
-## TASK-037: Crear query ObtenerSaldoQuery + Handler
-- **Fase:** 4
-- **Estimación:** 30min
-- **Dependencias:** TASK-014
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Saldos/Queries/ObtenerSaldoQuery.cs`
-  - `src/Vacations.Application/Saldos/Queries/ObtenerSaldoQueryHandler.cs`
-- **Trazabilidad:** CU-02, HU-04, RN-27
-- **Descripción:** Query para consultar saldo de un empleado.
-- **Criterios de aceptación:**
-  - [ ] Empleado puede consultar su propio saldo
-  - [ ] RRHH puede consultar saldo de cualquier empleado
-  - [ ] Retorna: Acumulado, Consumido, Pendiente, Disponible
-  - [ ] Respuesta en ≤300ms p95
-
-## TASK-038: Crear query ObtenerHistorialRRHHQuery + Handler
-- **Fase:** 4
-- **Estimación:** 45min
-- **Dependencias:** TASK-013
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Solicitudes/Queries/ObtenerHistorialRRHHQuery.cs`
-  - `src/Vacations.Application/Solicitudes/Queries/ObtenerHistorialRRHHQueryHandler.cs`
-- **Trazabilidad:** CU-18, HU-08, HU-09
-- **Descripción:** Query para que RRHH consulte y filtre solicitudes de cualquier empleado.
-- **Criterios de aceptación:**
-  - [ ] Solo accesible por rol RRHH
-  - [ ] Filtros: estado, empleado, rango de fechas
-  - [ ] Paginación
-  - [ ] Incluye información del empleado
-
-## TASK-039: Crear comando AcumularSaldoMensualCommand + Handler
-- **Fase:** 4
-- **Estimación:** 45min
-- **Dependencias:** TASK-014, TASK-015
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Saldos/Commands/AcumularSaldoMensualCommand.cs`
-  - `src/Vacations.Application/Saldos/Commands/AcumularSaldoMensualCommandHandler.cs`
-- **Trazabilidad:** CU-01, RN-01, RN-23, RN-24
-- **Descripción:** Comando para acumular saldo mensual de todos los empleados activos.
-- **Criterios de aceptación:**
-  - [ ] Procesa solo empleados activos
-  - [ ] Calcula meses completos desde fecha de ingreso
-  - [ ] Acumula 1 día por mes completo no contabilizado
-  - [ ] Carry-over ilimitado
-  - [ ] Registra en historial de solicitud (futuro: historial de saldo)
-
-## TASK-040: Crear DTOs compartidos
-- **Fase:** 4
-- **Estimación:** 30min
-- **Dependencias:** TASK-027
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/Common/SolicitudDto.cs`
-  - `src/Vacations.Application/Common/SaldoDto.cs`
-  - `src/Vacations.Application/Common/EmpleadoDto.cs`
-  - `src/Vacations.Application/Common/HistorialEventoDto.cs`
-  - `src/Vacations.Application/Common/PagedResult.cs`
-- **Trazabilidad:** `constitution.md` sección 8 (ViewModels contra overposting)
-- **Descripción:** DTOs para transferir datos entre capas.
-- **Criterios de aceptación:**
-  - [ ] Records inmutables
-  - [ ] Sin lógica de negocio
-  - [ ] `PagedResult<T>` con: Items, TotalCount, PageNumber, PageSize
-
-## TASK-041: Crear extensión DependencyInjection para Application
-- **Fase:** 4
-- **Estimación:** 20min
-- **Dependencias:** TASK-027 a TASK-039
-- **Capa:** Application
-- **Archivos a crear:**
-  - `src/Vacations.Application/DependencyInjection.cs`
-- **Trazabilidad:** `constitution.md` sección 3 (DI nativa)
-- **Descripción:** Método de extensión para registrar servicios de Application en DI.
-- **Criterios de aceptación:**
-  - [ ] Método `AddApplicationServices(this IServiceCollection)`
-  - [ ] Registra todos los handlers
-  - [ ] Registra validadores de FluentValidation
-
-## TASK-042: Crear extensión DependencyInjection para Infrastructure
-- **Fase:** 4
-- **Estimación:** 30min
+## [TASK-042] Crear extensión DependencyInjection para Infrastructure
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-023 a TASK-026
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -743,13 +588,126 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Registra BackgroundService de expiración
   - [ ] Registra `TimeProvider`
 
----
+## [TASK-061] Crear proyecto Vacations.Domain.Tests
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
+- **Dependencias:** TASK-005 a TASK-016
+- **Capa:** Tests
+- **Archivos a crear:**
+  - `tests/Vacations.Domain.Tests/Vacations.Domain.Tests.csproj`
+- **Trazabilidad:** `constitution.md` sección 9 (pirámide de pruebas)
+- **Descripción:** Proyecto de pruebas unitarias puras para Domain.
+- **Criterios de aceptación:**
+  - [ ] Usa xUnit
+  - [ ] Sin mocks (pruebas puras)
+  - [ ] Referencia solo a Vacations.Domain
 
-# Fase 5: Web (Vacations.Web)
+## [TASK-062] Crear tests de entidad SolicitudVacaciones
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
+- **Fase:** 2
+- **Dependencias:** TASK-061, TASK-011
+- **Capa:** Tests
+- **Archivos a crear:**
+  - `tests/Vacations.Domain.Tests/Entities/SolicitudVacacionesTests.cs`
+- **Trazabilidad:** `constitution.md` sección 2 (transiciones), CU-04, CU-11, CU-12
+- **Descripción:** Tests unitarios para la máquina de estados de solicitud.
+- **Criterios de aceptación:**
+  - [ ] Test: Crear solicitud → estado inicial Pending
+  - [ ] Test: Aprobar solicitud Pending → estado Approved
+  - [ ] Test: Aprobar por mismo autor → lanza AutoAprobacionNoPermitidaException
+  - [ ] Test: Rechazar sin comentario → lanza excepción
+  - [ ] Test: Cancelar solicitud Approved cuyo periodo ya inició → lanza excepción
+  - [ ] Test: Transición inválida (Approved → Rejected) → lanza TransicionEstadoInvalidaException
 
-## TASK-043: Configurar Program.cs
-- **Fase:** 5
-- **Estimación:** 1h
+## [TASK-063] Crear tests de entidad SaldoEmpleado
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
+- **Fase:** 2
+- **Dependencias:** TASK-061, TASK-010
+- **Capa:** Tests
+- **Archivos a crear:**
+  - `tests/Vacations.Domain.Tests/Entities/SaldoEmpleadoTests.cs`
+- **Trazabilidad:** RN-01, RN-02, RN-03, RN-04
+- **Descripción:** Tests unitarios para gestión de saldo.
+- **Criterios de aceptación:**
+  - [ ] Test: Acumular días incrementa saldo acumulado
+  - [ ] Test: Congelar saldo incrementa pendingBalance, reduce disponible
+  - [ ] Test: Descontar saldo mueve de pendiente a consumido
+  - [ ] Test: Liberar saldo pendiente restaura disponible
+  - [ ] Test: Saldo disponible negativo → lanza SaldoInsuficienteException
+
+## [TASK-064] Crear tests de Value Object RangoFechas
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** —
+- **Fase:** 2
+- **Dependencias:** TASK-061, TASK-007
+- **Capa:** Tests
+- **Archivos a crear:**
+  - `tests/Vacations.Domain.Tests/ValueObjects/RangoFechasTests.cs`
+- **Trazabilidad:** RN-05, RN-06, RN-31
+- **Descripción:** Tests unitarios para validaciones de rango de fechas.
+- **Criterios de aceptación:**
+  - [ ] Test: Fecha inicio anterior a mañana → lanza excepción
+  - [ ] Test: Fecha fin anterior a inicio → lanza excepción
+  - [ ] Test: Rango mayor a 2 meses → lanza excepción
+  - [ ] Test: Calcular días hábiles excluye sábados y domingos
+  - [ ] Test: Rango válido → crea correctamente
+
+## [TASK-040] Crear DTOs compartidos
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
+- **Dependencias:** TASK-027
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Common/SolicitudDto.cs`
+  - `src/Vacations.Application/Common/SaldoDto.cs`
+  - `src/Vacations.Application/Common/EmpleadoDto.cs`
+  - `src/Vacations.Application/Common/HistorialEventoDto.cs`
+  - `src/Vacations.Application/Common/PagedResult.cs`
+- **Trazabilidad:** `constitution.md` sección 8 (ViewModels contra overposting)
+- **Descripción:** DTOs para transferir datos entre capas.
+- **Criterios de aceptación:**
+  - [ ] Records inmutables
+  - [ ] Sin lógica de negocio
+  - [ ] `PagedResult<T>` con: Items, TotalCount, PageNumber, PageSize, AvailablePageSizes (List<int> con [5, 10, 15, 25])
+  - [ ] El ViewModel de paginación expone `AvailablePageSizes` y `SelectedPageSize` para que la vista renderice el `<select class="page-size-select">`
+
+## [TASK-041] Crear extensión DependencyInjection para Application
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
+- **Dependencias:** TASK-027 a TASK-039
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/DependencyInjection.cs`
+- **Trazabilidad:** `constitution.md` sección 3 (DI nativa)
+- **Descripción:** Método de extensión para registrar servicios de Application.
+- **Criterios de aceptación:**
+  - [ ] Método `AddApplicationServices(this IServiceCollection)`
+  - [ ] Registra todos los handlers
+  - [ ] Registra validadores de FluentValidation
+
+## [TASK-043] Configurar Program.cs
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-041, TASK-042
 - **Capa:** Web
 - **Archivos a crear/modificar:**
@@ -766,9 +724,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Configura cabeceras de seguridad (HSTS, CSP, X-Frame-Options)
   - [ ] Connection string en appsettings
 
-## TASK-044: Crear políticas de autorización
-- **Fase:** 5
-- **Estimación:** 30min
+## [TASK-044] Crear políticas de autorización
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-043
 - **Capa:** Web
 - **Archivos a crear:**
@@ -781,135 +742,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Política `RequiereRRHH`
   - [ ] Política `RequiereAprobadorActivo` (verifica usuario activo)
 
-## TASK-045: Crear ViewModels de Solicitud
-- **Fase:** 5
-- **Estimación:** 30min
-- **Dependencias:** TASK-040
-- **Capa:** Web
-- **Archivos a crear:**
-  - `src/Vacations.Web/ViewModels/CrearSolicitudViewModel.cs`
-  - `src/Vacations.Web/ViewModels/EditarSolicitudViewModel.cs`
-  - `src/Vacations.Web/ViewModels/DetalleSolicitudViewModel.cs`
-  - `src/Vacations.Web/ViewModels/ListaSolicitudesViewModel.cs`
-- **Trazabilidad:** `constitution.md` sección 8 (overposting)
-- **Descripción:** ViewModels para las vistas de solicitudes.
-- **Criterios de aceptación:**
-  - [ ] Solo propiedades necesarias para cada vista
-  - [ ] DataAnnotations para validación del lado del cliente
-  - [ ] Propiedades para mostrar mensajes de error
-
-## TASK-046: Crear ViewModels de Aprobador
-- **Fase:** 5
-- **Estimación:** 20min
-- **Dependencias:** TASK-040
-- **Capa:** Web
-- **Archivos a crear:**
-  - `src/Vacations.Web/ViewModels/BandejaAprobadorViewModel.cs`
-  - `src/Vacations.Web/ViewModels/AprobarRechazarViewModel.cs`
-- **Trazabilidad:** CU-10, CU-11, CU-12
-- **Descripción:** ViewModels para las vistas de aprobador.
-- **Criterios de aceptación:**
-  - [ ] Bandeja incluye indicador de traslape
-  - [ ] AprobarRechazar incluye campo para comentario
-
-## TASK-047: Crear ViewModels de RRHH
-- **Fase:** 5
-- **Estimación:** 20min
-- **Dependencias:** TASK-040
-- **Capa:** Web
-- **Archivos a crear:**
-  - `src/Vacations.Web/ViewModels/ConsultaRRHHViewModel.cs`
-  - `src/Vacations.Web/ViewModels/FiltrosRRHHViewModel.cs`
-- **Trazabilidad:** CU-18
-- **Descripción:** ViewModels para las vistas de RRHH.
-- **Criterios de aceptación:**
-  - [ ] Filtros para estado, empleado, fechas
-  - [ ] Sin botones de acción (solo lectura)
-
-## TASK-048: Crear SolicitudVacacionesController
-- **Fase:** 5
-- **Estimación:** 1h 30min
-- **Dependencias:** TASK-045, TASK-027 a TASK-035
-- **Capa:** Web
-- **Archivos a crear:**
-  - `src/Vacations.Web/Controllers/SolicitudVacacionesController.cs`
-- **Trazabilidad:** `plan.md` sección 6 (API), CU-04 a CU-07
-- **Descripción:** Controller para CRUD de solicitudes del empleado.
-- **Criterios de aceptación:**
-  - [ ] `[Authorize(Policy = "RequiereEmpleado")]`
-  - [ ] `GET /solicitudes-vacaciones` → Lista mis solicitudes
-  - [ ] `GET /solicitudes-vacaciones/{id}` → Detalle
-  - [ ] `GET /solicitudes-vacaciones/crear` → Form de creación
-  - [ ] `POST /solicitudes-vacaciones` → Crear
-  - [ ] `GET /solicitudes-vacaciones/{id}/editar` → Form de edición
-  - [ ] `PUT /solicitudes-vacaciones/{id}` → Editar
-  - [ ] `POST /solicitudes-vacaciones/{id}/cancelar` → Cancelar
-  - [ ] Manejo de errores con mensajes UX
-
-## TASK-049: Crear SaldoController
-- **Fase:** 5
-- **Estimación:** 30min
-- **Dependencias:** TASK-037
-- **Capa:** Web
-- **Archivos a crear:**
-  - `src/Vacations.Web/Controllers/SaldoController.cs`
-- **Trazabilidad:** `plan.md` sección 6, CU-02
-- **Descripción:** Controller para consulta de saldo.
-- **Criterios de aceptación:**
-  - [ ] `[Authorize]`
-  - [ ] `GET /saldo` → Mi saldo (empleado)
-  - [ ] Muestra: Acumulado, Consumido, Pendiente, Disponible
-
-## TASK-050: Crear BandejaAprobadorController
-- **Fase:** 5
-- **Estimación:** 1h
-- **Dependencias:** TASK-046, TASK-031, TASK-032, TASK-036
-- **Capa:** Web
-- **Archivos a crear:**
-  - `src/Vacations.Web/Controllers/BandejaAprobadorController.cs`
-- **Trazabilidad:** `plan.md` sección 6, CU-10 a CU-14
-- **Descripción:** Controller para funcionalidades de aprobador.
-- **Criterios de aceptación:**
-  - [ ] `[Authorize(Policy = "RequiereAprobador")]`
-  - [ ] `GET /bandeja-aprobador` → Lista pendientes
-  - [ ] `GET /bandeja-aprobador/{id}` → Detalle con impacto en saldo
-  - [ ] `POST /bandeja-aprobador/{id}/aprobar` → Aprobar
-  - [ ] `POST /bandeja-aprobador/{id}/rechazar` → Rechazar con comentario
-  - [ ] `POST /solicitudes-vacaciones/{id}/cancelar-aprobada` → Cancelar aprobada
-
-## TASK-051: Crear RRHHController
-- **Fase:** 5
-- **Estimación:** 45min
-- **Dependencias:** TASK-047, TASK-037, TASK-038
-- **Capa:** Web
-- **Archivos a crear:**
-  - `src/Vacations.Web/Controllers/RRHHController.cs`
-- **Trazabilidad:** `plan.md` sección 6, CU-18
-- **Descripción:** Controller para consultas de RRHH.
-- **Criterios de aceptación:**
-  - [ ] `[Authorize(Policy = "RequiereRRHH")]`
-  - [ ] `GET /rrhh/solicitudes` → Lista con filtros
-  - [ ] `GET /rrhh/saldos/{empleadoId}` → Saldo de empleado
-  - [ ] Sin acciones de modificación (solo lectura)
-
-## TASK-052: Crear CuentaController (Auth)
-- **Fase:** 5
-- **Estimación:** 1h
-- **Dependencias:** TASK-043
-- **Capa:** Web
-- **Archivos a crear:**
-  - `src/Vacations.Web/Controllers/CuentaController.cs`
-- **Trazabilidad:** `spec.md` sección 8 (Identity)
-- **Descripción:** Controller para login/logout.
-- **Criterios de aceptación:**
-  - [ ] `GET /cuenta/login` → Form de login
-  - [ ] `POST /cuenta/login` → Procesar login
-  - [ ] `POST /cuenta/logout` → Cerrar sesión
-  - [ ] Redirección según rol después del login
-
-## TASK-053: Crear Layout y vistas compartidas
-- **Fase:** 5
-- **Estimación:** 1h
+## [TASK-053] Crear Layout y vistas compartidas
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
 - **Dependencias:** TASK-043
 - **Capa:** Web
 - **Archivos a crear:**
@@ -927,9 +765,212 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Modo claro/oscuro
   - [ ] Menú de usuario con rol visible
 
-## TASK-054: Crear vistas de Solicitud (Empleado)
-- **Fase:** 5
-- **Estimación:** 2h
+## [TASK-059] Crear archivo CSS con tokens de diseño
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 2
+- **Dependencias:** TASK-053
+- **Capa:** Web
+- **Archivos a crear:**
+  - `src/Vacations.Web/wwwroot/css/site.css`
+- **Trazabilidad:** `DESIGN_TOKENS.md`
+- **Descripción:** Hoja de estilos con variables CSS según guía de diseño.
+- **Criterios de aceptación:**
+  - [ ] Variables CSS para todos los tokens de color
+  - [ ] Modo claro (`:root`) y oscuro (`.dark`)
+  - [ ] Clases utilitarias para tipografía
+  - [ ] Estilos para componentes: cards, badges, buttons, forms, tables
+
+---
+
+# Phase 3: User Story HU-01 · HU-02 · HU-04 — Empleado (Priority: P1) 🎯 MVP
+
+**Goal:** Entregar el MVP de empleado: solicitar vacaciones con fechas y motivo (HU-01), ver el estado de sus solicitudes (HU-02) y consultar su saldo disponible (HU-04).
+
+**Independent Test:** Un empleado puede crear una solicitud, verla en su listado con su estado y consultar su saldo, todo autenticado.
+
+**Checkpoint:** MVP Empleado funcional — detener y validar antes de continuar.
+
+## [TASK-027] Crear comando CrearSolicitudCommand + Handler
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** HU-01
+- **Fase:** 3
+- **Dependencias:** TASK-011, TASK-013, TASK-014
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Solicitudes/Commands/CrearSolicitudCommand.cs`
+  - `src/Vacations.Application/Solicitudes/Commands/CrearSolicitudCommandHandler.cs`
+- **Trazabilidad:** CU-04, RF-007, RN-02, RN-06, RN-07, RN-10
+- **Descripción:** Comando para crear una nueva solicitud de vacaciones.
+- **Criterios de aceptación:**
+  - [ ] Command con: `EmpleadoId`, `FechaInicio`, `FechaFin`, `Motivo`
+  - [ ] Handler valida saldo disponible (incluyendo pendingBalance)
+  - [ ] Handler valida no traslape con otras solicitudes
+  - [ ] Handler valida rango de fechas (usa `RangoFechas`)
+  - [ ] Handler congela saldo pendiente
+  - [ ] Handler registra en historial
+  - [ ] Retorna `Guid` de la solicitud creada
+  - [ ] Maneja `DbUpdateConcurrencyException` para reintentar
+
+## [TASK-028] Crear validador CrearSolicitudCommandValidator
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-01
+- **Fase:** 3
+- **Dependencias:** TASK-027
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Solicitudes/Commands/CrearSolicitudCommandValidator.cs`
+- **Trazabilidad:** `constitution.md` sección 3.6 (validación de entrada)
+- **Descripción:** Validador FluentValidation para validación de entrada (no reglas de negocio).
+- **Criterios de aceptación:**
+  - [ ] Valida `FechaInicio` no vacía
+  - [ ] Valida `FechaFin` no vacía
+  - [ ] Valida `Motivo` no vacío, mínimo 10 caracteres
+  - [ ] NO valida reglas de negocio (saldo, traslape) — eso es del Domain
+
+## [TASK-034] Crear query ObtenerMisSolicitudesQuery + Handler
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** HU-02
+- **Fase:** 3
+- **Dependencias:** TASK-013
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Solicitudes/Queries/ObtenerMisSolicitudesQuery.cs`
+  - `src/Vacations.Application/Solicitudes/Queries/ObtenerMisSolicitudesQueryHandler.cs`
+- **Trazabilidad:** CU-05, HU-02
+- **Descripción:** Query para que un empleado liste sus propias solicitudes. El `pageSize` se recibe como parámetro opcional (default: 10) y puede ser 5, 10, 15 o 25.
+- **Criterios de aceptación:**
+  - [ ] Filtro opcional por estado
+  - [ ] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
+  - [ ] Ordenado de más reciente a más antiguo
+  - [ ] Retorna DTO con: Id, Fechas, Días, Estado, Motivo, ComentarioAprobador
+
+## [TASK-035] Crear query ObtenerSolicitudDetalleQuery + Handler
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** HU-02
+- **Fase:** 3
+- **Dependencias:** TASK-013
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Solicitudes/Queries/ObtenerSolicitudDetalleQuery.cs`
+  - `src/Vacations.Application/Solicitudes/Queries/ObtenerSolicitudDetalleQueryHandler.cs`
+- **Trazabilidad:** CU-05, HU-02
+- **Descripción:** Query para obtener el detalle de una solicitud incluyendo historial.
+- **Criterios de aceptación:**
+  - [ ] Incluye historial de eventos
+  - [ ] Verifica que el usuario tenga acceso (es dueño, es aprobador, o es RRHH)
+
+## [TASK-037] Crear query ObtenerSaldoQuery + Handler
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** HU-04
+- **Fase:** 3
+- **Dependencias:** TASK-014
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Saldos/Queries/ObtenerSaldoQuery.cs`
+  - `src/Vacations.Application/Saldos/Queries/ObtenerSaldoQueryHandler.cs`
+- **Trazabilidad:** CU-02, HU-04, RN-27
+- **Descripción:** Query para consultar saldo de un empleado.
+- **Criterios de aceptación:**
+  - [ ] Empleado puede consultar su propio saldo
+  - [ ] RRHH puede consultar saldo de cualquier empleado
+  - [ ] Retorna: Acumulado, Consumido, Pendiente, Disponible
+  - [ ] Respuesta en ≤300ms p95
+
+## [TASK-045] Crear ViewModels de Solicitud
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-01, HU-02
+- **Fase:** 3
+- **Dependencias:** TASK-040
+- **Capa:** Web
+- **Archivos a crear:**
+  - `src/Vacations.Web/ViewModels/CrearSolicitudViewModel.cs`
+  - `src/Vacations.Web/ViewModels/EditarSolicitudViewModel.cs`
+  - `src/Vacations.Web/ViewModels/DetalleSolicitudViewModel.cs`
+  - `src/Vacations.Web/ViewModels/ListaSolicitudesViewModel.cs`
+- **Trazabilidad:** `constitution.md` sección 8 (overposting)
+- **Descripción:** ViewModels para las vistas de solicitudes.
+- **Criterios de aceptación:**
+  - [ ] Solo propiedades necesarias para cada vista
+  - [ ] DataAnnotations para validación del lado del cliente
+  - [ ] Propiedades para mostrar mensajes de error
+
+## [TASK-048] Crear SolicitudVacacionesController
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-01, HU-02, HU-03
+- **Fase:** 3
+- **Dependencias:** TASK-045, TASK-027 a TASK-035
+- **Capa:** Web
+- **Archivos a crear:**
+  - `src/Vacations.Web/Controllers/SolicitudVacacionesController.cs`
+- **Trazabilidad:** `plan.md` sección 6 (API), CU-04 a CU-07
+- **Descripción:** Controller para CRUD de solicitudes del empleado.
+- **Criterios de aceptación:**
+  - [ ] `[Authorize(Policy = "RequiereEmpleado")]`
+  - [ ] `GET /solicitudes-vacaciones` → Lista mis solicitudes
+  - [ ] `GET /solicitudes-vacaciones/{id}` → Detalle
+  - [ ] `GET /solicitudes-vacaciones/crear` → Form de creación
+  - [ ] `POST /solicitudes-vacaciones` → Crear
+  - [ ] `GET /solicitudes-vacaciones/{id}/editar` → Form de edición
+  - [ ] `PUT /solicitudes-vacaciones/{id}` → Editar
+  - [ ] `POST /solicitudes-vacaciones/{id}/cancelar` → Cancelar
+  - [ ] Manejo de errores con mensajes UX
+
+## [TASK-049] Crear SaldoController
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-04
+- **Fase:** 3
+- **Dependencias:** TASK-037
+- **Capa:** Web
+- **Archivos a crear:**
+  - `src/Vacations.Web/Controllers/SaldoController.cs`
+- **Trazabilidad:** `plan.md` sección 6, CU-02
+- **Descripción:** Controller para consulta de saldo.
+- **Criterios de aceptación:**
+  - [ ] `[Authorize]`
+  - [ ] `GET /saldo` → Mi saldo (empleado)
+  - [ ] Muestra: Acumulado, Consumido, Pendiente, Disponible
+
+## [TASK-065] Crear proyecto Vacations.Application.Tests
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 3
+- **Dependencias:** TASK-027 a TASK-039
+- **Capa:** Tests
+- **Archivos a crear:**
+  - `tests/Vacations.Application.Tests/Vacations.Application.Tests.csproj`
+- **Trazabilidad:** `constitution.md` sección 9
+- **Descripción:** Proyecto de pruebas unitarias con mocks para Application. Se crea cuando la capa Application comienza a compilar (primera historia).
+- **Criterios de aceptación:**
+  - [ ] Usa xUnit y Moq
+  - [ ] Referencia a Vacations.Application y Vacations.Domain
+
+## [TASK-054] Crear vistas de Solicitud (Empleado)
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-01, HU-02, HU-03
+- **Fase:** 3
 - **Dependencias:** TASK-053, TASK-048
 - **Capa:** Web
 - **Archivos a crear:**
@@ -945,9 +986,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Formularios con validación del lado del cliente
   - [ ] Confirmación antes de cancelar
 
-## TASK-055: Crear vistas de Saldo
-- **Fase:** 5
-- **Estimación:** 30min
+## [TASK-055] Crear vistas de Saldo
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-04
+- **Fase:** 3
 - **Dependencias:** TASK-053, TASK-049
 - **Capa:** Web
 - **Archivos a crear:**
@@ -959,9 +1003,209 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Barra de progreso visual
   - [ ] Cifras con `tabular-nums`
 
-## TASK-056: Crear vistas de Bandeja Aprobador
+## [TASK-066] Crear tests de CrearSolicitudCommandHandler
+- **Prioridad:** Alta
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-01
+- **Fase:** 3
+- **Dependencias:** TASK-065, TASK-027
+- **Capa:** Tests
+- **Archivos a crear:**
+  - `tests/Vacations.Application.Tests/Solicitudes/CrearSolicitudCommandHandlerTests.cs`
+- **Trazabilidad:** CU-04
+- **Descripción:** Tests del handler de creación de solicitud.
+- **Criterios de aceptación:**
+  - [ ] Test: Crear con saldo suficiente → éxito
+  - [ ] Test: Crear con saldo insuficiente → falla
+  - [ ] Test: Crear con traslape → falla
+  - [ ] Test: Crear congela saldo pendiente
+  - [ ] Mock de repositorios y TimeProvider
+
+---
+
+# Phase 4: User Story HU-03 — Editar / Cancelar (Priority: P2)
+
+**Goal:** El empleado puede editar una solicitud `Pending` y cancelarla (HU-03, con restricciones).
+
+**Independent Test:** Un empleado edita fechas/motivo de una solicitud pendiente y cancela otra, con el saldo pendiente ajustándose correctamente.
+
+**Checkpoint:** Empleado puede editar y cancelar sus solicitudes `Pending`.
+
+## [TASK-029] Crear comando EditarSolicitudCommand + Handler
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** HU-03
+- **Fase:** 4
+- **Dependencias:** TASK-027
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Solicitudes/Commands/EditarSolicitudCommand.cs`
+  - `src/Vacations.Application/Solicitudes/Commands/EditarSolicitudCommandHandler.cs`
+- **Trazabilidad:** CU-06, HU-03
+- **Descripción:** Comando para editar una solicitud en estado Pending.
+- **Criterios de aceptación:**
+  - [ ] Solo permite editar si estado es `Pending`
+  - [ ] Puede modificar: `FechaInicio`, `FechaFin`, `Motivo`
+  - [ ] Recalcula días hábiles si cambian fechas
+  - [ ] Ajusta `pendingBalance` si cambian los días
+  - [ ] Registra cambios en historial con `changedFields` JSON
+
+## [TASK-030] Crear comando CancelarSolicitudCommand + Handler
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** HU-03
+- **Fase:** 4
+- **Dependencias:** TASK-027
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Solicitudes/Commands/CancelarSolicitudCommand.cs`
+  - `src/Vacations.Application/Solicitudes/Commands/CancelarSolicitudCommandHandler.cs`
+- **Trazabilidad:** CU-07, HU-03
+- **Descripción:** Comando para que un empleado cancele su solicitud Pending.
+- **Criterios de aceptación:**
+  - [ ] Verifica que el usuario sea el dueño de la solicitud
+  - [ ] Solo permite cancelar si estado es `Pending`
+  - [ ] Libera `pendingBalance`
+  - [ ] Registra en historial
+
+---
+
+# Phase 5: User Story HU-05 · HU-06 · HU-07 — Aprobador (Priority: P2)
+
+**Goal:** Flujo de aprobación: bandeja de pendientes (HU-05), aprobar/rechazar con comentario obligatorio (HU-06) y ver el impacto en saldo al revisar (HU-07), incluyendo cancelar una solicitud ya aprobada.
+
+**Independent Test:** Un aprobador ve la bandeja de solicitudes pendientes, aprueba una y rechaza otra con comentario, con el saldo moviéndose entre `pendingBalance` y `consumedBalance`.
+
+**Checkpoint:** Flujo de aprobación completo.
+
+## [TASK-036] Crear query ObtenerBandejaAprobadorQuery + Handler
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** HU-05, HU-07
 - **Fase:** 5
-- **Estimación:** 1h 30min
+- **Dependencias:** TASK-013
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Solicitudes/Queries/ObtenerBandejaAprobadorQuery.cs`
+  - `src/Vacations.Application/Solicitudes/Queries/ObtenerBandejaAprobadorQueryHandler.cs`
+- **Trazabilidad:** CU-10, HU-05
+- **Descripción:** Query para listar solicitudes Pending para aprobadores. El `pageSize` se recibe como parámetro opcional (default: 10) y puede ser 5, 10, 15 o 25.
+- **Criterios de aceptación:**
+  - [ ] Excluye solicitudes del propio aprobador
+  - [ ] Filtros opcionales: empleado, rango fechas, días
+  - [ ] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
+  - [ ] Incluye saldo disponible del empleado
+  - [ ] Indica si hay traslape con otras solicitudes
+  - [ ] Ordenado de más antiguo a más reciente
+
+## [TASK-031] Crear comando AprobarSolicitudCommand + Handler
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** HU-06
+- **Fase:** 5
+- **Dependencias:** TASK-027
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Solicitudes/Commands/AprobarSolicitudCommand.cs`
+  - `src/Vacations.Application/Solicitudes/Commands/AprobarSolicitudCommandHandler.cs`
+- **Trazabilidad:** CU-11, HU-06, RN-03, RN-08, RN-12, RN-13, RN-14
+- **Descripción:** Comando para que un aprobador apruebe una solicitud.
+- **Criterios de aceptación:**
+  - [ ] Verifica que el aprobador no sea el autor (anti-auto-aprobación)
+  - [ ] Verifica que el aprobador esté activo
+  - [ ] Verifica estado `Pending`
+  - [ ] Verifica saldo disponible actual (puede haber cambiado)
+  - [ ] Mueve días de `pendingBalance` a `consumedBalance`
+  - [ ] Registra en historial con actor = email aprobador
+  - [ ] Maneja concurrencia optimista
+
+## [TASK-032] Crear comando RechazarSolicitudCommand + Handler
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** Sí
+- **HU:** HU-06
+- **Fase:** 5
+- **Dependencias:** TASK-027
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Solicitudes/Commands/RechazarSolicitudCommand.cs`
+  - `src/Vacations.Application/Solicitudes/Commands/RechazarSolicitudCommandHandler.cs`
+- **Trazabilidad:** CU-12, HU-06, RN-11
+- **Descripción:** Comando para que un aprobador rechace una solicitud con comentario obligatorio.
+- **Criterios de aceptación:**
+  - [ ] Verifica aprobador activo y no es autor
+  - [ ] Verifica estado `Pending`
+  - [ ] Comentario obligatorio (1-500 caracteres)
+  - [ ] Libera `pendingBalance`
+  - [ ] Registra en historial con comentario
+
+## [TASK-033] Crear comando CancelarAprobadaCommand + Handler
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-03, HU-06
+- **Fase:** 5
+- **Dependencias:** TASK-031
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Solicitudes/Commands/CancelarAprobadaCommand.cs`
+  - `src/Vacations.Application/Solicitudes/Commands/CancelarAprobadaCommandHandler.cs`
+- **Trazabilidad:** CU-14, HU-03, RN-04
+- **Descripción:** Comando para que un aprobador cancele una solicitud ya aprobada.
+- **Criterios de aceptación:**
+  - [ ] Solo si estado es `Approved`
+  - [ ] Solo si fecha inicio > fecha actual
+  - [ ] Restaura saldo (mueve de `consumedBalance` a disponible)
+  - [ ] Registra en historial
+
+## [TASK-046] Crear ViewModels de Aprobador
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-05, HU-06
+- **Fase:** 5
+- **Dependencias:** TASK-040
+- **Capa:** Web
+- **Archivos a crear:**
+  - `src/Vacations.Web/ViewModels/BandejaAprobadorViewModel.cs`
+  - `src/Vacations.Web/ViewModels/AprobarRechazarViewModel.cs`
+- **Trazabilidad:** CU-10, CU-11, CU-12
+- **Descripción:** ViewModels para las vistas de aprobador.
+- **Criterios de aceptación:**
+  - [ ] Bandeja incluye indicador de traslape
+  - [ ] AprobarRechazar incluye campo para comentario
+
+## [TASK-050] Crear BandejaAprobadorController
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-05, HU-06, HU-07
+- **Fase:** 5
+- **Dependencias:** TASK-046, TASK-031, TASK-032, TASK-036
+- **Capa:** Web
+- **Archivos a crear:**
+  - `src/Vacations.Web/Controllers/BandejaAprobadorController.cs`
+- **Trazabilidad:** `plan.md` sección 6, CU-10 a CU-14
+- **Descripción:** Controller para funcionalidades de aprobador.
+- **Criterios de aceptación:**
+  - [ ] `[Authorize(Policy = "RequiereAprobador")]`
+  - [ ] `GET /bandeja-aprobador` → Lista pendientes
+  - [ ] `GET /bandeja-aprobador/{id}` → Detalle con impacto en saldo
+  - [ ] `POST /bandeja-aprobador/{id}/aprobar` → Aprobar
+  - [ ] `POST /bandeja-aprobador/{id}/rechazar` → Rechazar con comentario
+  - [ ] `POST /solicitudes-vacaciones/{id}/cancelar-aprobada` → Cancelar aprobada
+
+## [TASK-056] Crear vistas de Bandeja Aprobador
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-05, HU-06, HU-07
+- **Fase:** 5
 - **Dependencias:** TASK-053, TASK-050
 - **Capa:** Web
 - **Archivos a crear:**
@@ -976,9 +1220,94 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Modal o form para comentario de rechazo
   - [ ] Muestra impacto en saldo antes de aprobar
 
-## TASK-057: Crear vistas de RRHH
+## [TASK-067] Crear tests de AprobarSolicitudCommandHandler
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-06
 - **Fase:** 5
-- **Estimación:** 1h
+- **Dependencias:** TASK-065, TASK-031
+- **Capa:** Tests
+- **Archivos a crear:**
+  - `tests/Vacations.Application.Tests/Solicitudes/AprobarSolicitudCommandHandlerTests.cs`
+- **Trazabilidad:** CU-11
+- **Descripción:** Tests del handler de aprobación.
+- **Criterios de aceptación:**
+  - [ ] Test: Aprobar mueve saldo de pendiente a consumido
+  - [ ] Test: Aprobar por autor → falla
+  - [ ] Test: Aprobar por aprobador inactivo → falla
+  - [ ] Test: Aprobar con saldo insuficiente (concurrencia) → falla
+
+---
+
+# Phase 6: User Story HU-08 · HU-09 — RRHH (Priority: P3)
+
+**Goal:** Consultas de solo lectura para RRHH: historial completo de cualquier empleado (HU-08) y filtrado por estado, empleado y rango de fechas (HU-09).
+
+**Independent Test:** Un usuario RRHH consulta y filtra solicitudes de cualquier empleado y consulta su saldo.
+
+**Checkpoint:** Consultas y filtros de RRHH funcionales (solo lectura).
+
+## [TASK-038] Crear query ObtenerHistorialRRHHQuery + Handler
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-08, HU-09
+- **Fase:** 6
+- **Dependencias:** TASK-013
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Solicitudes/Queries/ObtenerHistorialRRHHQuery.cs`
+  - `src/Vacations.Application/Solicitudes/Queries/ObtenerHistorialRRHHQueryHandler.cs`
+- **Trazabilidad:** CU-18, HU-08, HU-09
+- **Descripción:** Query para que RRHH consulte y filtre solicitudes de cualquier empleado. El `pageSize` se recibe como parámetro opcional (default: 10) y puede ser 5, 10, 15 o 25.
+- **Criterios de aceptación:**
+  - [ ] Solo accesible por rol RRHH
+  - [ ] Filtros: estado, empleado, rango de fechas
+  - [ ] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
+  - [ ] Incluye información del empleado
+
+## [TASK-047] Crear ViewModels de RRHH
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-08, HU-09
+- **Fase:** 6
+- **Dependencias:** TASK-040
+- **Capa:** Web
+- **Archivos a crear:**
+  - `src/Vacations.Web/ViewModels/ConsultaRRHHViewModel.cs`
+  - `src/Vacations.Web/ViewModels/FiltrosRRHHViewModel.cs`
+- **Trazabilidad:** CU-18
+- **Descripción:** ViewModels para las vistas de RRHH.
+- **Criterios de aceptación:**
+  - [ ] Filtros para estado, empleado, fechas
+  - [ ] Sin botones de acción (solo lectura)
+
+## [TASK-051] Crear RRHHController
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-08, HU-09
+- **Fase:** 6
+- **Dependencias:** TASK-047, TASK-037, TASK-038
+- **Capa:** Web
+- **Archivos a crear:**
+  - `src/Vacations.Web/Controllers/RRHHController.cs`
+- **Trazabilidad:** `plan.md` sección 6, CU-18
+- **Descripción:** Controller para consultas de RRHH.
+- **Criterios de aceptación:**
+  - [ ] `[Authorize(Policy = "RequiereRRHH")]`
+  - [ ] `GET /rrhh/solicitudes` → Lista con filtros
+  - [ ] `GET /rrhh/saldos/{empleadoId}` → Saldo de empleado
+  - [ ] Sin acciones de modificación (solo lectura)
+
+## [TASK-057] Crear vistas de RRHH
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** HU-08, HU-09
+- **Fase:** 6
 - **Dependencias:** TASK-053, TASK-051
 - **Capa:** Web
 - **Archivos a crear:**
@@ -991,9 +1320,58 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Sin botones de acción
   - [ ] Tabla con todos los campos relevantes
 
-## TASK-058: Crear vistas de Cuenta (Login)
-- **Fase:** 5
-- **Estimación:** 30min
+---
+
+# Phase 7: Polish, Transversal y Tests de Integración
+
+**Propósito:** Mejoras que afectan a varias historias, autenticación, datos de prueba y pruebas de integración del sistema.
+
+**Checkpoint:** Sistema completo y pulido, con autenticación, seed y pruebas de integración pasando.
+
+## [TASK-039] Crear comando AcumularSaldoMensualCommand + Handler
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 7
+- **Dependencias:** TASK-014, TASK-015
+- **Capa:** Application
+- **Archivos a crear:**
+  - `src/Vacations.Application/Saldos/Commands/AcumularSaldoMensualCommand.cs`
+  - `src/Vacations.Application/Saldos/Commands/AcumularSaldoMensualCommandHandler.cs`
+- **Trazabilidad:** CU-01, RN-01, RN-23, RN-24
+- **Descripción:** Comando para acumular saldo mensual de todos los empleados activos.
+- **Criterios de aceptación:**
+  - [ ] Procesa solo empleados activos
+  - [ ] Calcula meses completos desde fecha de ingreso
+  - [ ] Acumula 1 día por mes completo no contabilizado
+  - [ ] Carry-over ilimitado
+  - [ ] Registra en historial de solicitud (futuro: historial de saldo)
+
+## [TASK-052] Crear CuentaController (Auth)
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 7
+- **Dependencias:** TASK-043
+- **Capa:** Web
+- **Archivos a crear:**
+  - `src/Vacations.Web/Controllers/CuentaController.cs`
+- **Trazabilidad:** `spec.md` sección 8 (Identity)
+- **Descripción:** Controller para login/logout.
+- **Criterios de aceptación:**
+  - [ ] `GET /cuenta/login` → Form de login
+  - [ ] `POST /cuenta/login` → Procesar login
+  - [ ] `POST /cuenta/logout` → Cerrar sesión
+  - [ ] Redirección según rol después del login
+
+## [TASK-058] Crear vistas de Cuenta (Login)
+- **Prioridad:** Baja
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 7
 - **Dependencias:** TASK-053, TASK-052
 - **Capa:** Web
 - **Archivos a crear:**
@@ -1005,24 +1383,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Mensajes de error claros
   - [ ] Diseño monocromático según tokens
 
-## TASK-059: Crear archivo CSS con tokens de diseño
-- **Fase:** 5
-- **Estimación:** 1h
-- **Dependencias:** TASK-053
-- **Capa:** Web
-- **Archivos a crear:**
-  - `src/Vacations.Web/wwwroot/css/site.css`
-- **Trazabilidad:** `DESIGN_TOKENS.md`
-- **Descripción:** Hoja de estilos con variables CSS según guía de diseño.
-- **Criterios de aceptación:**
-  - [ ] Variables CSS para todos los tokens de color
-  - [ ] Modo claro (`:root`) y oscuro (`.dark`)
-  - [ ] Clases utilitarias para tipografía
-  - [ ] Estilos para componentes: cards, badges, buttons, forms, tables
-
-## TASK-060: Crear datos de seed (usuarios y saldos iniciales)
-- **Fase:** 5
-- **Estimación:** 1h
+## [TASK-060] Crear datos de seed (usuarios y saldos iniciales)
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 7
 - **Dependencias:** TASK-018
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -1037,120 +1403,12 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
   - [ ] Contraseñas de desarrollo documentadas
   - [ ] Seed ejecuta solo si BD está vacía
 
----
-
-# Fase 6: Tests
-
-## TASK-061: Crear proyecto Vacations.Domain.Tests
-- **Fase:** 6
-- **Estimación:** 30min
-- **Dependencias:** TASK-005 a TASK-016
-- **Capa:** Tests
-- **Archivos a crear:**
-  - `tests/Vacations.Domain.Tests/Vacations.Domain.Tests.csproj`
-- **Trazabilidad:** `constitution.md` sección 9 (pirámide de pruebas)
-- **Descripción:** Proyecto de pruebas unitarias puras para Domain.
-- **Criterios de aceptación:**
-  - [ ] Usa xUnit
-  - [ ] Sin mocks (pruebas puras)
-  - [ ] Referencia solo a Vacations.Domain
-
-## TASK-062: Crear tests de entidad SolicitudVacaciones
-- **Fase:** 6
-- **Estimación:** 1h 30min
-- **Dependencias:** TASK-061, TASK-011
-- **Capa:** Tests
-- **Archivos a crear:**
-  - `tests/Vacations.Domain.Tests/Entities/SolicitudVacacionesTests.cs`
-- **Trazabilidad:** `constitution.md` sección 2 (transiciones), CU-04, CU-11, CU-12
-- **Descripción:** Tests unitarios para la máquina de estados de solicitud.
-- **Criterios de aceptación:**
-  - [ ] Test: Crear solicitud → estado inicial Pending
-  - [ ] Test: Aprobar solicitud Pending → estado Approved
-  - [ ] Test: Aprobar por mismo autor → lanza AutoAprobacionNoPermitidaException
-  - [ ] Test: Rechazar sin comentario → lanza excepción
-  - [ ] Test: Cancelar solicitud Approved cuyo periodo ya inició → lanza excepción
-  - [ ] Test: Transición inválida (Approved → Rejected) → lanza TransicionEstadoInvalidaException
-
-## TASK-063: Crear tests de entidad SaldoEmpleado
-- **Fase:** 6
-- **Estimación:** 1h
-- **Dependencias:** TASK-061, TASK-010
-- **Capa:** Tests
-- **Archivos a crear:**
-  - `tests/Vacations.Domain.Tests/Entities/SaldoEmpleadoTests.cs`
-- **Trazabilidad:** RN-01, RN-02, RN-03, RN-04
-- **Descripción:** Tests unitarios para gestión de saldo.
-- **Criterios de aceptación:**
-  - [ ] Test: Acumular días incrementa saldo acumulado
-  - [ ] Test: Congelar saldo incrementa pendingBalance, reduce disponible
-  - [ ] Test: Descontar saldo mueve de pendiente a consumido
-  - [ ] Test: Liberar saldo pendiente restaura disponible
-  - [ ] Test: Saldo disponible negativo → lanza SaldoInsuficienteException
-
-## TASK-064: Crear tests de Value Object RangoFechas
-- **Fase:** 6
-- **Estimación:** 45min
-- **Dependencias:** TASK-061, TASK-007
-- **Capa:** Tests
-- **Archivos a crear:**
-  - `tests/Vacations.Domain.Tests/ValueObjects/RangoFechasTests.cs`
-- **Trazabilidad:** RN-05, RN-06, RN-31
-- **Descripción:** Tests unitarios para validaciones de rango de fechas.
-- **Criterios de aceptación:**
-  - [ ] Test: Fecha inicio anterior a mañana → lanza excepción
-  - [ ] Test: Fecha fin anterior a inicio → lanza excepción
-  - [ ] Test: Rango mayor a 2 meses → lanza excepción
-  - [ ] Test: Calcular días hábiles excluye sábados y domingos
-  - [ ] Test: Rango válido → crea correctamente
-
-## TASK-065: Crear proyecto Vacations.Application.Tests
-- **Fase:** 6
-- **Estimación:** 30min
-- **Dependencias:** TASK-027 a TASK-039
-- **Capa:** Tests
-- **Archivos a crear:**
-  - `tests/Vacations.Application.Tests/Vacations.Application.Tests.csproj`
-- **Trazabilidad:** `constitution.md` sección 9
-- **Descripción:** Proyecto de pruebas unitarias con mocks para Application.
-- **Criterios de aceptación:**
-  - [ ] Usa xUnit y Moq
-  - [ ] Referencia a Vacations.Application y Vacations.Domain
-
-## TASK-066: Crear tests de CrearSolicitudCommandHandler
-- **Fase:** 6
-- **Estimación:** 1h 30min
-- **Dependencias:** TASK-065, TASK-027
-- **Capa:** Tests
-- **Archivos a crear:**
-  - `tests/Vacations.Application.Tests/Solicitudes/CrearSolicitudCommandHandlerTests.cs`
-- **Trazabilidad:** CU-04
-- **Descripción:** Tests del handler de creación de solicitud.
-- **Criterios de aceptación:**
-  - [ ] Test: Crear con saldo suficiente → éxito
-  - [ ] Test: Crear con saldo insuficiente → falla
-  - [ ] Test: Crear con traslape → falla
-  - [ ] Test: Crear congela saldo pendiente
-  - [ ] Mock de repositorios y TimeProvider
-
-## TASK-067: Crear tests de AprobarSolicitudCommandHandler
-- **Fase:** 6
-- **Estimación:** 1h
-- **Dependencias:** TASK-065, TASK-031
-- **Capa:** Tests
-- **Archivos a crear:**
-  - `tests/Vacations.Application.Tests/Solicitudes/AprobarSolicitudCommandHandlerTests.cs`
-- **Trazabilidad:** CU-11
-- **Descripción:** Tests del handler de aprobación.
-- **Criterios de aceptación:**
-  - [ ] Test: Aprobar mueve saldo de pendiente a consumido
-  - [ ] Test: Aprobar por autor → falla
-  - [ ] Test: Aprobar por aprobador inactivo → falla
-  - [ ] Test: Aprobar con saldo insuficiente (concurrencia) → falla
-
-## TASK-068: Crear proyecto Vacations.Web.Tests (integración)
-- **Fase:** 6
-- **Estimación:** 2h
+## [TASK-068] Crear proyecto Vacations.Web.Tests (integración)
+- **Prioridad:** Media
+- **Estado:** [ ] Pendiente
+- **Paralela:** No
+- **HU:** —
+- **Fase:** 7
 - **Dependencias:** TASK-048 a TASK-060
 - **Capa:** Tests
 - **Archivos a crear:**
@@ -1168,12 +1426,87 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
 
 ---
 
+## Dependencias & Orden de Ejecución
+
+### Dependencias entre fases
+
+- **Phase 1 (Setup):** sin dependencias — puede iniciar de inmediato.
+- **Phase 2 (Foundational):** depende de Phase 1 — **BLOQUEA todas las historias**. ⚠️ Ningún trabajo de historias comienza hasta que esta fase termine.
+- **Phase 3 (HU-01 · 02 · 04, P1 · MVP):** depende de Phase 2 — entrega el MVP de empleado.
+- **Phase 4 (HU-03, P2):** depende de Phase 2/3 — usa `CrearSolicitudCommand` y el saldo pendiente.
+- **Phase 5 (HU-05 · 06 · 07, P2):** depende de Phase 2/3 — flujo de aprobador.
+- **Phase 6 (HU-08 · 09, P3):** depende de Phase 2/3 — consultas de RRHH.
+- **Phase 7 (Polish · Transversal · Tests de integración):** depende de todas las anteriores.
+
+### Orden dentro de cada fase
+
+- Las tareas se listan en orden de ejecución: primero las que habilitan a las demás (si B depende de A, A aparece antes y B no se inicia hasta completar A).
+- Dentro de cada historia: queries/commands → validators → ViewModels → Controllers → Vistas → Tests.
+- Las tareas `Paralela: Sí` se pueden lanzar juntas (archivos distintos, sin dependencias entre ellas).
+- **No se inicia una tarea hasta completar sus `Dependencias`.**
+
+### Oportunidades de paralelismo
+
+- **[P] Phase 2:** TASK-005/006 (enums), TASK-007/008 (VO/excepciones), TASK-013/014/015 (interfaces), TASK-019..022 (configuraciones EF), TASK-062/063/064 (tests Domain).
+- **[P] Phase 3:** TASK-027/034/035/037 (handlers y queries independientes).
+- **[P] Phase 4:** TASK-029/030.
+- **[P] Phase 5:** TASK-031/032/036.
+
+### Ruta crítica
+
+```
+Phase 1 (Setup)
+   ↓
+Phase 2 (Foundational) ⚠️ BLOQUEANTE
+   ↓
+Phase 3 (HU-01 · HU-02 · HU-04) → MVP Empleado 🎯
+   ↓
+Phase 4 (HU-03)
+   ↓
+Phase 5 (HU-05 · 06 · 07)
+   ↓
+Phase 6 (HU-08 · 09)
+   ↓
+Phase 7 (Polish · Transversal · Tests de Integración)
+```
+
+---
+
+## Estrategia de Implementación
+
+### MVP Primero
+
+1. Completar Phase 1 (Setup).
+2. Completar Phase 2 (Foundational) — **CRÍTICO**: bloquea todas las historias.
+3. Completar Phase 3 (HU-01 · 02 · 04) → **MVP Empleado**.
+4. **PARAR y VALIDAR**: verificar cada historia de forma independiente antes de continuar.
+5. Avanzar por incrementos: Phase 4 → 5 → 6 → 7.
+
+### Entrega Incremental
+
+1. Setup + Foundational → base lista.
+2. + HU-01/02/04 → MVP (crear, ver, consultar saldo) → validar.
+3. + HU-03 → editar/cancelar → validar.
+4. + HU-05/06/07 → aprobación → validar.
+5. + HU-08/09 → RRHH → validar.
+6. + Polish/transversal → producto final.
+7. Cada historia añade valor sin romper las anteriores.
+
+### Estrategia en paralelo
+
+- Cuando la Base (Phase 2) esté completa, cada historia puede ejecutarse de forma independiente.
+- Las historias P2/P3 pueden avanzar en paralelo entre sí.
+- Las tareas `Paralela: Sí` dentro de una fase se lanzan juntas.
+
+---
+
 ## Apéndice: Mapeo Tarea → Caso de Uso
 
 | Caso de Uso | Tareas Relacionadas |
 |-------------|---------------------|
-| CU-01 (Acumular saldo) | TASK-010, TASK-039 |
+| CU-01 (Calcular/acumular saldo mensual) | TASK-010, TASK-039 |
 | CU-02 (Consultar saldo) | TASK-037, TASK-049, TASK-055 |
+| CU-03 (Registrar movimientos de balance) | TASK-010, TASK-039 |
 | CU-04 (Crear solicitud) | TASK-011, TASK-027, TASK-028, TASK-048, TASK-054 |
 | CU-05 (Ver mis solicitudes) | TASK-034, TASK-035, TASK-048, TASK-054 |
 | CU-06 (Editar solicitud) | TASK-029, TASK-048, TASK-054 |
@@ -1186,66 +1519,27 @@ Fase 6 (Tests) ← puede ejecutarse en paralelo desde Fase 2
 | CU-13 (Ver impacto saldo) | TASK-036, TASK-056 |
 | CU-14 (Cancelar aprobada) | TASK-033, TASK-050, TASK-056 |
 | CU-15 (Auto-expiración) | TASK-026 |
-| CU-17 (Auditoría) | TASK-012, TASK-022 |
-| CU-18 (RRHH) | TASK-038, TASK-051, TASK-057 |
+| CU-16 (Gestión de roles y permisos) | TASK-006, TASK-017, TASK-043, TASK-044 |
+| CU-17 (Auditoría y trazabilidad) | TASK-012, TASK-022 |
+| CU-18 (Filtrado y consultas RRHH) | TASK-038, TASK-051, TASK-057 |
+| CU-19 (Mensajes UX y manejo de errores) | TASK-048, TASK-054, TASK-058 |
 
 ---
 
-## Diagrama de Dependencias Críticas
+## Notas
 
-```
-TASK-001 ──► TASK-002 ──► TASK-003
-				│
-				▼
-		 ┌──────┴──────┐
-		 ▼             ▼
-	TASK-005       TASK-006
-		 │             │
-		 └──────┬──────┘
-				▼
-		   TASK-007 ──► TASK-008
-				│
-		 ┌──────┼──────┐
-		 ▼      ▼      ▼
-	TASK-009  TASK-010  TASK-011 ──► TASK-012
-		 │      │          │
-		 └──────┼──────────┘
-				▼
-	TASK-013, TASK-014, TASK-015, TASK-016
-				│
-				▼
-	═══════════════════════════════════════
-			INFRASTRUCTURE
-	═══════════════════════════════════════
-				│
-	TASK-017 ──► TASK-018 ──► TASK-019..022
-					 │
-					 ▼
-			TASK-023..026
-					 │
-					 ▼
-	═══════════════════════════════════════
-			  APPLICATION
-	═══════════════════════════════════════
-					 │
-			TASK-027..042
-					 │
-					 ▼
-	═══════════════════════════════════════
-				  WEB
-	═══════════════════════════════════════
-					 │
-			TASK-043..060
-					 │
-					 ▼
-	═══════════════════════════════════════
-				 TESTS
-	═══════════════════════════════════════
-					 │
-			TASK-061..068
-```
+- **[P]/Paralela:** tareas en archivos distintos sin dependencias → pueden ejecutarse en paralelo.
+- **[HU]:** etiqueta la historia de usuario que la tarea entrega (trazabilidad).
+- **Pruebas:** se escriben en la fase de su historia; deben fallar antes de implementar (TDD).
+- **Commits:** commitear tras cada tarea o grupo lógico; detenerse en cada checkpoint para validar.
+- **Evitar:** tareas vagas, conflictos por archivos compartidos y dependencias cruzadas que rompan la independencia de las historias.
+- **Tiempos:** sin estimaciones por tarea — los tiempos a nivel macro (funcionalidades completas) se gestionan en la administración del proyecto.
+- **Pendientes identificados (documentados, sin tarea propia):**
+  - Implementación concreta de `TimeProvider` (`ProveedorTiempoSistema`) — se crea como parte de TASK-018/TASK-042.
+  - Componente de paginación `_TablePagination.cshtml` + `pagination.js` referenciados en TASK-040 — se crean dentro de TASK-053/TASK-059 o se añaden como tarea.
+  - Cobertura de Application tests: actualmente solo 2 handlers (TASK-066/067) — revisar contra la meta ≥ 80% de constitution §9.
 
 ---
 
 **Documento generado para:** Sistema de Gestión de Solicitudes de Vacaciones (MVP)  
-**Cobertura:** 68 tareas, 19 casos de uso, ~53 horas de desarrollo estimadas
+**Cobertura:** 68 tareas, 19 casos de uso
