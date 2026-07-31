@@ -8,13 +8,13 @@
 
 ## Resumen de Tareas Feature 002
 
-| Fase | Descripción | Tareas | Estimación |
-|------|-------------|:------:|:----------:|
-| 2 | Domain: Entidades (SolicitudVacaciones, HistorialSolicitud) | TASK-011, TASK-012 | 2h |
-| 3 | Infrastructure: Repositorio y Configuración | TASK-023 | 45min |
-| 4 | Application: Commands y Queries (CRUD) | TASK-027, TASK-028, TASK-029, TASK-030, TASK-034, TASK-035, TASK-040 | 4h 45min |
-| 5 | Web: Controller y Vistas | TASK-045, TASK-048, TASK-054 | 4h |
-| **Total Feature 002** | | **14 tareas** | **11h 30min** |
+| Fase | Descripción | Tareas |
+|------|-------------|:------:|
+| 2 | Domain: Entidades (SolicitudVacaciones, HistorialSolicitud) | TASK-011, TASK-012 |
+| 3 | Infrastructure: Repositorio y Configuración | TASK-023 |
+| 4 | Application: Commands y Queries (CRUD) | TASK-027, TASK-028, TASK-029, TASK-030, TASK-034, TASK-035, TASK-040 |
+| 5 | Web: Controller y Vistas | TASK-045, TASK-048, TASK-054 |
+| **Total Feature 002** | | **14 tareas** |
 
 ---
 
@@ -22,7 +22,6 @@
 
 ## TASK-011: Crear entidad SolicitudVacaciones
 - **Fase:** 2
-- **Estimación:** 1h 30min
 - **Dependencias:** TASK-005, TASK-007, TASK-008, TASK-009
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -43,7 +42,6 @@
 
 ## TASK-012: Crear entidad HistorialSolicitud
 - **Fase:** 2
-- **Estimación:** 30min
 - **Dependencias:** TASK-005, TASK-011
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -62,7 +60,6 @@
 
 ## TASK-023: Implementar RepositorioSolicitudVacaciones
 - **Fase:** 3
-- **Estimación:** 45min
 - **Dependencias:** TASK-018, TASK-013
 - **Capa:** Infrastructure
 - **Archivos a crear:**
@@ -81,7 +78,6 @@
 
 ## TASK-027: Crear comando CrearSolicitudCommand + Handler
 - **Fase:** 4
-- **Estimación:** 1h
 - **Dependencias:** TASK-011, TASK-013, TASK-014
 - **Capa:** Application
 - **Archivos a crear:**
@@ -101,7 +97,6 @@
 
 ## TASK-028: Crear validador CrearSolicitudCommandValidator
 - **Fase:** 4
-- **Estimación:** 30min
 - **Dependencias:** TASK-027
 - **Capa:** Application
 - **Archivos a crear:**
@@ -116,7 +111,6 @@
 
 ## TASK-029: Crear comando EditarSolicitudCommand + Handler
 - **Fase:** 4
-- **Estimación:** 45min
 - **Dependencias:** TASK-027
 - **Capa:** Application
 - **Archivos a crear:**
@@ -133,7 +127,6 @@
 
 ## TASK-030: Crear comando CancelarSolicitudCommand + Handler
 - **Fase:** 4
-- **Estimación:** 30min
 - **Dependencias:** TASK-027
 - **Capa:** Application
 - **Archivos a crear:**
@@ -149,7 +142,6 @@
 
 ## TASK-034: Crear query ObtenerMisSolicitudesQuery + Handler
 - **Fase:** 4
-- **Estimación:** 30min
 - **Dependencias:** TASK-013
 - **Capa:** Application
 - **Archivos a crear:**
@@ -165,7 +157,6 @@
 
 ## TASK-035: Crear query ObtenerSolicitudDetalleQuery + Handler
 - **Fase:** 4
-- **Estimación:** 30min
 - **Dependencias:** TASK-013
 - **Capa:** Application
 - **Archivos a crear:**
@@ -179,7 +170,6 @@
 
 ## TASK-040: Crear DTOs compartidos
 - **Fase:** 4
-- **Estimación:** 30min
 - **Dependencias:** TASK-027
 - **Capa:** Application
 - **Archivos a crear:**
@@ -202,7 +192,6 @@
 
 ## TASK-045: Crear ViewModels de Solicitud
 - **Fase:** 5
-- **Estimación:** 30min
 - **Dependencias:** TASK-040
 - **Capa:** Web
 - **Archivos a crear:**
@@ -219,7 +208,6 @@
 
 ## TASK-048: Crear SolicitudVacacionesController
 - **Fase:** 5
-- **Estimación:** 1h 30min
 - **Dependencias:** TASK-045, TASK-027 a TASK-035
 - **Capa:** Web
 - **Archivos a crear:**
@@ -239,7 +227,6 @@
 
 ## TASK-054: Crear vistas de Solicitud (Empleado)
 - **Fase:** 5
-- **Estimación:** 2h
 - **Dependencias:** TASK-053, TASK-048
 - **Capa:** Web
 - **Archivos a crear:**

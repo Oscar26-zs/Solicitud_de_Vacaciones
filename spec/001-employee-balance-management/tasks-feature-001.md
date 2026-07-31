@@ -8,12 +8,12 @@
 
 ## Resumen de Tareas Feature 001
 
-| Fase | Descripción | Tareas | Estimación |
-|------|-------------|:------:|:----------:|
-| 2 | Domain: Entidades | TASK-007, TASK-009, TASK-010 | 1h 45min |
-| 4 | Application: Queries y Commands | TASK-037, TASK-039 | 1h 15min |
-| 5 | Web: Controller y Vistas | TASK-049, TASK-055 | 1h |
-| **Total Feature 001** | | **7 tareas** | **4h** |
+| Fase | Descripción | Tareas |
+|------|-------------|:------:|
+| 2 | Domain: Entidades | TASK-007, TASK-009, TASK-010 |
+| 4 | Application: Queries y Commands | TASK-037, TASK-039 |
+| 5 | Web: Controller y Vistas | TASK-049, TASK-055 |
+| **Total Feature 001** | | **7 tareas** |
 
 ---
 
@@ -21,7 +21,6 @@
 
 ## TASK-007: Crear Value Object RangoFechas
 - **Fase:** 2
-- **Estimación:** 45min
 - **Dependencias:** TASK-003
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -38,7 +37,6 @@
 
 ## TASK-009: Crear entidad Empleado
 - **Fase:** 2
-- **Estimación:** 30min
 - **Dependencias:** TASK-006
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -53,7 +51,6 @@
 
 ## TASK-010: Crear entidad SaldoEmpleado
 - **Fase:** 2
-- **Estimación:** 45min
 - **Dependencias:** TASK-009
 - **Capa:** Domain
 - **Archivos a crear:**
@@ -76,7 +73,6 @@
 
 ## TASK-037: Crear query ObtenerSaldoQuery + Handler
 - **Fase:** 4
-- **Estimación:** 30min
 - **Dependencias:** TASK-014
 - **Capa:** Application
 - **Archivos a crear:**
@@ -92,7 +88,6 @@
 
 ## TASK-039: Crear comando AcumularSaldoMensualCommand + Handler
 - **Fase:** 4
-- **Estimación:** 45min
 - **Dependencias:** TASK-014, TASK-015
 - **Capa:** Application
 - **Archivos a crear:**
@@ -113,7 +108,6 @@
 
 ## TASK-049: Crear SaldoController
 - **Fase:** 5
-- **Estimación:** 30min
 - **Dependencias:** TASK-037
 - **Capa:** Web
 - **Archivos a crear:**
@@ -127,7 +121,6 @@
 
 ## TASK-055: Crear vistas de Saldo
 - **Fase:** 5
-- **Estimación:** 30min
 - **Dependencias:** TASK-053, TASK-049
 - **Capa:** Web
 - **Archivos a crear:**

@@ -8,11 +8,11 @@
 
 ## Resumen de Tareas Feature 003
 
-| Fase | Descripción | Tareas | Estimación |
-|------|-------------|:------:|:----------:|
-| 4 | Application: Commands de Aprobación/Rechazo/Cancelación Aprobada + Query Bandeja | TASK-031, TASK-032, TASK-033, TASK-036 | 3h 15min |
-| 5 | Web: Controller y Vistas de Aprobador | TASK-046, TASK-050, TASK-056 | 3h 30min |
-| **Total Feature 003** | | **7 tareas** | **6h 45min** |
+| Fase | Descripción | Tareas |
+|------|-------------|:------:|
+| 4 | Application: Commands de Aprobación/Rechazo/Cancelación Aprobada + Query Bandeja | TASK-031, TASK-032, TASK-033, TASK-036 |
+| 5 | Web: Controller y Vistas de Aprobador | TASK-046, TASK-050, TASK-056 |
+| **Total Feature 003** | | **7 tareas** |
 
 ---
 
@@ -20,7 +20,6 @@
 
 ## TASK-031: Crear comando AprobarSolicitudCommand + Handler
 - **Fase:** 4
-- **Estimación:** 1h
 - **Dependencias:** TASK-027
 - **Capa:** Application
 - **Archivos a crear:**
@@ -39,7 +38,6 @@
 
 ## TASK-032: Crear comando RechazarSolicitudCommand + Handler
 - **Fase:** 4
-- **Estimación:** 45min
 - **Dependencias:** TASK-027
 - **Capa:** Application
 - **Archivos a crear:**
@@ -56,7 +54,6 @@
 
 ## TASK-033: Crear comando CancelarAprobadaCommand + Handler
 - **Fase:** 4
-- **Estimación:** 45min
 - **Dependencias:** TASK-031
 - **Capa:** Application
 - **Archivos a crear:**
@@ -72,7 +69,6 @@
 
 ## TASK-036: Crear query ObtenerBandejaAprobadorQuery + Handler
 - **Fase:** 4
-- **Estimación:** 45min
 - **Dependencias:** TASK-013
 - **Capa:** Application
 - **Archivos a crear:**
@@ -94,7 +90,6 @@
 
 ## TASK-046: Crear ViewModels de Aprobador
 - **Fase:** 5
-- **Estimación:** 20min
 - **Dependencias:** TASK-040
 - **Capa:** Web
 - **Archivos a crear:**
@@ -108,7 +103,6 @@
 
 ## TASK-050: Crear BandejaAprobadorController
 - **Fase:** 5
-- **Estimación:** 1h
 - **Dependencias:** TASK-046, TASK-031, TASK-032, TASK-036
 - **Capa:** Web
 - **Archivos a crear:**
@@ -125,7 +119,6 @@
 
 ## TASK-056: Crear vistas de Bandeja Aprobador
 - **Fase:** 5
-- **Estimación:** 1h 30min
 - **Dependencias:** TASK-053, TASK-050
 - **Capa:** Web
 - **Archivos a crear:**

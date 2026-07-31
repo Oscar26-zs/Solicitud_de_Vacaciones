@@ -8,11 +8,11 @@
 
 ## Resumen de Tareas Feature 005
 
-| Fase | Descripción | Tareas | Estimación |
-|------|-------------|:------:|:----------:|
-| 4 | Application: Query de RRHH | TASK-038 | 45min |
-| 5 | Web: Controller y Vistas de RRHH | TASK-047, TASK-051, TASK-057 | 2h 5min |
-| **Total Feature 005** | | **4 tareas** | **2h 50min** |
+| Fase | Descripción | Tareas |
+|------|-------------|:------:|
+| 4 | Application: Query de RRHH | TASK-038 |
+| 5 | Web: Controller y Vistas de RRHH | TASK-047, TASK-051, TASK-057 |
+| **Total Feature 005** | | **4 tareas** |
 
 ---
 
@@ -20,7 +20,6 @@
 
 ## TASK-038: Crear query ObtenerHistorialRRHHQuery + Handler
 - **Fase:** 4
-- **Estimación:** 45min
 - **Dependencias:** TASK-013
 - **Capa:** Application
 - **Archivos a crear:**
@@ -40,7 +39,6 @@
 
 ## TASK-047: Crear ViewModels de RRHH
 - **Fase:** 5
-- **Estimación:** 20min
 - **Dependencias:** TASK-040
 - **Capa:** Web
 - **Archivos a crear:**
@@ -54,7 +52,6 @@
 
 ## TASK-051: Crear RRHHController
 - **Fase:** 5
-- **Estimación:** 45min
 - **Dependencias:** TASK-047, TASK-037, TASK-038
 - **Capa:** Web
 - **Archivos a crear:**
@@ -69,7 +66,6 @@
 
 ## TASK-057: Crear vistas de RRHH
 - **Fase:** 5
-- **Estimación:** 1h
 - **Dependencias:** TASK-053, TASK-051
 - **Capa:** Web
 - **Archivos a crear:**

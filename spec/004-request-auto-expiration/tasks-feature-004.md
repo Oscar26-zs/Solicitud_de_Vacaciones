@@ -8,10 +8,10 @@
 
 ## Resumen de Tareas Feature 004
 
-| Fase | Descripción | Tareas | Estimación |
-|------|-------------|:------:|:----------:|
-| 3 | Infrastructure: BackgroundService de Expiración | TASK-026 | 1h |
-| **Total Feature 004** | | **1 tarea** | **1h** |
+| Fase | Descripción | Tareas |
+|------|-------------|:------:|
+| 3 | Infrastructure: BackgroundService de Expiración | TASK-026 |
+| **Total Feature 004** | | **1 tarea** |
 
 ---
 
@@ -19,7 +19,6 @@
 
 ## TASK-026: Crear ServicioExpiracionAutomatica (BackgroundService)
 - **Fase:** 3
-- **Estimación:** 1h
 - **Dependencias:** TASK-018, TASK-023
 - **Capa:** Infrastructure
 - **Archivos a crear:**
