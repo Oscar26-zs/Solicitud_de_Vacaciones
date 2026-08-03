@@ -1,0 +1,25 @@
+@model Vacations.Web.ViewComponents.UserMenuModel
+<div class="user-menu">
+    <button class="user-menu-trigger" data-user-menu-trigger aria-expanded="false" type="button">
+        <div class="user-avatar user-avatar--sm">@(GetIniciales(Model.Email))</div>
+        <span class="user-menu-name">@Model.Email</span>
+        <svg class="user-menu-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+
+    <div class="user-menu-dropdown" data-user-menu-dropdown>
+        <div class="user-menu-header">
+            <p class="user-menu-header-name">@Model.Email</p>
+            <span class="badge badge--secondary">@Model.Rol</span>
+        </div>
+        <div class="user-menu-separator"></div>
+        <form asp-controller="Cuenta" asp-action="Logout" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="user-menu-item user-menu-item--danger">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                <span>Cerrar sesión</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+@{ string GetIniciales(string email) => string.IsNullOrWhiteSpace(email) ? "?" : email.Substring(0, 1).ToUpperInvariant() + (email.IndexOf('@') > 0 ? email.Substring(1, 1).ToUpperInvariant() : ""); }

@@ -1,3 +1,29 @@
-.vs/
+# ===== Build outputs =====
 bin/
 obj/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+
+# ===== IDE / editor =====
+.vs/
+.vscode/
+.idea/
+*.swp
+*.sln.ide
+
+# ===== .NET / NuGet =====
+*.nupkg/
+artifacts/
+TestResults/
+*.trx
+project.lock.json
+*.tmp
+
+# ===== Secrets (nunca versionar) =====
+appsettings.Production.json
+appsettings.*.Local.json
+*.local.json
+secrets.json
+.azure/, .env

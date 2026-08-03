@@ -54,14 +54,14 @@ Cada tarea usa el siguiente bloque:
 
 ## [TASK-001] Crear solución y proyectos de Clean Architecture
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 1
 - **Dependencias:** Ninguna
 - **Capa:** Todas
 - **Archivos a crear:**
-  - `Vacations.sln`
+- `Vacations.sln`
   - `src/Vacations.Domain/Vacations.Domain.csproj`
   - `src/Vacations.Application/Vacations.Application.csproj`
   - `src/Vacations.Infrastructure/Vacations.Infrastructure.csproj`
@@ -69,14 +69,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 3 (Clean Architecture)
 - **Descripción:** Crear la solución con 4 proyectos siguiendo Clean Architecture. El proyecto `Vacations.Domain` no debe tener dependencias. `Vacations.Application` referencia a Domain. `Vacations.Infrastructure` referencia a Domain y Application. `Vacations.Web` referencia a Application e Infrastructure.
 - **Criterios de aceptación:**
-  - [ ] Solución `Vacations.sln` creada en la raíz
-  - [ ] 4 proyectos creados en carpeta `src/`
-  - [ ] Referencias entre proyectos configuradas correctamente
-  - [ ] `dotnet build` exitoso sin errores
+  - [x] Solución `Vacations.sln` creada en la raíz
+  - [x] 4 proyectos creados en carpeta `src/`
+  - [x] Referencias entre proyectos configuradas correctamente
+  - [x] `dotnet build` exitoso sin errores
 
 ## [TASK-002] Configurar paquetes NuGet por capa
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 1
@@ -90,11 +90,11 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 2 (Dependencias principales)
 - **Descripción:** Instalar paquetes NuGet según la capa. Domain: ninguno. Application: FluentValidation. Infrastructure: EF Core, EF Core SqlServer, Identity. Web: ASP.NET Core MVC.
 - **Criterios de aceptación:**
-  - [ ] Domain NO tiene paquetes NuGet externos
-  - [ ] Application tiene `FluentValidation` y `FluentValidation.DependencyInjectionExtensions`
-  - [ ] Infrastructure tiene `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.SqlServer`, `Microsoft.AspNetCore.Identity.EntityFrameworkCore`
-  - [ ] Web tiene referencias necesarias para MVC con Razor
-  - [ ] `dotnet restore` exitoso
+  - [x] Domain NO tiene paquetes NuGet externos
+  - [x] Application tiene `FluentValidation` y `FluentValidation.DependencyInjectionExtensions`
+  - [x] Infrastructure tiene `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.SqlServer`, `Microsoft.AspNetCore.Identity.EntityFrameworkCore`
+  - [x] Web tiene referencias necesarias para MVC con Razor
+  - [x] `dotnet restore` exitoso
 
 ## [TASK-003] Crear estructura de carpetas por capa
 - **Prioridad:** Alta
@@ -127,8 +127,8 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 8 (Estructura de archivos)
 - **Descripción:** Crear las carpetas necesarias para organizar el código según el plan de implementación.
 - **Criterios de aceptación:**
-  - [ ] Estructura de carpetas creada en cada proyecto
-  - [ ] Archivos `.gitkeep` o README en carpetas vacías (opcional)
+  - [x] Estructura de carpetas creada en cada proyecto
+  - [x] Archivos `.gitkeep` o README en carpetas vacías (opcional)
 
 ## [TASK-004] Eliminar scaffold existente y configurar .gitignore
 - **Prioridad:** Alta
@@ -145,9 +145,9 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 12 (Riesgo: scaffold no cumple Clean Architecture)
 - **Descripción:** Eliminar el proyecto scaffold existente que no cumple con Clean Architecture. Actualizar `.gitignore` para ignorar archivos de build, bin, obj, etc.
 - **Criterios de aceptación:**
-  - [ ] Carpeta `Solicitud_de_Vacaiones/` eliminada
-  - [ ] `.gitignore` actualizado con patrones estándar de .NET
-  - [ ] Solución compila sin referencias al scaffold eliminado
+  - [x] Carpeta `Solicitud_de_Vacaiones/` eliminada
+  - [x] `.gitignore` actualizado con patrones estándar de .NET
+  - [x] Solución compila sin referencias al scaffold eliminado
 
 ---
 
@@ -161,7 +161,7 @@ Cada tarea usa el siguiente bloque:
 
 ## [TASK-005] Crear enum EstadoSolicitud
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -172,12 +172,12 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 2 (Estados), `spec.md` sección 15 (Glosario)
 - **Descripción:** Crear enum con los 5 estados posibles de una solicitud de vacaciones.
 - **Criterios de aceptación:**
-  - [ ] Enum con valores: `Pending`, `Approved`, `Rejected`, `Cancelled`, `Expired`
-  - [ ] Documentación XML en cada valor
+  - [x] Enum con valores: `Pending`, `Approved`, `Rejected`, `Cancelled`, `Expired`
+  - [x] Documentación XML en cada valor
 
 ## [TASK-006] Crear enum RolUsuario
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -188,11 +188,11 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 1 (Actores), `spec.md` sección 2
 - **Descripción:** Crear enum con los 3 roles del sistema.
 - **Criterios de aceptación:**
-  - [ ] Enum con valores: `Empleado`, `Aprobador`, `RRHH`
+  - [x] Enum con valores: `Empleado`, `Aprobador`, `RRHH`
 
 ## [TASK-007] Crear Value Object RangoFechas
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -203,16 +203,16 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 4 (Value Objects), RN-05, RN-06, RN-31
 - **Descripción:** Value Object inmutable que encapsula fecha inicio y fecha fin con validaciones: inicio ≤ fin, inicio ≥ mañana, fin ≤ inicio + 2 meses.
 - **Criterios de aceptación:**
-  - [ ] Constructor privado, factory method `Crear(fechaInicio, fechaFin, fechaActual)`
-  - [ ] Validación: fecha inicio no puede ser anterior a mañana
-  - [ ] Validación: fecha fin no puede ser anterior a fecha inicio
-  - [ ] Validación: horizonte máximo de 2 meses
-  - [ ] Método `CalcularDiasHabiles()` que excluye sábados y domingos
-  - [ ] Implementa `IEquatable<RangoFechas>`
+  - [x] Constructor privado, factory method `Crear(fechaInicio, fechaFin, fechaActual)`
+  - [x] Validación: fecha inicio no puede ser anterior a mañana
+  - [x] Validación: fecha fin no puede ser anterior a fecha inicio
+  - [x] Validación: horizonte máximo de 2 meses
+  - [x] Método `CalcularDiasHabiles()` que excluye sábados y domingos
+  - [x] Implementa `IEquatable<RangoFechas>`
 
 ## [TASK-008] Crear excepciones de dominio
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -228,13 +228,13 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `use-cases.md` (excepciones por CU), `constitution.md` sección 7
 - **Descripción:** Crear excepciones tipadas para cada regla de negocio que puede fallar.
 - **Criterios de aceptación:**
-  - [ ] Clase base `DomainException` que hereda de `Exception`
-  - [ ] Cada excepción tiene mensaje descriptivo en español
-  - [ ] Excepciones son serializables
+  - [x] Clase base `DomainException` que hereda de `Exception`
+  - [x] Cada excepción tiene mensaje descriptivo en español
+  - [x] Excepciones son serializables
 
 ## [TASK-009] Crear entidad Empleado
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -245,14 +245,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 4 (Entidad Empleado), CU-01, CU-02
 - **Descripción:** Entidad que representa un usuario del sistema. Los roles se gestionan vía Identity, no como campo de esta entidad.
 - **Criterios de aceptación:**
-  - [ ] Propiedades: `Id` (Guid), `Email`, `NombreCompleto`, `FechaIngreso`, `EstaActivo`
-  - [ ] Constructor privado + factory method `Crear(...)`
-  - [ ] Método `Desactivar()` y `Activar()`
-  - [ ] Validaciones en constructor (email no vacío, nombre no vacío)
+  - [x] Propiedades: `Id` (Guid), `Email`, `NombreCompleto`, `FechaIngreso`, `EstaActivo`
+  - [x] Constructor privado + factory method `Crear(...)`
+  - [x] Método `Desactivar()` y `Activar()`
+  - [x] Validaciones en constructor (email no vacío, nombre no vacío)
 
 ## [TASK-010] Crear entidad SaldoEmpleado
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -263,18 +263,18 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 4 (SaldoEmpleado), CU-01, CU-02, CU-03, RN-01, RN-02, RN-03, RN-24
 - **Descripción:** Entidad que gestiona los días de vacaciones. Implementa la fórmula: `availableBalance = accumulatedBalance - consumedBalance - pendingBalance`.
 - **Criterios de aceptación:**
-  - [ ] Propiedades: `Id`, `EmpleadoId`, `SaldoAcumulado`, `SaldoConsumido`, `SaldoPendiente`, `UltimaActualizacion`, `RowVersion`
-  - [ ] Propiedad calculada `SaldoDisponible` (no persistida)
-  - [ ] Método `AcumularDias(int dias)` para CU-01
-  - [ ] Método `CongelarSaldo(int dias)` para crear solicitud
-  - [ ] Método `DescontarSaldo(int dias)` para aprobar solicitud
-  - [ ] Método `LiberarSaldoPendiente(int dias)` para rechazar/cancelar/expirar
-  - [ ] Método `RestaurarSaldo(int dias)` para cancelar aprobada
-  - [ ] Invariante: saldo disponible nunca negativo (lanzar `SaldoInsuficienteException`)
+  - [x] Propiedades: `Id`, `EmpleadoId`, `SaldoAcumulado`, `SaldoConsumido`, `SaldoPendiente`, `UltimaActualizacion`, `RowVersion`
+  - [x] Propiedad calculada `SaldoDisponible` (no persistida)
+  - [x] Método `AcumularDias(int dias)` para CU-01
+  - [x] Método `CongelarSaldo(int dias)` para crear solicitud
+  - [x] Método `DescontarSaldo(int dias)` para aprobar solicitud
+  - [x] Método `LiberarSaldoPendiente(int dias)` para rechazar/cancelar/expirar
+  - [x] Método `RestaurarSaldo(int dias)` para cancelar aprobada
+  - [x] Invariante: saldo disponible nunca negativo (lanzar `SaldoInsuficienteException`)
 
 ## [TASK-011] Crear entidad SolicitudVacaciones
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -285,20 +285,20 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 4 (SolicitudVacaciones), `constitution.md` sección 2, CU-04 a CU-15
 - **Descripción:** Entidad central que encapsula el ciclo de vida de una solicitud. Contiene la máquina de estados y validaciones de transición.
 - **Criterios de aceptación:**
-  - [ ] Propiedades según plan.md: `Id`, `EmpleadoId`, `FechaInicio`, `FechaFin`, `DiasRequeridos`, `Estado`, `Motivo`, `ComentarioAprobador`, `AprobadoPor`, `CreadoEn`, `ActualizadoEn`, `RowVersion`
-  - [ ] Constructor privado + factory `Crear(empleadoId, rangoFechas, motivo, diasHabiles)`
-  - [ ] Estado inicial siempre `Pending`
-  - [ ] Método `Aprobar(aprobadorId)` con validación anti-auto-aprobación
-  - [ ] Método `Rechazar(aprobadorId, comentario)` con comentario obligatorio (mín 1 char, máx 500)
-  - [ ] Método `Cancelar()` solo si estado es `Pending`
-  - [ ] Método `CancelarAprobada(aprobadorId, fechaActual)` solo si estado es `Approved` y fecha inicio > hoy
-  - [ ] Método `Expirar()` solo si estado es `Pending`
-  - [ ] Lanzar `TransicionEstadoInvalidaException` en transiciones inválidas
-  - [ ] Lanzar `AutoAprobacionNoPermitidaException` si aprobadorId == empleadoId
+  - [x] Propiedades según plan.md: `Id`, `EmpleadoId`, `FechaInicio`, `FechaFin`, `DiasRequeridos`, `Estado`, `Motivo`, `ComentarioAprobador`, `AprobadoPor`, `CreadoEn`, `ActualizadoEn`, `RowVersion`
+  - [x] Constructor privado + factory `Crear(empleadoId, rangoFechas, motivo, diasHabiles)`
+  - [x] Estado inicial siempre `Pending`
+  - [x] Método `Aprobar(aprobadorId)` con validación anti-auto-aprobación
+  - [x] Método `Rechazar(aprobadorId, comentario)` con comentario obligatorio (mín 1 char, máx 500)
+  - [x] Método `Cancelar()` solo si estado es `Pending`
+  - [x] Método `CancelarAprobada(aprobadorId, fechaActual)` solo si estado es `Approved` y fecha inicio > hoy
+  - [x] Método `Expirar()` solo si estado es `Pending`
+  - [x] Lanzar `TransicionEstadoInvalidaException` en transiciones inválidas
+  - [x] Lanzar `AutoAprobacionNoPermitidaException` si aprobadorId == empleadoId
 
 ## [TASK-012] Crear entidad HistorialSolicitud
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -309,14 +309,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 4 (HistorialSolicitud), CU-17, `constitution.md` sección 7 (trazabilidad)
 - **Descripción:** Registro de auditoría inmutable para cada acción sobre una solicitud.
 - **Criterios de aceptación:**
-  - [ ] Propiedades: `Id`, `SolicitudId`, `TipoEvento`, `EstadoAnterior`, `EstadoNuevo`, `CamposModificados`, `Actor`, `Timestamp`, `Comentario`
-  - [ ] Enum o constantes para `TipoEvento`: `CREATED`, `UPDATED`, `STATUS_CHANGED`, `CANCELLED`
-  - [ ] Factory method `Crear(...)` 
-  - [ ] Entidad inmutable (sin setters públicos)
+  - [x] Propiedades: `Id`, `SolicitudId`, `TipoEvento`, `EstadoAnterior`, `EstadoNuevo`, `CamposModificados`, `Actor`, `Timestamp`, `Comentario`
+  - [x] Enum o constantes para `TipoEvento`: `CREATED`, `UPDATED`, `STATUS_CHANGED`, `CANCELLED`
+  - [x] Factory method `Crear(...)` 
+  - [x] Entidad inmutable (sin setters públicos)
 
 ## [TASK-013] Crear interfaz IRepositorioSolicitudVacaciones
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -327,16 +327,16 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 3 (SOLID, inversión de dependencias)
 - **Descripción:** Interfaz de repositorio para la entidad SolicitudVacaciones.
 - **Criterios de aceptación:**
-  - [ ] Método `Task<SolicitudVacaciones?> ObtenerPorIdAsync(Guid id)`
-  - [ ] Método `Task<IReadOnlyList<SolicitudVacaciones>> ObtenerPorEmpleadoAsync(Guid empleadoId)`
-  - [ ] Método `Task<IReadOnlyList<SolicitudVacaciones>> ObtenerPendientesAsync()`
-  - [ ] Método `Task<bool> ExisteTraslapeAsync(Guid empleadoId, DateTime inicio, DateTime fin, Guid? excluirSolicitudId)`
-  - [ ] Método `Task AgregarAsync(SolicitudVacaciones solicitud)`
-  - [ ] Método `Task ActualizarAsync(SolicitudVacaciones solicitud)`
+  - [x] Método `Task<SolicitudVacaciones?> ObtenerPorIdAsync(Guid id)`
+  - [x] Método `Task<IReadOnlyList<SolicitudVacaciones>> ObtenerPorEmpleadoAsync(Guid empleadoId)`
+  - [x] Método `Task<IReadOnlyList<SolicitudVacaciones>> ObtenerPendientesAsync()`
+  - [x] Método `Task<bool> ExisteTraslapeAsync(Guid empleadoId, DateTime inicio, DateTime fin, Guid? excluirSolicitudId)`
+  - [x] Método `Task AgregarAsync(SolicitudVacaciones solicitud)`
+  - [x] Método `Task ActualizarAsync(SolicitudVacaciones solicitud)`
 
 ## [TASK-014] Crear interfaz IRepositorioSaldoEmpleado
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -347,13 +347,13 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 3 (SOLID)
 - **Descripción:** Interfaz de repositorio para la entidad SaldoEmpleado.
 - **Criterios de aceptación:**
-  - [ ] Método `Task<SaldoEmpleado?> ObtenerPorEmpleadoIdAsync(Guid empleadoId)`
-  - [ ] Método `Task AgregarAsync(SaldoEmpleado saldo)`
-  - [ ] Método `Task ActualizarAsync(SaldoEmpleado saldo)`
+  - [x] Método `Task<SaldoEmpleado?> ObtenerPorEmpleadoIdAsync(Guid empleadoId)`
+  - [x] Método `Task AgregarAsync(SaldoEmpleado saldo)`
+  - [x] Método `Task ActualizarAsync(SaldoEmpleado saldo)`
 
 ## [TASK-015] Crear interfaz IRepositorioEmpleado
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -364,13 +364,13 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 3 (SOLID)
 - **Descripción:** Interfaz de repositorio para la entidad Empleado.
 - **Criterios de aceptación:**
-  - [ ] Método `Task<Empleado?> ObtenerPorIdAsync(Guid id)`
-  - [ ] Método `Task<IReadOnlyList<Empleado>> ObtenerActivosAsync()`
-  - [ ] Método `Task<bool> ExisteConEmailAsync(string email)`
+  - [x] Método `Task<Empleado?> ObtenerPorIdAsync(Guid id)`
+  - [x] Método `Task<IReadOnlyList<Empleado>> ObtenerActivosAsync()`
+  - [x] Método `Task<bool> ExisteConEmailAsync(string email)`
 
 ## [TASK-016] Crear interfaz IUnitOfWork
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -381,12 +381,12 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 3 (transacciones)
 - **Descripción:** Interfaz para gestionar transacciones y garantizar consistencia.
 - **Criterios de aceptación:**
-  - [ ] Método `Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)`
-  - [ ] Propiedades de acceso a repositorios (opcional, puede inyectarse por separado)
+  - [x] Método `Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)`
+  - [x] Propiedades de acceso a repositorios (opcional, puede inyectarse por separado)
 
 ## [TASK-061] Crear proyecto Vacations.Domain.Tests
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -397,13 +397,13 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 9 (pirámide de pruebas)
 - **Descripción:** Proyecto de pruebas unitarias puras para Domain.
 - **Criterios de aceptación:**
-  - [ ] Usa xUnit
-  - [ ] Sin mocks (pruebas puras)
-  - [ ] Referencia solo a Vacations.Domain
+  - [x] Usa xUnit
+  - [x] Sin mocks (pruebas puras)
+  - [x] Referencia solo a Vacations.Domain
 
 ## [TASK-062] Crear tests de entidad SolicitudVacaciones
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -414,16 +414,16 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 2 (transiciones), CU-04, CU-11, CU-12
 - **Descripción:** Tests unitarios para la máquina de estados de solicitud.
 - **Criterios de aceptación:**
-  - [ ] Test: Crear solicitud → estado inicial Pending
-  - [ ] Test: Aprobar solicitud Pending → estado Approved
-  - [ ] Test: Aprobar por mismo autor → lanza AutoAprobacionNoPermitidaException
-  - [ ] Test: Rechazar sin comentario → lanza excepción
-  - [ ] Test: Cancelar solicitud Approved cuyo periodo ya inició → lanza excepción
-  - [ ] Test: Transición inválida (Approved → Rejected) → lanza TransicionEstadoInvalidaException
+  - [x] Test: Crear solicitud → estado inicial Pending
+  - [x] Test: Aprobar solicitud Pending → estado Approved
+  - [x] Test: Aprobar por mismo autor → lanza AutoAprobacionNoPermitidaException
+  - [x] Test: Rechazar sin comentario → lanza excepción
+  - [x] Test: Cancelar solicitud Approved cuyo periodo ya inició → lanza excepción
+  - [x] Test: Transición inválida (Approved → Rejected) → lanza TransicionEstadoInvalidaException
 
 ## [TASK-063] Crear tests de entidad SaldoEmpleado
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -434,15 +434,15 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** RN-01, RN-02, RN-03, RN-04
 - **Descripción:** Tests unitarios para gestión de saldo.
 - **Criterios de aceptación:**
-  - [ ] Test: Acumular días incrementa saldo acumulado
-  - [ ] Test: Congelar saldo incrementa pendingBalance, reduce disponible
-  - [ ] Test: Descontar saldo mueve de pendiente a consumido
-  - [ ] Test: Liberar saldo pendiente restaura disponible
-  - [ ] Test: Saldo disponible negativo → lanza SaldoInsuficienteException
+  - [x] Test: Acumular días incrementa saldo acumulado
+  - [x] Test: Congelar saldo incrementa pendingBalance, reduce disponible
+  - [x] Test: Descontar saldo mueve de pendiente a consumido
+  - [x] Test: Liberar saldo pendiente restaura disponible
+  - [x] Test: Saldo disponible negativo → lanza SaldoInsuficienteException
 
 ## [TASK-064] Crear tests de Value Object RangoFechas
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -453,11 +453,11 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** RN-05, RN-06, RN-31
 - **Descripción:** Tests unitarios para validaciones de rango de fechas.
 - **Criterios de aceptación:**
-  - [ ] Test: Fecha inicio anterior a mañana → lanza excepción
-  - [ ] Test: Fecha fin anterior a inicio → lanza excepción
-  - [ ] Test: Rango mayor a 2 meses → lanza excepción
-  - [ ] Test: Calcular días hábiles excluye sábados y domingos
-  - [ ] Test: Rango válido → crea correctamente
+  - [x] Test: Fecha inicio anterior a mañana → lanza excepción
+  - [x] Test: Fecha fin anterior a inicio → lanza excepción
+  - [x] Test: Rango mayor a 2 meses → lanza excepción
+  - [x] Test: Calcular días hábiles excluye sábados y domingos
+  - [x] Test: Rango válido → crea correctamente
 
 ---
 
@@ -469,7 +469,7 @@ Cada tarea usa el siguiente bloque:
 
 ## [TASK-017] Crear UsuarioAplicacion (Identity)
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -480,13 +480,13 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `spec.md` sección 8 (Identity Framework), `plan.md` sección 3
 - **Descripción:** Clase que extiende IdentityUser para integrar con la entidad Empleado.
 - **Criterios de aceptación:**
-  - [ ] Hereda de `IdentityUser<Guid>`
-  - [ ] Propiedad `EmpleadoId` para relacionar con entidad Empleado
-  - [ ] Propiedad de navegación a `Empleado` (opcional)
+  - [x] Hereda de `IdentityUser<Guid>`
+  - [x] Propiedad `EmpleadoId` para relacionar con entidad Empleado
+  - [x] Propiedad de navegación a `Empleado` (opcional)
 
 ## [TASK-018] Crear VacacionesDbContext
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -497,14 +497,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 3 (Infrastructure), `constitution.md` sección 6
 - **Descripción:** DbContext de EF Core que integra Identity y las entidades del dominio.
 - **Criterios de aceptación:**
-  - [ ] Hereda de `IdentityDbContext<UsuarioAplicacion, IdentityRole<Guid>, Guid>`
-  - [ ] DbSet para: `Empleados`, `SaldosEmpleado`, `SolicitudesVacaciones`, `HistorialSolicitudes`
-  - [ ] Override de `OnModelCreating` para aplicar configuraciones
-  - [ ] Configuración de `TimeProvider` inyectado
+  - [x] Hereda de `IdentityDbContext<UsuarioAplicacion, IdentityRole<Guid>, Guid>`
+  - [x] DbSet para: `Empleados`, `SaldosEmpleado`, `SolicitudesVacaciones`, `HistorialSolicitudes`
+  - [x] Override de `OnModelCreating` para aplicar configuraciones
+  - [x] Configuración de `TimeProvider` inyectado
 
 ## [TASK-019] Crear configuración EmpleadoConfiguration
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -515,14 +515,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 4 (Empleado), `constitution.md` sección 4 (nomenclatura BD)
 - **Descripción:** Configuración Fluent API para la entidad Empleado.
 - **Criterios de aceptación:**
-  - [ ] Nombre de tabla: `Empleado`
-  - [ ] `Email` único, requerido, máx 256 caracteres
-  - [ ] `NombreCompleto` requerido, máx 200 caracteres
-  - [ ] Índice en `Email`
+  - [x] Nombre de tabla: `Empleado`
+  - [x] `Email` único, requerido, máx 256 caracteres
+  - [x] `NombreCompleto` requerido, máx 200 caracteres
+  - [x] Índice en `Email`
 
 ## [TASK-020] Crear configuración SaldoEmpleadoConfiguration
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -533,14 +533,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 4 (SaldoEmpleado)
 - **Descripción:** Configuración Fluent API para la entidad SaldoEmpleado.
 - **Criterios de aceptación:**
-  - [ ] Nombre de tabla: `SaldoEmpleado`
-  - [ ] Relación 1:1 con Empleado
-  - [ ] `RowVersion` configurado como token de concurrencia
-  - [ ] `SaldoDisponible` ignorado (propiedad calculada)
+  - [x] Nombre de tabla: `SaldoEmpleado`
+  - [x] Relación 1:1 con Empleado
+  - [x] `RowVersion` configurado como token de concurrencia
+  - [x] `SaldoDisponible` ignorado (propiedad calculada)
 
 ## [TASK-021] Crear configuración SolicitudVacacionesConfiguration
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -551,17 +551,17 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 4 (SolicitudVacaciones)
 - **Descripción:** Configuración Fluent API para la entidad SolicitudVacaciones.
 - **Criterios de aceptación:**
-  - [ ] Nombre de tabla: `SolicitudVacaciones`
-  - [ ] FK a Empleado
-  - [ ] `Estado` almacenado como string
-  - [ ] `Motivo` requerido, mín 10 chars, máx 1000 chars
-  - [ ] `ComentarioAprobador` opcional, máx 500 chars
-  - [ ] `RowVersion` como token de concurrencia
-  - [ ] Índices en `EmpleadoId`, `Estado`, `FechaInicio`
+  - [x] Nombre de tabla: `SolicitudVacaciones`
+  - [x] FK a Empleado
+  - [x] `Estado` almacenado como string
+  - [x] `Motivo` requerido, mín 10 chars, máx 1000 chars
+  - [x] `ComentarioAprobador` opcional, máx 500 chars
+  - [x] `RowVersion` como token de concurrencia
+  - [x] Índices en `EmpleadoId`, `Estado`, `FechaInicio`
 
 ## [TASK-022] Crear configuración HistorialSolicitudConfiguration
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** —
 - **Fase:** 2
@@ -572,14 +572,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `plan.md` sección 4 (HistorialSolicitud)
 - **Descripción:** Configuración Fluent API para la entidad HistorialSolicitud.
 - **Criterios de aceptación:**
-  - [ ] Nombre de tabla: `HistorialSolicitud`
-  - [ ] FK a SolicitudVacaciones
-  - [ ] `CamposModificados` como JSON (nvarchar max)
-  - [ ] Sin DELETE en cascada (auditoría inmutable)
+  - [x] Nombre de tabla: `HistorialSolicitud`
+  - [x] FK a SolicitudVacaciones
+  - [x] `CamposModificados` como JSON (nvarchar max)
+  - [x] Sin DELETE en cascada (auditoría inmutable)
 
 ## [TASK-023] Implementar RepositorioSolicitudVacaciones
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -590,14 +590,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-04, CU-05, CU-06, CU-09, CU-10
 - **Descripción:** Implementación del repositorio de solicitudes usando EF Core.
 - **Criterios de aceptación:**
-  - [ ] Implementa `IRepositorioSolicitudVacaciones`
-  - [ ] `ExisteTraslapeAsync` verifica solapamiento con solicitudes Pending o Approved
-  - [ ] Queries optimizadas con `AsNoTracking()` donde aplique
-  - [ ] Incluye Empleado en consultas que lo requieran
+  - [x] Implementa `IRepositorioSolicitudVacaciones`
+  - [x] `ExisteTraslapeAsync` verifica solapamiento con solicitudes Pending o Approved
+  - [x] Queries optimizadas con `AsNoTracking()` donde aplique
+  - [x] Incluye Empleado en consultas que lo requieran
 
 ## [TASK-024] Implementar RepositorioSaldoEmpleado
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -608,12 +608,12 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-01, CU-02, CU-11
 - **Descripción:** Implementación del repositorio de saldos usando EF Core.
 - **Criterios de aceptación:**
-  - [ ] Implementa `IRepositorioSaldoEmpleado`
-  - [ ] Manejo de concurrencia con `DbUpdateConcurrencyException`
+  - [x] Implementa `IRepositorioSaldoEmpleado`
+  - [x] Manejo de concurrencia con `DbUpdateConcurrencyException`
 
 ## [TASK-025] Implementar RepositorioEmpleado
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -624,12 +624,12 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-01, CU-02
 - **Descripción:** Implementación del repositorio de empleados usando EF Core.
 - **Criterios de aceptación:**
-  - [ ] Implementa `IRepositorioEmpleado`
-  - [ ] `ObtenerActivosAsync` filtra por `EstaActivo == true`
+  - [x] Implementa `IRepositorioEmpleado`
+  - [x] `ObtenerActivosAsync` filtra por `EstaActivo == true`
 
 ## [TASK-026] Crear ServicioExpiracionAutomatica (BackgroundService)
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -640,18 +640,18 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-15, `plan.md` sección 10 (Complejidades), RN-26
 - **Descripción:** Background service que expira solicitudes Pending cuya fecha de inicio ya pasó.
 - **Criterios de aceptación:**
-  - [ ] Hereda de `BackgroundService`
-  - [ ] Ejecuta periódicamente (configurable, default cada hora)
-  - [ ] Usa `TimeProvider` para obtener fecha actual
-  - [ ] Busca solicitudes Pending con `FechaInicio <= hoy`
-  - [ ] Cambia estado a `Expired`
-  - [ ] Libera `pendingBalance` del empleado
-  - [ ] Registra en `HistorialSolicitud` con actor `SISTEMA_AUTO_EXPIRACION`
-  - [ ] Maneja errores sin detener el servicio
+  - [x] Hereda de `BackgroundService`
+  - [x] Ejecuta periódicamente (configurable, default cada hora)
+  - [x] Usa `TimeProvider` para obtener fecha actual
+  - [x] Busca solicitudes Pending con `FechaInicio <= hoy`
+  - [x] Cambia estado a `Expired`
+  - [x] Libera `pendingBalance` del empleado
+  - [x] Registra en `HistorialSolicitud` con actor `SISTEMA_AUTO_EXPIRACION`
+  - [x] Maneja errores sin detener el servicio
 
 ## [TASK-042] Crear extensión DependencyInjection para Infrastructure
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -662,16 +662,16 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 3 (DI nativa)
 - **Descripción:** Método de extensión para registrar servicios de Infrastructure.
 - **Criterios de aceptación:**
-  - [ ] Método `AddInfrastructureServices(this IServiceCollection, IConfiguration)`
-  - [ ] Registra DbContext con connection string
-  - [ ] Registra Identity
-  - [ ] Registra repositorios
-  - [ ] Registra BackgroundService de expiración
-  - [ ] Registra `TimeProvider`
+  - [x] Método `AddInfrastructureServices(this IServiceCollection, IConfiguration)`
+  - [x] Registra DbContext con connection string
+  - [x] Registra Identity
+  - [x] Registra repositorios
+  - [x] Registra BackgroundService de expiración
+  - [x] Registra `TimeProvider`
 
 ## [TASK-060] Crear datos de seed (usuarios y saldos iniciales)
 - **Prioridad:** Media
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 7
@@ -682,12 +682,12 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `spec.md` sección 3 (creación de empleados por seed)
 - **Descripción:** Crear datos iniciales para desarrollo y pruebas.
 - **Criterios de aceptación:**
-  - [ ] Al menos 3 empleados de prueba
-  - [ ] Al menos 1 aprobador
-  - [ ] Al menos 1 usuario RRHH
-  - [ ] Saldos iniciales en 0
-  - [ ] Contraseñas de desarrollo documentadas
-  - [ ] Seed ejecuta solo si BD está vacía
+  - [x] Al menos 3 empleados de prueba
+  - [x] Al menos 1 aprobador
+  - [x] Al menos 1 usuario RRHH
+  - [x] Saldos iniciales en 0
+  - [x] Contraseñas de desarrollo documentadas
+  - [x] Seed ejecuta solo si BD está vacía
 
 ---
 
@@ -699,7 +699,7 @@ Cada tarea usa el siguiente bloque:
 
 ## [TASK-027] Crear comando CrearSolicitudCommand + Handler
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** HU-01
 - **Fase:** 3
@@ -711,18 +711,18 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-04, RF-007, RN-02, RN-06, RN-07, RN-10
 - **Descripción:** Comando para crear una nueva solicitud de vacaciones.
 - **Criterios de aceptación:**
-  - [ ] Command con: `EmpleadoId`, `FechaInicio`, `FechaFin`, `Motivo`
-  - [ ] Handler valida saldo disponible (incluyendo pendingBalance)
-  - [ ] Handler valida no traslape con otras solicitudes
-  - [ ] Handler valida rango de fechas (usa `RangoFechas`)
-  - [ ] Handler congela saldo pendiente
-  - [ ] Handler registra en historial
-  - [ ] Retorna `Guid` de la solicitud creada
-  - [ ] Maneja `DbUpdateConcurrencyException` para reintentar
+  - [x] Command con: `EmpleadoId`, `FechaInicio`, `FechaFin`, `Motivo`
+  - [x] Handler valida saldo disponible (incluyendo pendingBalance)
+  - [x] Handler valida no traslape con otras solicitudes
+  - [x] Handler valida rango de fechas (usa `RangoFechas`)
+  - [x] Handler congela saldo pendiente
+  - [x] Handler registra en historial
+  - [x] Retorna `Guid` de la solicitud creada
+  - [x] Maneja `DbUpdateConcurrencyException` para reintentar
 
 ## [TASK-028] Crear validador CrearSolicitudCommandValidator
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** HU-01
 - **Fase:** 3
@@ -733,14 +733,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 3.6 (validación de entrada)
 - **Descripción:** Validador FluentValidation para validación de entrada (no reglas de negocio).
 - **Criterios de aceptación:**
-  - [ ] Valida `FechaInicio` no vacía
-  - [ ] Valida `FechaFin` no vacía
-  - [ ] Valida `Motivo` no vacío, mínimo 10 caracteres
-  - [ ] NO valida reglas de negocio (saldo, traslape) — eso es del Domain
+  - [x] Valida `FechaInicio` no vacía
+  - [x] Valida `FechaFin` no vacía
+  - [x] Valida `Motivo` no vacío, mínimo 10 caracteres
+  - [x] NO valida reglas de negocio (saldo, traslape) — eso es del Domain
 
 ## [TASK-034] Crear query ObtenerMisSolicitudesQuery + Handler
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** HU-02
 - **Fase:** 3
@@ -752,14 +752,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-05, HU-02
 - **Descripción:** Query para que un empleado liste sus propias solicitudes. El `pageSize` se recibe como parámetro opcional (default: 10) y puede ser 5, 10, 15 o 25.
 - **Criterios de aceptación:**
-  - [ ] Filtro opcional por estado
-  - [ ] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
-  - [ ] Ordenado de más reciente a más antiguo
-  - [ ] Retorna DTO con: Id, Fechas, Días, Estado, Motivo, ComentarioAprobador
+  - [x] Filtro opcional por estado
+  - [x] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
+  - [x] Ordenado de más reciente a más antiguo
+  - [x] Retorna DTO con: Id, Fechas, Días, Estado, Motivo, ComentarioAprobador
 
 ## [TASK-035] Crear query ObtenerSolicitudDetalleQuery + Handler
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** HU-02
 - **Fase:** 3
@@ -771,12 +771,12 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-05, HU-02
 - **Descripción:** Query para obtener el detalle de una solicitud incluyendo historial.
 - **Criterios de aceptación:**
-  - [ ] Incluye historial de eventos
-  - [ ] Verifica que el usuario tenga acceso (es dueño, es aprobador, o es RRHH)
+  - [x] Incluye historial de eventos
+  - [x] Verifica que el usuario tenga acceso (es dueño, es aprobador, o es RRHH)
 
 ## [TASK-037] Crear query ObtenerSaldoQuery + Handler
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** HU-04
 - **Fase:** 3
@@ -788,14 +788,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-02, HU-04, RN-27
 - **Descripción:** Query para consultar saldo de un empleado.
 - **Criterios de aceptación:**
-  - [ ] Empleado puede consultar su propio saldo
-  - [ ] RRHH puede consultar saldo de cualquier empleado
-  - [ ] Retorna: Acumulado, Consumido, Pendiente, Disponible
-  - [ ] Respuesta en ≤300ms p95
+  - [x] Empleado puede consultar su propio saldo
+  - [x] RRHH puede consultar saldo de cualquier empleado
+  - [x] Retorna: Acumulado, Consumido, Pendiente, Disponible
+  - [x] Respuesta en ≤300ms p95
 
 ## [TASK-029] Crear comando EditarSolicitudCommand + Handler
 - **Prioridad:** Media
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** HU-03
 - **Fase:** 4
@@ -807,15 +807,15 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-06, HU-03
 - **Descripción:** Comando para editar una solicitud en estado Pending.
 - **Criterios de aceptación:**
-  - [ ] Solo permite editar si estado es `Pending`
-  - [ ] Puede modificar: `FechaInicio`, `FechaFin`, `Motivo`
-  - [ ] Recalcula días hábiles si cambian fechas
-  - [ ] Ajusta `pendingBalance` si cambian los días
-  - [ ] Registra cambios en historial con `changedFields` JSON
+  - [x] Solo permite editar si estado es `Pending`
+  - [x] Puede modificar: `FechaInicio`, `FechaFin`, `Motivo`
+  - [x] Recalcula días hábiles si cambian fechas
+  - [x] Ajusta `pendingBalance` si cambian los días
+  - [x] Registra cambios en historial con `changedFields` JSON
 
 ## [TASK-030] Crear comando CancelarSolicitudCommand + Handler
 - **Prioridad:** Media
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** HU-03
 - **Fase:** 4
@@ -827,14 +827,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-07, HU-03
 - **Descripción:** Comando para que un empleado cancele su solicitud Pending.
 - **Criterios de aceptación:**
-  - [ ] Verifica que el usuario sea el dueño de la solicitud
-  - [ ] Solo permite cancelar si estado es `Pending`
-  - [ ] Libera `pendingBalance`
-  - [ ] Registra en historial
+  - [x] Verifica que el usuario sea el dueño de la solicitud
+  - [x] Solo permite cancelar si estado es `Pending`
+  - [x] Libera `pendingBalance`
+  - [x] Registra en historial
 
 ## [TASK-031] Crear comando AprobarSolicitudCommand + Handler
 - **Prioridad:** Media
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** HU-06
 - **Fase:** 5
@@ -846,17 +846,17 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-11, HU-06, RN-03, RN-08, RN-12, RN-13, RN-14
 - **Descripción:** Comando para que un aprobador apruebe una solicitud.
 - **Criterios de aceptación:**
-  - [ ] Verifica que el aprobador no sea el autor (anti-auto-aprobación)
-  - [ ] Verifica que el aprobador esté activo
-  - [ ] Verifica estado `Pending`
-  - [ ] Verifica saldo disponible actual (puede haber cambiado)
-  - [ ] Mueve días de `pendingBalance` a `consumedBalance`
-  - [ ] Registra en historial con actor = email aprobador
-  - [ ] Maneja concurrencia optimista
+  - [x] Verifica que el aprobador no sea el autor (anti-auto-aprobación)
+  - [x] Verifica que el aprobador esté activo
+  - [x] Verifica estado `Pending`
+  - [x] Verifica saldo disponible actual (puede haber cambiado)
+  - [x] Mueve días de `pendingBalance` a `consumedBalance`
+  - [x] Registra en historial con actor = email aprobador
+  - [x] Maneja concurrencia optimista
 
 ## [TASK-032] Crear comando RechazarSolicitudCommand + Handler
 - **Prioridad:** Media
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** HU-06
 - **Fase:** 5
@@ -868,15 +868,15 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-12, HU-06, RN-11
 - **Descripción:** Comando para que un aprobador rechace una solicitud con comentario obligatorio.
 - **Criterios de aceptación:**
-  - [ ] Verifica aprobador activo y no es autor
-  - [ ] Verifica estado `Pending`
-  - [ ] Comentario obligatorio (1-500 caracteres)
-  - [ ] Libera `pendingBalance`
-  - [ ] Registra en historial con comentario
+  - [x] Verifica aprobador activo y no es autor
+  - [x] Verifica estado `Pending`
+  - [x] Comentario obligatorio (1-500 caracteres)
+  - [x] Libera `pendingBalance`
+  - [x] Registra en historial con comentario
 
 ## [TASK-036] Crear query ObtenerBandejaAprobadorQuery + Handler
 - **Prioridad:** Media
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** Sí
 - **HU:** HU-05, HU-07
 - **Fase:** 5
@@ -888,16 +888,16 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-10, HU-05
 - **Descripción:** Query para listar solicitudes Pending para aprobadores. El `pageSize` se recibe como parámetro opcional (default: 10) y puede ser 5, 10, 15 o 25.
 - **Criterios de aceptación:**
-  - [ ] Excluye solicitudes del propio aprobador
-  - [ ] Filtros opcionales: empleado, rango fechas, días
-  - [ ] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
-  - [ ] Incluye saldo disponible del empleado
-  - [ ] Indica si hay traslape con otras solicitudes
-  - [ ] Ordenado de más antiguo a más reciente
+  - [x] Excluye solicitudes del propio aprobador
+  - [x] Filtros opcionales: empleado, rango fechas, días
+  - [x] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
+  - [x] Incluye saldo disponible del empleado
+  - [x] Indica si hay traslape con otras solicitudes
+  - [x] Ordenado de más antiguo a más reciente
 
 ## [TASK-033] Crear comando CancelarAprobadaCommand + Handler
 - **Prioridad:** Media
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** HU-03, HU-06
 - **Fase:** 5
@@ -909,14 +909,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-14, HU-03, RN-04
 - **Descripción:** Comando para que un aprobador cancele una solicitud ya aprobada.
 - **Criterios de aceptación:**
-  - [ ] Solo si estado es `Approved`
-  - [ ] Solo si fecha inicio > fecha actual
-  - [ ] Restaura saldo (mueve de `consumedBalance` a disponible)
-  - [ ] Registra en historial
+  - [x] Solo si estado es `Approved`
+  - [x] Solo si fecha inicio > fecha actual
+  - [x] Restaura saldo (mueve de `consumedBalance` a disponible)
+  - [x] Registra en historial
 
 ## [TASK-038] Crear query ObtenerHistorialRRHHQuery + Handler
 - **Prioridad:** Media
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** HU-08, HU-09
 - **Fase:** 6
@@ -928,14 +928,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-18, HU-08, HU-09
 - **Descripción:** Query para que RRHH consulte y filtre solicitudes de cualquier empleado. El `pageSize` se recibe como parámetro opcional (default: 10) y puede ser 5, 10, 15 o 25.
 - **Criterios de aceptación:**
-  - [ ] Solo accesible por rol RRHH
-  - [ ] Filtros: estado, empleado, rango de fechas
-  - [ ] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
-  - [ ] Incluye información del empleado
+  - [x] Solo accesible por rol RRHH
+  - [x] Filtros: estado, empleado, rango de fechas
+  - [x] Paginación offset-based con `page` y `pageSize` (soporta 5, 10, 15, 25)
+  - [x] Incluye información del empleado
 
 ## [TASK-039] Crear comando AcumularSaldoMensualCommand + Handler
 - **Prioridad:** Media
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 7
@@ -947,15 +947,15 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-01, RN-01, RN-23, RN-24
 - **Descripción:** Comando para acumular saldo mensual de todos los empleados activos.
 - **Criterios de aceptación:**
-  - [ ] Procesa solo empleados activos
-  - [ ] Calcula meses completos desde fecha de ingreso
-  - [ ] Acumula 1 día por mes completo no contabilizado
-  - [ ] Carry-over ilimitado
-  - [ ] Registra en historial de solicitud (futuro: historial de saldo)
+  - [x] Procesa solo empleados activos
+  - [x] Calcula meses completos desde fecha de ingreso
+  - [x] Acumula 1 día por mes completo no contabilizado
+  - [x] Carry-over ilimitado
+  - [x] Registra en historial de solicitud (futuro: historial de saldo)
 
 ## [TASK-040] Crear DTOs compartidos
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -970,14 +970,14 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 8 (ViewModels contra overposting)
 - **Descripción:** DTOs para transferir datos entre capas.
 - **Criterios de aceptación:**
-  - [ ] Records inmutables
-  - [ ] Sin lógica de negocio
-  - [ ] `PagedResult<T>` con: Items, TotalCount, PageNumber, PageSize, AvailablePageSizes (List<int> con [5, 10, 15, 25])
-  - [ ] El ViewModel de paginación expone `AvailablePageSizes` y `SelectedPageSize` para que la vista renderice el `<select class="page-size-select">`
+  - [x] Records inmutables
+  - [x] Sin lógica de negocio
+  - [x] `PagedResult<T>` con: Items, TotalCount, PageNumber, PageSize, AvailablePageSizes (List<int> con [5, 10, 15, 25])
+  - [x] El ViewModel de paginación expone `AvailablePageSizes` y `SelectedPageSize` para que la vista renderice el `<select class="page-size-select">`
 
 ## [TASK-041] Crear extensión DependencyInjection para Application
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 2
@@ -988,13 +988,13 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 3 (DI nativa)
 - **Descripción:** Método de extensión para registrar servicios de Application.
 - **Criterios de aceptación:**
-  - [ ] Método `AddApplicationServices(this IServiceCollection)`
-  - [ ] Registra todos los handlers
-  - [ ] Registra validadores de FluentValidation
+  - [x] Método `AddApplicationServices(this IServiceCollection)`
+  - [x] Registra todos los handlers
+  - [x] Registra validadores de FluentValidation
 
 ## [TASK-065] Crear proyecto Vacations.Application.Tests
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** —
 - **Fase:** 3
@@ -1005,12 +1005,12 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** `constitution.md` sección 9
 - **Descripción:** Proyecto de pruebas unitarias con mocks para Application. Se crea cuando la capa Application comienza a compilar (primera historia).
 - **Criterios de aceptación:**
-  - [ ] Usa xUnit y Moq
-  - [ ] Referencia a Vacations.Application y Vacations.Domain
+  - [x] Usa xUnit y Moq
+  - [x] Referencia a Vacations.Application y Vacations.Domain
 
 ## [TASK-066] Crear tests de CrearSolicitudCommandHandler
 - **Prioridad:** Alta
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** HU-01
 - **Fase:** 3
@@ -1021,15 +1021,15 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-04
 - **Descripción:** Tests del handler de creación de solicitud.
 - **Criterios de aceptación:**
-  - [ ] Test: Crear con saldo suficiente → éxito
-  - [ ] Test: Crear con saldo insuficiente → falla
-  - [ ] Test: Crear con traslape → falla
-  - [ ] Test: Crear congela saldo pendiente
-  - [ ] Mock de repositorios y TimeProvider
+  - [x] Test: Crear con saldo suficiente → éxito
+  - [x] Test: Crear con saldo insuficiente → falla
+  - [x] Test: Crear con traslape → falla
+  - [x] Test: Crear congela saldo pendiente
+  - [x] Mock de repositorios y TimeProvider
 
 ## [TASK-067] Crear tests de AprobarSolicitudCommandHandler
 - **Prioridad:** Media
-- **Estado:** [ ] Pendiente
+- **Estado:** [x] Completada
 - **Paralela:** No
 - **HU:** HU-06
 - **Fase:** 5
@@ -1040,10 +1040,10 @@ Cada tarea usa el siguiente bloque:
 - **Trazabilidad:** CU-11
 - **Descripción:** Tests del handler de aprobación.
 - **Criterios de aceptación:**
-  - [ ] Test: Aprobar mueve saldo de pendiente a consumido
-  - [ ] Test: Aprobar por autor → falla
-  - [ ] Test: Aprobar por aprobador inactivo → falla
-  - [ ] Test: Aprobar con saldo insuficiente (concurrencia) → falla
+  - [x] Test: Aprobar mueve saldo de pendiente a consumido
+  - [x] Test: Aprobar por autor → falla
+  - [x] Test: Aprobar por aprobador inactivo → falla
+  - [x] Test: Aprobar con saldo insuficiente (concurrencia) → falla
 
 ---
 

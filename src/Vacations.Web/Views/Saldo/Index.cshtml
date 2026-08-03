@@ -1,0 +1,38 @@
+@model Vacations.Web.ViewModels.SaldoViewModel
+@{
+    ViewData["Title"] = "Mi saldo";
+}
+<div class="page-header">
+    <h1 class="page-title">Mi saldo de vacaciones</h1>
+</div>
+
+<div class="stat-grid">
+    <div class="card stat-card">
+        <div class="card-title">Acumulado</div>
+        <div class="stat-value tabular-nums">@Model.Saldo.Acumulado</div>
+        <p class="text-xs text-muted">días acumulados</p>
+    </div>
+    <div class="card stat-card">
+        <div class="card-title">Consumido</div>
+        <div class="stat-value tabular-nums">@Model.Saldo.Consumido</div>
+        <p class="text-xs text-muted">días usados</p>
+    </div>
+    <div class="card stat-card">
+        <div class="card-title">Pendiente</div>
+        <div class="stat-value tabular-nums">@Model.Saldo.Pendiente</div>
+        <p class="text-xs text-muted">días en trámite</p>
+    </div>
+    <div class="card stat-card">
+        <div class="card-title">Disponible</div>
+        <div class="stat-value tabular-nums">@Model.Saldo.Disponible</div>
+        <p class="text-xs text-muted">días disponibles</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">Días consumidos</div>
+    <div class="progress-track mt">
+        <div class="progress-indicator" style="width:@Model.PorcentajeUsado%"></div>
+    </div>
+    <p class="text-xs text-muted mt">@Model.PorcentajeUsado.ToString("0")% del saldo acumulado</p>
+</div>

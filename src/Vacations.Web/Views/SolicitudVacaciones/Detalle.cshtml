@@ -1,0 +1,61 @@
+@model Vacations.Web.ViewModels.DetalleSolicitudViewModel
+@{
+    ViewData["Title"] = "Detalle de solicitud";
+    var s = Model.Solicitud;
+}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Detalle de solicitud</h1>
+        <p class="text-muted mono">SOL-@s.Id.ToString("N").Substring(0, 6).ToUpperInvariant()</p>
+    </div>
+    <div class="flex gap">
+        @if (s.Estado == "Pending" && Model.EsDueno)
+        {
+            <a class="btn btn--outline" asp-action="Editar" asp-route-id="@s.Id">Editar</a>
+            <form asp-action="Cancelar" asp-route-id="@s.Id" method="post" onsubmit="return confirm('¿Cancelar esta solicitud? Esta acción no se puede deshacer.');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn--destructive">Cancelar</button>
+            </form>
+        }
+    </div>
+</div>
+
+<div class="card">
+    <div class="flex justify-between items-center">
+        <span class="card-title">@s.FechaInicio.ToString("dd MMM yyyy") – @s.FechaFin.ToString("dd MMM yyyy")</span>
+        <span class="status-badge status-badge--@s.Estado">@s.Estado</span>
+    </div>
+    <p class="text-sm text-muted">@s.Dias días solicitados</p>
+    <p class="mt"><strong>Motivo:</strong> @s.Motivo</p>
+    @if (!string.IsNullOrEmpty(s.ComentarioAprobador))
+    {
+        <p class="mt"><strong>Comentario del aprobador:</strong> @s.ComentarioAprobador</p>
+    }
+</div>
+
+<div class="card">
+    <h2 class="card-title">Historial</h2>
+    @if (Model.Historial.Count == 0)
+    {
+        <p class="text-muted">Sin eventos registrados.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr><th>Evento</th><th>Actor</th><th>Fecha</th><th>Detalle</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var h in Model.Historial)
+                {
+                    <tr>
+                        <td>@h.TipoEvento</td>
+                        <td>@h.Actor</td>
+                        <td>@h.Timestamp.ToString("dd MMM yyyy, HH:mm")</td>
+                        <td>@(h.EstadoAnterior != null && h.EstadoNuevo != null ? $"{h.EstadoAnterior} → {h.EstadoNuevo}" : h.Comentario ?? "")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

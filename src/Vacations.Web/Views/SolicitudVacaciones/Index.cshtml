@@ -1,0 +1,71 @@
+@model Vacations.Web.ViewModels.ListaSolicitudesViewModel
+@{
+    ViewData["Title"] = "Mis solicitudes";
+    var paged = Model.PagedResult;
+}
+<div class="page-header">
+    <h1 class="page-title">Mis solicitudes</h1>
+    <a class="btn btn--default" asp-action="Crear">Crear solicitud</a>
+</div>
+
+<div class="card">
+    <form method="get" asp-action="Index" class="flex items-center gap">
+        <label class="form-label" style="margin:0">Estado:</label>
+        <select name="estado" class="form-select" onchange="this.form.submit()">
+            <option value="">Todos</option>
+            <option value="Pending" selected="@(Model.EstadoFiltro == "Pending")">Pendiente</option>
+            <option value="Approved" selected="@(Model.EstadoFiltro == "Approved")">Aprobada</option>
+            <option value="Rejected" selected="@(Model.EstadoFiltro == "Rejected")">Rechazada</option>
+            <option value="Cancelled" selected="@(Model.EstadoFiltro == "Cancelled")">Cancelada</option>
+            <option value="Expired" selected="@(Model.EstadoFiltro == "Expired")">Expirada</option>
+        </select>
+    </form>
+
+    @if (paged.Items.Count == 0)
+    {
+        <p class="text-muted mt">No tienes solicitudes registradas.</p>
+    }
+    else
+    {
+        <table class="table mt">
+            <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Periodo</th>
+                    <th>Días</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in paged.Items)
+                {
+                    <tr>
+                        <td class="mono">SOL-@s.Id.ToString("N").Substring(0, 6).ToUpperInvariant()</td>
+                        <td>@s.FechaInicio.ToString("dd MMM yyyy") – @s.FechaFin.ToString("dd MMM yyyy")</td>
+                        <td class="tabular-nums">@s.Dias</td>
+                        <td><span class="status-badge status-badge--@s.Estado">@s.Estado</span></td>
+                        <td><a class="btn btn--sm btn--outline" asp-action="Detalle" asp-route-id="@s.Id">Ver</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <span class="text-sm text-muted">
+                Mostrando @((paged.PageNumber - 1) * paged.PageSize + 1)–@(Math.Min(paged.PageNumber * paged.PageSize, paged.TotalCount)) de @paged.TotalCount
+            </span>
+            <span class="flex gap items-center">
+                @if (paged.PageNumber > 1)
+                {
+                    <a class="btn btn-sm btn--outline" asp-action="Index" asp-route-page="@(paged.PageNumber - 1)" asp-route-pageSize="@paged.PageSize" asp-route-estado="@Model.EstadoFiltro">Anterior</a>
+                }
+                <span class="text-sm">@paged.PageNumber / @(Math.Max(1, (int)Math.Ceiling(paged.TotalCount / (double)paged.PageSize)))</span>
+                @if (paged.PageNumber < (int)Math.Ceiling(paged.TotalCount / (double)paged.PageSize))
+                {
+                    <a class="btn btn-sm btn--outline" asp-action="Index" asp-route-page="@(paged.PageNumber + 1)" asp-route-pageSize="@paged.PageSize" asp-route-estado="@Model.EstadoFiltro">Siguiente</a>
+                }
+            </span>
+        </div>
+    }
+</div>

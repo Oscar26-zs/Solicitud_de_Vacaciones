@@ -1,0 +1,30 @@
+@model Vacations.Web.ViewModels.SaldoEmpleadoRRHHViewModel
+@{
+    ViewData["Title"] = "Saldo del empleado";
+}
+<div class="page-header">
+    <h1 class="page-title">Saldo del empleado</h1>
+</div>
+
+<div class="card">
+    <p class="text-muted">Empleado: <strong>@Model.EmpleadoNombre</strong> (ID: <span class="mono">@Model.EmpleadoId</span>)</p>
+</div>
+
+<div class="stat-grid">
+    <div class="card stat-card">
+        <div class="card-title">Acumulado</div>
+        <div class="stat-value tabular-nums">@Model.Saldo.Acumulado</div>
+    </div>
+    <div class="card stat-card">
+        <div class="card-title">Consumido</div>
+        <div class="stat-value tabular-nums">@Model.Saldo.Consumido</div>
+    </div>
+    <div class="card stat-card">
+        <div class="card-title">Pendiente</div>
+        <div class="stat-value tabular-nums">@Model.Saldo.Pendiente</div>
+    </div>
+    <div class="card stat-card">
+        <div class="card-title">Disponible</div>
+        <div class="stat-value tabular-nums">@Model.Saldo.Disponible</div>
+    </div>
+</div>

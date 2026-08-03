@@ -1,0 +1,42 @@
+@model Vacations.Web.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    Layout = "_Layout";
+}
+
+<div class="auth-wrap">
+    <div class="card auth-card">
+        <h1 class="text-2xl">Iniciar sesión</h1>
+        <p class="card-description">Accede con tu correo corporativo</p>
+
+        <form asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ReturnUrl" value="@ViewData["ReturnUrl"]" />
+
+            <div asp-validation-summary="ModelOnly" class="alert-message" style="color:var(--destructive);margin-bottom:12px"></div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="form-label">Correo</label>
+                <input asp-for="Email" class="form-input" autocomplete="username" />
+                <span asp-validation-for="Email" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password" class="form-label">Contraseña</label>
+                <input asp-for="Password" class="form-input" autocomplete="current-password" />
+                <span asp-validation-for="Password" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-group flex items-center gap">
+                <input asp-for="RememberMe" type="checkbox" />
+                <label asp-for="RememberMe" class="form-label" style="margin:0">Recordarme</label>
+            </div>
+
+            <button type="submit" class="btn btn--default" style="width:100%">Iniciar sesión</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

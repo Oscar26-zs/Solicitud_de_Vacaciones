@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Vacations.Application/Vacations.Application.csproj" />
+    <Project Path="src/Vacations.Domain/Vacations.Domain.csproj" />
+    <Project Path="src/Vacations.Infrastructure/Vacations.Infrastructure.csproj" />
+    <Project Path="src/Vacations.Web/Vacations.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Vacations.Application.Tests/Vacations.Application.Tests.csproj" />
+    <Project Path="tests/Vacations.Domain.Tests/Vacations.Domain.Tests.csproj" />
+    <Project Path="tests/Vacations.Web.Tests/Vacations.Web.Tests.csproj" />
+  </Folder>
+</Solution>

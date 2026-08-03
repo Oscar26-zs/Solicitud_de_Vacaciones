@@ -1,0 +1,64 @@
+@model Vacations.Web.ViewModels.ConsultaRRHHViewModel
+@{
+    ViewData["Title"] = "Historial - RRHH";
+    var paged = Model.PagedResult;
+}
+<div class="page-header">
+    <h1 class="page-title">Historial de solicitudes</h1>
+</div>
+
+<div class="card">
+    <form method="post" asp-action="Solicitudes">
+        @Html.AntiForgeryToken()
+        <div class="flex gap items-center" style="align-items:flex-end">
+            <div class="form-group" style="margin:0">
+                <label class="form-label">Estado</label>
+                <select asp-for="Filtros.Estado" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="Pending">Pendiente</option>
+                    <option value="Approved">Aprobada</option>
+                    <option value="Rejected">Rechazada</option>
+                    <option value="Cancelled">Cancelada</option>
+                    <option value="Expired">Expirada</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn--default">Filtrar</button>
+        </div>
+    </form>
+
+    @if (paged.Items.Count == 0)
+    {
+        <p class="text-muted mt">No hay solicitudes que coincidan.</p>
+    }
+    else
+    {
+        <table class="table mt">
+            <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Empleado</th>
+                    <th>Periodo</th>
+                    <th>Días</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in paged.Items)
+                {
+                    var s = item.Solicitud;
+                    <tr>
+                        <td class="mono">SOL-@s.Id.ToString("N").Substring(0, 6).ToUpperInvariant()</td>
+                        <td>@(item.Empleado?.NombreCompleto ?? "—")</td>
+                        <td>@s.FechaInicio.ToString("dd MMM yyyy") – @s.FechaFin.ToString("dd MMM yyyy")</td>
+                        <td class="tabular-nums">@s.Dias</td>
+                        <td><span class="status-badge status-badge--@s.Estado">@s.Estado</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <span class="text-sm text-muted">Página @paged.PageNumber de @(Math.Max(1, (int)Math.Ceiling(paged.TotalCount / (double)paged.PageSize)))</span>
+        </div>
+    }
+</div>

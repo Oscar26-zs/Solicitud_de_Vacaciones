@@ -1,0 +1,69 @@
+@model Vacations.Web.ViewModels.BandejaAprobadorViewModel
+@{
+    ViewData["Title"] = "Bandeja de aprobación";
+    var paged = Model.PagedResult;
+}
+<div class="page-header">
+    <h1 class="page-title">Bandeja de aprobación</h1>
+</div>
+
+<div class="card">
+    @if (paged.Items.Count == 0)
+    {
+        <p class="text-muted">No hay solicitudes pendientes por revisar.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Periodo</th>
+                    <th>Días</th>
+                    <th>Saldo disponible</th>
+                    <th>Traslape</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in paged.Items)
+                {
+                    var s = item.Solicitud;
+                    <tr>
+                        <td class="mono">SOL-@s.Id.ToString("N").Substring(0, 6).ToUpperInvariant()</td>
+                        <td>@s.FechaInicio.ToString("dd MMM yyyy") – @s.FechaFin.ToString("dd MMM yyyy")</td>
+                        <td class="tabular-nums">@s.Dias</td>
+                        <td class="tabular-nums">@item.SaldoDisponible</td>
+                        <td>
+                            @if (item.TieneTraslape)
+                            {
+                                <span class="status-badge status-badge--Pending">Con traslape</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge--secondary">Sin traslape</span>
+                            }
+                        </td>
+                        <td>
+                            <a class="btn btn--sm btn--outline" asp-action="Detalle" asp-route-id="@s.Id">Revisar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <span class="text-sm text-muted">Página @paged.PageNumber de @(Math.Max(1, (int)Math.Ceiling(paged.TotalCount / (double)paged.PageSize)))</span>
+            <span class="flex gap">
+                @if (paged.PageNumber > 1)
+                {
+                    <a class="btn btn--sm btn--outline" asp-action="Index" asp-route-page="@(paged.PageNumber - 1)" asp-route-pageSize="@paged.PageSize">Anterior</a>
+                }
+                @if (paged.PageNumber < (int)Math.Ceiling(paged.TotalCount / (double)paged.PageSize))
+                {
+                    <a class="btn btn--sm btn--outline" asp-action="Index" asp-route-page="@(paged.PageNumber + 1)" asp-route-pageSize="@paged.PageSize">Siguiente</a>
+                }
+            </span>
+        </div>
+    }
+</div>

@@ -1,0 +1,41 @@
+@model Vacations.Web.ViewModels.CrearSolicitudViewModel
+@{
+    ViewData["Title"] = "Nueva solicitud";
+}
+<div class="page-header">
+    <h1 class="page-title">Nueva solicitud de vacaciones</h1>
+</div>
+
+<div class="card" style="max-width:480px">
+    <form asp-action="Crear" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert-message" style="color:var(--destructive);margin-bottom:12px"></div>
+
+        <div class="form-group">
+            <label asp-for="FechaInicio" class="form-label form-label--required">Fecha de inicio</label>
+            <input asp-for="FechaInicio" class="form-input" type="date" />
+            <span asp-validation-for="FechaInicio" class="field-validation-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="FechaFin" class="form-label form-label--required">Fecha de fin</label>
+            <input asp-for="FechaFin" class="form-input" type="date" />
+            <span asp-validation-for="FechaFin" class="field-validation-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Motivo" class="form-label form-label--required">Motivo</label>
+            <textarea asp-for="Motivo" class="form-textarea" placeholder="Escribe brevemente el motivo de tu solicitud"></textarea>
+            <span asp-validation-for="Motivo" class="field-validation-error"></span>
+        </div>
+
+        <div class="flex gap">
+            <button type="submit" class="btn btn--default">Enviar solicitud</button>
+            <a class="btn btn--outline" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
