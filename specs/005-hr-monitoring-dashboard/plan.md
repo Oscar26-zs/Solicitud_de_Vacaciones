@@ -1,6 +1,6 @@
 # Plan: Feature 005 — HR Monitoring Dashboard
 
-**Extraído de:** `spec/plan.md` (secciones relevantes a 005-hr-monitoring-dashboard)  
+**Extraído de:** `specs/plan.md` (secciones relevantes a 005-hr-monitoring-dashboard)  
 **Actualizado:** 2026-07-29  
 **Estado:** MVP  
 

@@ -1,6 +1,6 @@
 # Plan: Feature 001 — Employee Balance Management
 
-**Extraído de:** `spec/plan.md` (secciones relevantes a 001-employee-balance-management)  
+**Extraído de:** `specs/plan.md` (secciones relevantes a 001-employee-balance-management)  
 **Actualizado:** 2026-07-29  
 **Estado:** MVP  
 

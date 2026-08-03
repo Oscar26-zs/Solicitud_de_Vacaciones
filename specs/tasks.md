@@ -1,6 +1,6 @@
 # Tareas de Implementación — Sistema de Solicitudes de Vacaciones (MVP)
 
-**Input**: `spec/spec.md`, `spec/001-*-005-*`, `docs/use-cases.md`, `spec/plan.md`, `.specify/memory/constitution.md`, `spec/DESIGN_TOKENS.md`
+**Input**: `specs/spec.md`, `specs/000-*-005-*/`, `docs/use-cases.md`, `specs/plan.md`, `.specify/memory/constitution.md`, `docs/DESIGN_TOKENS.md`
 **Prerequisites**: `plan.md` (obligatorio), `spec.md` (obligatorio — historias de usuario HU-01 a HU-09), `constitution.md`
 **Tests**: obligatorios por la constitución (§9 — cobertura ≥ 80% en Domain y Application). Se crean en la fase de la historia que verifican.
 **Organización**: las tareas se agrupan por fase de implementación y por historia de usuario (HU-01 a HU-09) para permitir la implementación y verificación independiente de cada historia como entregable funcional.

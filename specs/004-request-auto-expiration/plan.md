@@ -1,6 +1,6 @@
 # Plan: Feature 004 — Request Auto-Expiration
 
-**Extraído de:** `spec/plan.md` (secciones relevantes a 004-request-auto-expiration)  
+**Extraído de:** `specs/plan.md` (secciones relevantes a 004-request-auto-expiration)  
 **Actualizado:** 2026-07-29  
 **Estado:** MVP  
 

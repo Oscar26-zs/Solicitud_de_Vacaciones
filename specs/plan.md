@@ -1,6 +1,6 @@
 # Plan de Implementación: Sistema de Gestión de Solicitudes de Vacaciones (MVP)
 
-**Branch:** `main` | **Fecha:** 2026-07-28 | **Spec:** `spec/spec.md`, `spec/001-*-005-*`, `docs/use-cases.md`
+**Branch:** `main` | **Fecha:** 2026-07-28 | **Spec:** `specs/spec.md`, `specs/000-*-005-*`, `docs/use-cases.md`
 
 ---
 
@@ -27,7 +27,7 @@
 | Plataforma objetivo | Aplicación web servida por Kestrel. **MVP sin despliegue — solo entorno local/desarrollo**  | — |
 | Tipo de proyecto | Monolito modular web | `constitution.md` sección 3 |
 | Objetivos de rendimiento | Consulta de saldo ≤ 300ms p95; creación/aprobación ≤ 1s p95; listados paginados ≤ 2s p95 | `constitution.md` sección 10 |
-| Restricciones técnicas | Prohibido `DateTime.Now`/`DateTime.UtcNow` en Domain/Application. Prohibido `DELETE` físico. Sin dependencias externas (Redis, RabbitMQ, APIs). Prohibidos frameworks SPA (React, Angular, Vue). Auditoría automática vía interceptor de EF Core. Concurrencia optimista con `RowVersion`. FluentValidation aprobado para validación de entrada. Nombre en español (PascalCase). CSS/JS: diseño basado en tokens de `spec/DESIGN_TOKENS.md`. | `constitution.md` secciones 4, 6, 7, 8 |
+| Restricciones técnicas | Prohibido `DateTime.Now`/`DateTime.UtcNow` en Domain/Application. Prohibido `DELETE` físico. Sin dependencias externas (Redis, RabbitMQ, APIs). Prohibidos frameworks SPA (React, Angular, Vue). Auditoría automática vía interceptor de EF Core. Concurrencia optimista con `RowVersion`. FluentValidation aprobado para validación de entrada. Nombre en español (PascalCase). CSS/JS: diseño basado en tokens de `docs/DESIGN_TOKENS.md`. | `constitution.md` secciones 4, 6, 7, 8 |
 | Escala / Alcance | 3 roles (Empleado, Aprobador, RRHH). 47 requisitos funcionales (RF-001 a RF-047). 36 reglas de negocio (RN-01 a RN-36). **Usuarios concurrentes esperados: 50-100** (supuesto para MVP interno). Número de empleados/solicitudes: depende del tamaño de la organización (se asume ≤ 500 empleados para el MVP). | `spec.md` |
 | Logging | `ILogger<T>` nativo de .NET. Sin Serilog/NLog. Logs a consola (stdout) en desarrollo. | — |
 | Manejo de errores global | Middleware `UseExceptionHandler` con formato **Problem Details** (`application/problem+json`). Custom middleware que traduce excepciones de dominio a códigos HTTP: `SaldoInsuficienteException`/`TransicionEstadoInvalidaException` → 400/409; `DbUpdateConcurrencyException` → 409; `UnauthorizedAccessException` → 403; no esperado → 500. | — |
@@ -44,7 +44,7 @@
 - `TimeProvider` (abstracción nativa de .NET)
 - `ILogger<T>` nativo de .NET (logging a consola stdout, sin Serilog/NLog)
 - Middleware `UseExceptionHandler` con formato Problem Details (`application/problem+json`)
-- CSS/JS: diseño basado en tokens de `spec/DESIGN_TOKENS.md` — CSS vanilla con variables CSS, JavaScript vanilla, sin frameworks frontend
+- CSS/JS: diseño basado en tokens de `docs/DESIGN_TOKENS.md` — CSS vanilla con variables CSS, JavaScript vanilla, sin frameworks frontend
 
 ### Decisiones del PO aplicadas al contexto técnico
 
@@ -151,7 +151,7 @@ Gestiona los días de vacaciones del empleado. Incluye `pendingBalance` que cong
 
 #### `HistorialSolicitud` *(VacationRequestHistory)*
 
-Registro de auditoría inmutable para cada acción sobre una solicitud. **Consolida** la entidad `ApprovalAction` definida en spec/003, evitando duplicidad de registro.
+Registro de auditoría inmutable para cada acción sobre una solicitud. **Consolida** la entidad `ApprovalAction` definida en `specs/003-approval-workflow/spec.md`, evitando duplicidad de registro.
 
 | Atributo | Tipo | Descripción |
 |----------|------|-------------|
@@ -216,8 +216,8 @@ Valor calculado que representa días solicitados excluyendo sábados y domingos.
 | `SaldoEmpleado` | `id`, `employeeId`, `accumulatedBalance`, `consumedBalance`, `availableBalance`, `lastUpdatedAt` *(001)* | ✅ | `availableBalance` → propiedad calculada (`accumulated - consumed - pending`). `pendingBalance` añadido. `rowVersion` añadido. |
 | `HistorialSaldo` | `id`, `employeeId`, `movementType`, `previousBalance`, `newBalance`, `reason`, `actor`, `timestamp` *(001)* | 🔶 Fuera de alcance MVP | Definida pero no se implementa en el MVP (futura fase). |
 | `SolicitudVacaciones` | `id`, `employeeId`, `startDate`, `endDate`, `daysRequested`, `status`, `reason`, `approverComment`, `createdAt`, `updatedAt` *(002)* | ✅ | Añadidos `resolvedBy` y `rowVersion`. |
-| `HistorialSolicitud` | `id`, `requestId`, `eventType`, `actor`, `note`, `timestamp` *(002)* | ⚠️ Mejorado | spec/002 usa `note` genérico. Plan añade `previousStatus`/`newStatus` + `changedFields` (JSON) para trazabilidad granular. |
-| `ApprovalAction` | `id`, `requestId`, `approverId`, `action`, `comment`, `timestamp` *(003)* | ⚠️ Consolidado | spec/003 define entidad separada. El plan la consolida dentro de `HistorialSolicitud`, evitando duplicidad de auditoría. |
+| `HistorialSolicitud` | `id`, `requestId`, `eventType`, `actor`, `note`, `timestamp` *(002)* | ⚠️ Mejorado | `specs/002-vacation-request-crud/spec.md` usa `note` genérico. Plan añade `previousStatus`/`newStatus` + `changedFields` (JSON) para trazabilidad granular. |
+| `ApprovalAction` | `id`, `requestId`, `approverId`, `action`, `comment`, `timestamp` *(003)* | ⚠️ Consolidado | `specs/003-approval-workflow/spec.md` define entidad separada. El plan la consolida dentro de `HistorialSolicitud`, evitando duplicidad de auditoría. |
 
 **Resultado:** 5/5 entidades cubiertas en especificación. `HistorialSaldo` 🔶 fuera de alcance MVP (futura fase). `ApprovalAction` integrada en `HistorialSolicitud`. Mejoras añadidas: `rowVersion` (×2), `resolvedBy`, trazabilidad granular.
 
@@ -355,9 +355,12 @@ Solicitud_de_Vacaiones/               # Scaffold MVC vacío (net10.0)
 .specify/
 └── memory/constitution.md
 
-spec/
+specs/
 ├── spec.md
-├── DESIGN_TOKENS.md
+├── plan.md
+├── tasks.md
+├── plan-checklist.md
+├── 000-project-foundation/
 ├── 001-employee-balance-management/
 ├── 002-vacation-request-crud/
 ├── 003-approval-workflow/
@@ -365,6 +368,7 @@ spec/
 └── 005-hr-monitoring-dashboard/
 
 docs/
+├── DESIGN_TOKENS.md
 ├── Preguntas_Pendientes.md
 ├── use-cases.md
 └── use-case-diagrams.md

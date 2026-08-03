@@ -1,6 +1,6 @@
 # Plan: Feature 002 — Vacation Request CRUD
 
-**Extraído de:** `spec/plan.md` (secciones relevantes a 002-vacation-request-crud)  
+**Extraído de:** `specs/plan.md` (secciones relevantes a 002-vacation-request-crud)  
 **Actualizado:** 2026-07-29  
 **Estado:** MVP  
 
@@ -37,7 +37,7 @@ Entidad central que encapsula el ciclo de vida completo de una solicitud de vaca
 
 ### `HistorialSolicitud` *(VacationRequestHistory)*
 
-Registro de auditoría inmutable para cada acción sobre una solicitud. **Consolida** la entidad `ApprovalAction` definida en spec/003, evitando duplicidad de registro.
+Registro de auditoría inmutable para cada acción sobre una solicitud. **Consolida** la entidad `ApprovalAction` definida en `specs/003-approval-workflow/spec.md`, evitando duplicidad de registro.
 
 | Atributo | Tipo | Descripción |
 |----------|------|-------------|

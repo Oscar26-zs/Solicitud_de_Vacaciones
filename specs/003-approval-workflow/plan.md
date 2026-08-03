@@ -1,6 +1,6 @@
 # Plan: Feature 003 — Approval Workflow
 
-**Extraído de:** `spec/plan.md` (secciones relevantes a 003-approval-workflow)  
+**Extraído de:** `specs/plan.md` (secciones relevantes a 003-approval-workflow)  
 **Actualizado:** 2026-07-29  
 **Estado:** MVP  
 
