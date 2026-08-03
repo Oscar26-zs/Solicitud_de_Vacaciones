@@ -1,6 +1,6 @@
 # Plan de Implementación: Sistema de Gestión de Solicitudes de Vacaciones (MVP)
 
-**Branch:** `main` | **Fecha:** 2026-07-28 | **Spec:** `spec/spec.md`, `spec/001-*-005-*`, `docs/use-cases.md`
+**Branch:** `main` | **Fecha:** 2026-07-28 | **Spec:** `spec/spec.md`, `docs/use-cases.md`
 
 ---
 
@@ -143,7 +143,7 @@ Gestiona los días de vacaciones del empleado. Incluye `pendingBalance` que cong
 
 #### `HistorialSolicitud` *(VacationRequestHistory)*
 
-Registro de auditoría inmutable para cada acción sobre una solicitud. **Consolida** la entidad `ApprovalAction` definida en spec/003, evitando duplicidad de registro.
+Registro de auditoría inmutable para cada acción sobre una solicitud. **Consolida** la entidad `ApprovalAction`, evitando duplicidad de registro.
 
 | Atributo | Tipo | Descripción |
 |----------|------|-------------|
@@ -202,14 +202,14 @@ Valor calculado que representa días solicitados excluyendo sábados, domingos y
 
 ### 4.1 Validación de Entidades vs. Especificaciones
 
-| Entidad | Atributos en sub-spec | Plan alineado | Mejora aplicada |
+| Entidad | Atributos en la especificación | Plan alineado | Mejora aplicada |
 |---------|----------------------|:------------:|-----------------|
-| `Empleado` | `id`, `email`, `fullName`, `status`, `joinDate` *(001)* | ✅ | Sin cambios. Roles por Identity. |
-| `SaldoEmpleado` | `id`, `employeeId`, `accumulatedBalance`, `consumedBalance`, `availableBalance`, `lastUpdatedAt` *(001)* | ✅ | `availableBalance` → propiedad calculada (`accumulated - consumed - pending`). `pendingBalance` añadido. `rowVersion` añadido. |
-| `HistorialSaldo` | `id`, `employeeId`, `movementType`, `previousBalance`, `newBalance`, `reason`, `actor`, `timestamp` *(001)* | 🔶 Fuera de alcance MVP | Definida pero no se implementa en el MVP (futura fase). |
-| `SolicitudVacaciones` | `id`, `employeeId`, `startDate`, `endDate`, `daysRequested`, `status`, `reason`, `approverComment`, `createdAt`, `updatedAt` *(002)* | ✅ | Añadidos `resolvedBy` y `rowVersion`. |
-| `HistorialSolicitud` | `id`, `requestId`, `eventType`, `actor`, `note`, `timestamp` *(002)* | ⚠️ Mejorado | spec/002 usa `note` genérico. Plan añade `previousStatus`/`newStatus` + `changedFields` (JSON) para trazabilidad granular. |
-| `ApprovalAction` | `id`, `requestId`, `approverId`, `action`, `comment`, `timestamp` *(003)* | ⚠️ Consolidado | spec/003 define entidad separada. El plan la consolida dentro de `HistorialSolicitud`, evitando duplicidad de auditoría. |
+| `Empleado` | `id`, `email`, `fullName`, `status`, `joinDate` | ✅ | Sin cambios. Roles por Identity. |
+| `SaldoEmpleado` | `id`, `employeeId`, `accumulatedBalance`, `consumedBalance`, `availableBalance`, `lastUpdatedAt` | ✅ | `availableBalance` → propiedad calculada (`accumulated - consumed - pending`). `pendingBalance` añadido. `rowVersion` añadido. |
+| `HistorialSaldo` | `id`, `employeeId`, `movementType`, `previousBalance`, `newBalance`, `reason`, `actor`, `timestamp` | 🔶 Fuera de alcance MVP | Definida pero no se implementa en el MVP (futura fase). |
+| `SolicitudVacaciones` | `id`, `employeeId`, `startDate`, `endDate`, `daysRequested`, `status`, `reason`, `approverComment`, `createdAt`, `updatedAt` | ✅ | Añadidos `resolvedBy` y `rowVersion`. |
+| `HistorialSolicitud` | `id`, `requestId`, `eventType`, `actor`, `note`, `timestamp` | ⚠️ Mejorado | La especificación usa `note` genérico. Plan añade `previousStatus`/`newStatus` + `changedFields` (JSON) para trazabilidad granular. |
+| `ApprovalAction` | `id`, `requestId`, `approverId`, `action`, `comment`, `timestamp` | ⚠️ Consolidado | La especificación define entidad separada. El plan la consolida dentro de `HistorialSolicitud`, evitando duplicidad de auditoría. |
 
 **Resultado:** 5/5 entidades cubiertas en especificación. `HistorialSaldo` 🔶 fuera de alcance MVP (futura fase). `ApprovalAction` integrada en `HistorialSolicitud`. Mejoras añadidas: `rowVersion` (×2), `resolvedBy`, trazabilidad granular.
 
@@ -327,11 +327,6 @@ Solicitud_de_Vacaiones/               # Scaffold MVC vacío (net10.0)
 spec/
 ├── spec.md
 ├── DESIGN_TOKENS.md
-├── 001-employee-balance-management/
-├── 002-vacation-request-crud/
-├── 003-approval-workflow/
-├── 004-request-auto-expiration/
-└── 005-hr-monitoring-dashboard/
 
 docs/
 ├── Preguntas_Pendientes.md
@@ -490,7 +485,7 @@ No existen excepciones arquitectónicas. La Constitución y la Spec están aline
 
 | Elemento | Tipo | Motivo | Justificación |
 |---|---|---|---|
-| `ServicioExpiracionAutomatica` | Nuevo BackgroundService | Feature 4 (`004-request-auto-expiration`) requiere un job programado diario que expire solicitudes `Pending` cuya fecha de inicio ya haya sido alcanzada (startDate ≤ hoy). | No existe servicio equivalente. Alternativa: job de BD (descartada por ser menos testeable). Se implementa como `BackgroundService` de ASP.NET Core. La lógica de expiración es dinámica: compara `startDate` contra la fecha actual provista por `TimeProvider`. |
+| `ServicioExpiracionAutomatica` | Nuevo BackgroundService | Feature 4 (Auto-Expiration) requiere un job programado diario que expire solicitudes `Pending` cuya fecha de inicio ya haya sido alcanzada (startDate ≤ hoy). | No existe servicio equivalente. Alternativa: job de BD (descartada por ser menos testeable). Se implementa como `BackgroundService` de ASP.NET Core. La lógica de expiración es dinámica: compara `startDate` contra la fecha actual provista por `TimeProvider`. |
 | `ProveedorTiempoSistema` (TimeProvider) | Nueva abstracción | La Constitución (sección 7 invariante 9) exige que el cálculo de días ocurra en el servidor. El Domain no debe depender de `DateTime.Now`. | Se usa `TimeProvider` de .NET (nativo desde .NET 8+). Alternativa: interfaz propia. Se opta por la nativa para reducir código custom. |
 | `InterceptorAuditoriaSaveChanges` | Nuevo interceptor EF Core | La Spec (sección 8) y la Constitución (sección 7 invariante 8) exigen trazabilidad obligatoria en cada transición de estado. | Interceptor de `SaveChangesAsync` que registra automáticamente en `HistorialSolicitud` (solo cambios de estado de solicitudes). `HistorialSaldo` queda fuera de alcance MVP (futura fase). Alternativa: eventos manuales en cada handler (descartada por riesgo de olvido). |
 | `RowVersion` para concurrencia optimista | Configuración EF Core | La Constitución (sección 7 invariante 1) exige que el saldo nunca sea negativo. Sin concurrencia, dos aprobaciones simultáneas podrían sobrescribir el saldo. | `RowVersion` en `SaldoEmpleado` y `SolicitudVacaciones`. Manejo de `DbUpdateConcurrencyException` en Application. |

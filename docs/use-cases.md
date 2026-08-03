@@ -2,7 +2,7 @@
 
 Última actualización: 2026-07-27
 
-Este documento recoge los casos de uso refinados a partir de las especificaciones en `spec/` y `spec/spec.md`. Cada caso de uso ha sido detallado con pasos de validación, autorización, datos de auditoría y mensajes de error específicos según las reglas de negocio (RN) y requisitos funcionales (RF) definidos.
+Este documento recoge los casos de uso refinados a partir de las especificaciones en `spec/spec.md`. Cada caso de uso ha sido detallado con pasos de validación, autorización, datos de auditoría y mensajes de error específicos según las reglas de negocio (RN) y requisitos funcionales (RF) definidos.
 
 > **Nota:** CU-01 (Crear empleado y saldo inicial) queda fuera del alcance del MVP. Se asume que los empleados ya existen en el sistema al inicio del proyecto.
 
@@ -43,7 +43,7 @@ Este documento recoge los casos de uso refinados a partir de las especificacione
 **Actor(es)**: SISTEMA_ACUMULACION (job programado)
 **Componente**: EmployeeBalanceService / Scheduler
 **Prioridad**: P1
-**Trazabilidad**: `spec/001-employee-balance-management/spec.md` (RN-01, RN-23, RN-24)
+**Trazabilidad**: `spec/spec.md` (RN-01, RN-23, RN-24)
 
 ### Precondiciones:
 - Proceso automático configurado para ejecutarse periódicamente (ejemplo: cada día al finalizar la jornada).
@@ -96,7 +96,7 @@ Este documento recoge los casos de uso refinados a partir de las especificacione
 **Actor(es)**: Empleado, RRHH
 **Componente**: EmployeeBalanceService
 **Prioridad**: P1
-**Trazabilidad**: `spec/001-employee-balance-management/spec.md` (HU-04, RF-016), `spec/spec.md` (RN-27)
+**Trazabilidad**: `spec/spec.md` (HU-04, RF-016, RN-27)
 
 ### Precondiciones:
 - Usuario autenticado en el sistema.
@@ -146,7 +146,7 @@ Este documento recoge los casos de uso refinados a partir de las especificacione
 **Tipo**: Transversal
 **Componente**: BalanceHistory / EmployeeBalanceService
 **Prioridad**: P1
-**Trazabilidad**: `spec/001-employee-balance-management/spec.md` (BalanceHistory)
+**Trazabilidad**: `spec/spec.md` (BalanceHistory)
 
 ### Descripción:
 Este no es un caso de uso con actor que inicia la acción. Es un requisito de auditoría que se ejecuta como consecuencia de otros casos de uso que modifican el balance. Se activa automáticamente desde:
@@ -182,7 +182,7 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 **Actor(es)**: Empleado
 **Componente**: VacationRequestService / EmployeeBalanceService
 **Prioridad**: P1
-**Trazabilidad**: `spec/002-vacation-request-crud/spec.md` (HU-01, RF-007), `spec/spec.md` (RN-06, RN-07, RN-10, RN-21, RN-28, RN-29, RN-30, RN-31, RF-009, RF-038)
+**Trazabilidad**: `spec/spec.md` (HU-01, RF-007, RN-06, RN-07, RN-10, RN-21, RN-28, RN-29, RN-30, RN-31, RF-009, RF-038)
 
 ### Precondiciones:
 - Empleado autenticado con permisos de empleado.
@@ -248,7 +248,7 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 **Actor(es)**: Empleado
 **Componente**: VacationRequestService
 **Prioridad**: P1
-**Trazabilidad**: `spec/002-vacation-request-crud/spec.md` (HU-02), `spec/spec.md` (RF-046)
+**Trazabilidad**: `spec/spec.md` (HU-02, RF-046)
 
 ### Precondiciones:
 - Empleado autenticado con permisos de empleado.
@@ -293,7 +293,7 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 **Actor(es)**: Empleado
 **Componente**: VacationRequestService
 **Prioridad**: P2
-**Trazabilidad**: `spec/002-vacation-request-crud/spec.md` (HU-03, RN-10, RN-20, RN-21), `spec/spec.md` (RF-038)
+**Trazabilidad**: `spec/spec.md` (HU-03, RN-10, RN-20, RN-21, RF-038)
 
 ### Precondiciones:
 - Empleado autenticado.
@@ -346,7 +346,7 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 **Actor(es)**: Empleado
 **Componente**: VacationRequestService
 **Prioridad**: P1
-**Trazabilidad**: `spec/002-vacation-request-crud/spec.md` (RN-11), `spec/spec.md`
+**Trazabilidad**: `spec/spec.md` (RN-11)
 
 ### Precondiciones:
 - Empleado autenticado.
@@ -393,7 +393,7 @@ Este no es un caso de uso con actor que inicia la acción. Es un requisito de au
 **Tipo**: Transversal (lo ejecuta el sistema automáticamente al crear o editar solicitudes)
 **Componente**: DateUtils / VacationRequestService
 **Prioridad**: P1
-**Trazabilidad**: `spec/002-vacation-request-crud/spec.md` (RN-05, RN-25, RN-30, RF-002)
+**Trazabilidad**: `spec/spec.md` (RN-05, RN-25, RN-30, RF-002)
 
 ### Descripción:
 Función del sistema para calcular cuántos días de vacaciones corresponden entre dos fechas, contando solo los días de semana (lunes a viernes). No interviene un usuario directamente; es utilizada por otros casos de uso como el de crear o editar solicitudes.
@@ -429,7 +429,7 @@ Función del sistema para calcular cuántos días de vacaciones corresponden ent
 **Tipo**: Transversal (lo ejecuta el sistema automáticamente al crear, editar o revisar solicitudes)
 **Componente**: VacationRequestRepository
 **Prioridad**: P1
-**Trazabilidad**: `spec/002-vacation-request-crud/spec.md` (RN-07)
+**Trazabilidad**: `spec/spec.md` (RN-07)
 
 ### Descripción:
 Función del sistema para detectar si un período de vacaciones solicitado se empalma (superpone) con otro período ya solicitado por el mismo empleado. No interviene un usuario directamente; es utilizada al crear o editar solicitudes y al mostrar la bandeja de aprobadores.
@@ -461,7 +461,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 **Actor(es)**: Aprobador
 **Componente**: ApprovalService / VacationRequestService
 **Prioridad**: P1
-**Trazabilidad**: `spec/003-approval-workflow/spec.md` (HU-05, RF-046), `spec/spec.md`
+**Trazabilidad**: `spec/spec.md` (HU-05, RF-046)
 
 ### Precondiciones:
 - Usuario autenticado con permisos de aprobador.
@@ -510,7 +510,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 **Actor(es)**: Aprobador
 **Componente**: ApprovalService / EmployeeBalanceService
 **Prioridad**: P1
-**Trazabilidad**: `spec/003-approval-workflow/spec.md` (HU-06, RF-022, RF-024, RF-044, RN-08, RN-12, RN-13, RN-14), `spec/spec.md`
+**Trazabilidad**: `spec/spec.md` (HU-06, RF-022, RF-024, RF-044, RN-08, RN-12, RN-13, RN-14)
 
 ### Precondiciones:
 - La solicitud existe y está en estado "PENDING".
@@ -566,7 +566,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 **Actor(es)**: Aprobador
 **Componente**: ApprovalService
 **Prioridad**: P1
-**Trazabilidad**: `spec/003-approval-workflow/spec.md` (HU-06, RF-023, RF-024, RN-04, RN-12, RN-14)
+**Trazabilidad**: `spec/spec.md` (HU-06, RF-023, RF-024, RN-04, RN-12, RN-14)
 
 ### Precondiciones:
 - La solicitud existe y está en estado "PENDING".
@@ -620,7 +620,7 @@ Función del sistema para detectar si un período de vacaciones solicitado se em
 **Actor(es)**: Aprobador
 **Componente**: ApprovalService / EmployeeBalanceService
 **Prioridad**: P1
-**Trazabilidad**: `spec/003-approval-workflow/spec.md` (HU-07, RF-026)
+**Trazabilidad**: `spec/spec.md` (HU-07, RF-026)
 
 ### Descripción:
 Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitud pendiente, ya sea desde la bandeja (CU-10) o antes de aprobar (CU-11). Muestra al aprobador cómo quedaría el saldo del empleado si se aprobara la solicitud.
@@ -652,7 +652,7 @@ Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitu
 **Actor(es)**: Aprobador
 **Componente**: ApprovalService / EmployeeBalanceService
 **Prioridad**: P2
-**Trazabilidad**: `spec/spec.md` (RN-04, RN-14, RF-047), `spec/003-approval-workflow/spec.md`
+**Trazabilidad**: `spec/spec.md` (RN-04, RN-14, RF-047)
 
 ### Precondiciones:
 - La solicitud existe y está en estado "APPROVED".
@@ -703,7 +703,7 @@ Esta funcionalidad se activa cuando el aprobador abre el detalle de una solicitu
 **Actor(es)**: SISTEMA_AUTO_EXPIRACION (job programado)
 **Componente**: ExpirationJob
 **Prioridad**: P2
-**Trazabilidad**: `spec/004-request-auto-expiration/spec.md` (RN-26, RF-043), `spec/spec.md`
+**Trazabilidad**: `spec/spec.md` (RN-26, RF-043)
 
 ### Precondiciones:
 - Existe un número N configurado en el sistema que define cuántos días puede estar una solicitud pendiente antes de vencer.
@@ -912,7 +912,7 @@ Requisito transversal que aplica a todos los casos de uso. Define cómo se comun
 ---
 
 ## Notas finales
-- Cada CU referencia las especificaciones originales en `spec/` para trazabilidad.
+- Cada CU referencia la especificación en `spec/spec.md` para trazabilidad.
 - Los casos de uso transversales (Tipo: Transversal) aplican de fondo como parte del funcionamiento del sistema.
 - Las prioridades se mantienen: P1 (críticos: crear solicitud, aprobar, consultar), P2 (operaciones batch, cancelaciones administrativas), P3 (consultas avanzadas RRHH).
 - Todos los mensajes entre comillas dobles son los textos exactos definidos en `spec/spec.md`, sección de mensajes de validación.
