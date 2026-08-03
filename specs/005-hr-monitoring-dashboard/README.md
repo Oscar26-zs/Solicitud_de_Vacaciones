@@ -1,6 +1,6 @@
 # Feature 5: Consultas y Filtrado para RRHH
 
-📁 Carpeta: `spec/features/005-hr-monitoring-dashboard/`
+📁 Carpeta: `specs/005-hr-monitoring-dashboard/`
 
 ---
 
@@ -26,10 +26,12 @@ Para Desarrollador:
 
 ## Estado
 
-- Especificación: **Completa**
-- Plan/Tareas: Pendiente
+- Especificación: Completa
+- Plan: Completa
+- Tareas: Completa
 - Implementación: No iniciada
 
 ---
 
 **Última actualización**: 2026-07-17
+

@@ -1,6 +1,6 @@
 # Feature 1: Gestión de Empleados y Saldos
 
-📁 **Carpeta**: `spec/features/001-employee-balance-management/`
+📁 **Carpeta**: `specs/001-employee-balance-management/`
 
 ---
 
@@ -47,12 +47,13 @@ Especificar el sistema de acumulación y gestión de saldos de días de vacacion
 
 | Aspecto | Estado |
 |--------|--------|
-| ✍️ Especificación | **Completa** |
-| 📋 Plan | Pendiente |
-| ✅ Tareas | Pendiente |
-| 💻 Código | No iniciado |
+| ✍️ Especificación | Completa |
+| 📋 Plan | Completa |
+| ✅ Tareas | Completa |
+| 💻 Implementación | No iniciada |
 
 ---
+
 
 ## 🔗 Dependencias
 

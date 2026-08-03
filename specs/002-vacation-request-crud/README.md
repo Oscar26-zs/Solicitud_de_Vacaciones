@@ -1,6 +1,6 @@
 # Feature 2: Solicitudes de Vacaciones (CRUD Base)
 
-📁 Carpeta: `spec/features/002-vacation-request-crud/`
+📁 Carpeta: `specs/002-vacation-request-crud/`
 
 ---
 
@@ -29,10 +29,12 @@ Para QA:
 
 ## Estado
 
-- Especificación: **Completa**
-- Plan/Tareas: Pendiente (no se crean en esta fase)
+- Especificación: Completa
+- Plan: Completa
+- Tareas: Completa
 - Implementación: No iniciada
 
 ---
 
 **Última actualización**: 2026-07-17
+

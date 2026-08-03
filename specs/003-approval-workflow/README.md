@@ -1,6 +1,6 @@
 # Feature 3: Flujo de Aprobación
 
-📁 Carpeta: `spec/features/003-approval-workflow/`
+📁 Carpeta: `specs/003-approval-workflow/`
 
 ---
 
@@ -29,10 +29,12 @@ Para QA:
 
 ## Estado
 
-- Especificación: **Completa**
-- Plan/Tareas: Pendiente
+- Especificación: Completa
+- Plan: Completa
+- Tareas: Completa
 - Implementación: No iniciada
 
 ---
 
 **Última actualización**: 2026-07-17
+
