@@ -69,6 +69,26 @@ public class RepositorioSolicitudVacaciones : IRepositorioSolicitudVacaciones
         return await query.AnyAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<SolicitudVacaciones>> ObtenerTraslapesAsync(
+        Guid empleadoId,
+        DateOnly fechaInicio,
+        DateOnly fechaFin,
+        Guid? excluirSolicitudId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.SolicitudesVacaciones
+            .Where(s => s.EmpleadoId == empleadoId)
+            .Where(s => s.Estado == EstadoSolicitud.Pending || s.Estado == EstadoSolicitud.Approved)
+            .Where(s => s.FechaInicio <= fechaFin && s.FechaFin >= fechaInicio);
+
+        if (excluirSolicitudId.HasValue)
+        {
+            query = query.Where(s => s.Id != excluirSolicitudId.Value);
+        }
+
+        return await query.AsNoTracking().ToListAsync(cancellationToken);
+    }
+
     public async Task AgregarAsync(SolicitudVacaciones solicitud, CancellationToken cancellationToken = default)
     {
         await _context.SolicitudesVacaciones.AddAsync(solicitud, cancellationToken);
@@ -109,6 +129,7 @@ public class RepositorioSolicitudVacaciones : IRepositorioSolicitudVacaciones
     public async Task<(IReadOnlyList<SolicitudVacaciones> Solicitudes, int TotalCount)> ObtenerBandejaAprobadorAsync(
         Guid aprobadorId,
         string? filtroEmpleado,
+        EstadoSolicitud? estado,
         DateOnly? fechaDesde,
         DateOnly? fechaHasta,
         int page,
@@ -116,8 +137,12 @@ public class RepositorioSolicitudVacaciones : IRepositorioSolicitudVacaciones
         CancellationToken cancellationToken = default)
     {
         var query = _context.SolicitudesVacaciones
-            .Where(s => s.Estado == EstadoSolicitud.Pending)
             .Where(s => s.EmpleadoId != aprobadorId);
+
+        if (estado.HasValue)
+        {
+            query = query.Where(s => s.Estado == estado.Value);
+        }
 
         if (fechaDesde.HasValue)
         {
@@ -127,6 +152,15 @@ public class RepositorioSolicitudVacaciones : IRepositorioSolicitudVacaciones
         if (fechaHasta.HasValue)
         {
             query = query.Where(s => s.FechaFin <= fechaHasta.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filtroEmpleado))
+        {
+            var termino = filtroEmpleado.Trim();
+            var empleadosIds = _context.Empleados
+                .Where(e => e.NombreCompleto.Contains(termino) || e.Email.Contains(termino))
+                .Select(e => e.Id);
+            query = query.Where(s => empleadosIds.Contains(s.EmpleadoId));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
@@ -139,6 +173,25 @@ public class RepositorioSolicitudVacaciones : IRepositorioSolicitudVacaciones
             .ToListAsync(cancellationToken);
 
         return (solicitudes, totalCount);
+    }
+
+    public async Task<(int Pendientes, int Aprobadas, int Rechazadas, int DiasAprobados)> ObtenerEstadisticasBandejaAprobadorAsync(
+        Guid aprobadorId,
+        CancellationToken cancellationToken = default)
+    {
+        var solicitudes = await _context.SolicitudesVacaciones
+            .Where(s => s.EmpleadoId != aprobadorId)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        var pendientes = solicitudes.Count(s => s.Estado == EstadoSolicitud.Pending);
+        var aprobadas = solicitudes.Count(s => s.Estado == EstadoSolicitud.Approved);
+        var rechazadas = solicitudes.Count(s => s.Estado == EstadoSolicitud.Rejected);
+        var diasAprobados = solicitudes
+            .Where(s => s.Estado == EstadoSolicitud.Approved)
+            .Sum(s => s.DiasRequeridos);
+
+        return (pendientes, aprobadas, rechazadas, diasAprobados);
     }
 
     public async Task<(IReadOnlyList<SolicitudVacaciones> Solicitudes, int TotalCount)> ObtenerParaRRHHAsync(

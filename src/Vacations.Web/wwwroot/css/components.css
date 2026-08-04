@@ -573,6 +573,10 @@ textarea:focus,
   max-width: 400px;
 }
 
+.dialog-content--lg {
+  max-width: 640px;
+}
+
 .dialog-header {
   padding: 20px 20px 0;
   display: flex;

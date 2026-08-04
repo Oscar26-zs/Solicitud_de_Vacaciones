@@ -30,11 +30,17 @@ public sealed class ObtenerBandejaAprobadorQueryHandler
         var (solicitudes, totalCount) = await _repositorioSolicitudes.ObtenerBandejaAprobadorAsync(
             query.AprobadorId,
             query.FiltroEmpleado,
+            query.Estado,
             query.FechaDesde,
             query.FechaHasta,
             page,
             pageSize,
             cancellationToken);
+
+        var (pendientes, aprobadas, rechazadas, diasAprobados) =
+            await _repositorioSolicitudes.ObtenerEstadisticasBandejaAprobadorAsync(query.AprobadorId, cancellationToken);
+
+        var empleadosActivos = await _repositorioEmpleados.ObtenerActivosAsync(cancellationToken);
 
         var dtos = new List<BandejaSolicitudDto>();
 
@@ -53,11 +59,19 @@ public sealed class ObtenerBandejaAprobadorQueryHandler
                 solicitud.DiasRequeridos,
                 solicitud.Motivo,
                 solicitud.CreadoEn,
+                solicitud.Estado,
                 saldo?.SaldoDisponible ?? 0));
         }
 
         var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-        return new BandejaAprobadorResultado(dtos, totalCount, page, pageSize, totalPages);
+        var estadisticas = new BandejaAprobadorEstadisticas(
+            pendientes,
+            aprobadas,
+            rechazadas,
+            empleadosActivos.Count,
+            diasAprobados);
+
+        return new BandejaAprobadorResultado(dtos, totalCount, page, pageSize, totalPages, estadisticas);
     }
 }

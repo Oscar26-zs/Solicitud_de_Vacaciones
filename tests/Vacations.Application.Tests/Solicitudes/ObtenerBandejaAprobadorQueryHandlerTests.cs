@@ -32,8 +32,11 @@ public class ObtenerBandejaAprobadorQueryHandlerTests
         var saldo = SaldoEmpleado.Crear(empleadoId, DateTime.UtcNow);
 
         _solRepo.ObtenerBandejaAprobadorAsync(
-            aprobadorId, Arg.Any<string?>(), Arg.Any<DateOnly?>(), Arg.Any<DateOnly?>(),
+            aprobadorId, Arg.Any<string?>(), Arg.Any<EstadoSolicitud?>(), Arg.Any<DateOnly?>(), Arg.Any<DateOnly?>(),
             1, 5, Arg.Any<CancellationToken>()).Returns((solicitudes, 1));
+        _solRepo.ObtenerEstadisticasBandejaAprobadorAsync(aprobadorId, Arg.Any<CancellationToken>())
+            .Returns((1, 0, 0, 0));
+        _empRepo.ObtenerActivosAsync(Arg.Any<CancellationToken>()).Returns(new List<Empleado>());
         _empRepo.ObtenerPorIdAsync(empleadoId, Arg.Any<CancellationToken>()).Returns(
             Empleado.Crear("empleado@example.com", "Juan Pérez", new DateOnly(2024, 1, 1)));
         _saldoRepo.ObtenerPorEmpleadoIdAsync(empleadoId, Arg.Any<CancellationToken>()).Returns(saldo);
@@ -61,8 +64,11 @@ public class ObtenerBandejaAprobadorQueryHandlerTests
         IReadOnlyList<SolicitudVacaciones> solicitudes = new List<SolicitudVacaciones>();
 
         _solRepo.ObtenerBandejaAprobadorAsync(
-            aprobadorId, Arg.Any<string?>(), Arg.Any<DateOnly?>(), Arg.Any<DateOnly?>(),
+            aprobadorId, Arg.Any<string?>(), Arg.Any<EstadoSolicitud?>(), Arg.Any<DateOnly?>(), Arg.Any<DateOnly?>(),
             1, 10, Arg.Any<CancellationToken>()).Returns((solicitudes, 0));
+        _solRepo.ObtenerEstadisticasBandejaAprobadorAsync(aprobadorId, Arg.Any<CancellationToken>())
+            .Returns((0, 0, 0, 0));
+        _empRepo.ObtenerActivosAsync(Arg.Any<CancellationToken>()).Returns(new List<Empleado>());
 
         var handler = new ObtenerBandejaAprobadorQueryHandler(_solRepo, _empRepo, _saldoRepo);
 

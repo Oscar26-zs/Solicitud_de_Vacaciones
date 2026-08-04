@@ -21,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<ObtenerMisSolicitudesQueryHandler>();
         services.AddScoped<ObtenerSolicitudDetalleQueryHandler>();
         services.AddScoped<ObtenerBandejaAprobadorQueryHandler>();
+        services.AddScoped<ObtenerDetalleAprobacionQueryHandler>();
         services.AddScoped<ObtenerSolicitudesRRHHQueryHandler>();
 
         services.AddScoped<ObtenerSaldoQueryHandler>();

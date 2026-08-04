@@ -1,3 +1,5 @@
+using Vacations.Domain.Enums;
+
 namespace Vacations.Application.Solicitudes.Queries;
 
 public sealed record ObtenerBandejaAprobadorQuery(
@@ -5,5 +7,6 @@ public sealed record ObtenerBandejaAprobadorQuery(
     string? FiltroEmpleado = null,
     DateOnly? FechaDesde = null,
     DateOnly? FechaHasta = null,
+    EstadoSolicitud? Estado = null,
     int Page = 1,
     int PageSize = 10);

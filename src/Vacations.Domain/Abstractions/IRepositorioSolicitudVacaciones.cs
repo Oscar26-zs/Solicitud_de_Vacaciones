@@ -24,6 +24,13 @@ public interface IRepositorioSolicitudVacaciones
         Guid? excluirSolicitudId = null,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<SolicitudVacaciones>> ObtenerTraslapesAsync(
+        Guid empleadoId,
+        DateOnly fechaInicio,
+        DateOnly fechaFin,
+        Guid? excluirSolicitudId = null,
+        CancellationToken cancellationToken = default);
+
     Task AgregarAsync(SolicitudVacaciones solicitud, CancellationToken cancellationToken = default);
 
     void Actualizar(SolicitudVacaciones solicitud);
@@ -38,10 +45,15 @@ public interface IRepositorioSolicitudVacaciones
     Task<(IReadOnlyList<SolicitudVacaciones> Solicitudes, int TotalCount)> ObtenerBandejaAprobadorAsync(
         Guid aprobadorId,
         string? filtroEmpleado,
+        EstadoSolicitud? estado,
         DateOnly? fechaDesde,
         DateOnly? fechaHasta,
         int page,
         int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<(int Pendientes, int Aprobadas, int Rechazadas, int DiasAprobados)> ObtenerEstadisticasBandejaAprobadorAsync(
+        Guid aprobadorId,
         CancellationToken cancellationToken = default);
 
     Task<(IReadOnlyList<SolicitudVacaciones> Solicitudes, int TotalCount)> ObtenerParaRRHHAsync(

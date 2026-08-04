@@ -12,11 +12,20 @@ public sealed record BandejaSolicitudDto(
     int DiasRequeridos,
     string Motivo,
     DateTime CreadoEn,
+    EstadoSolicitud Estado,
     int SaldoDisponibleEmpleado);
+
+public sealed record BandejaAprobadorEstadisticas(
+    int Pendientes,
+    int Aprobadas,
+    int Rechazadas,
+    int Colaboradores,
+    int DiasAprobados);
 
 public sealed record BandejaAprobadorResultado(
     IReadOnlyList<BandejaSolicitudDto> Solicitudes,
     int TotalCount,
     int Page,
     int PageSize,
-    int TotalPages);
+    int TotalPages,
+    BandejaAprobadorEstadisticas Estadisticas);

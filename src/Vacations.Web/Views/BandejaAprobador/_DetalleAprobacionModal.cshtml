@@ -1,0 +1,178 @@
+@model DetalleAprobacionViewModel
+@{
+    var folio = "SOL-" + Model.Id.ToString("N").Substring(0, 6).ToUpper();
+}
+<div class="dialog-header">
+    <div class="flex items-center justify-between gap-3">
+        <h2 class="dialog-title" id="detalle-aprobacion-title">Solicitud de vacaciones</h2>
+        <span class="mono text-xs text-muted-foreground">@folio</span>
+    </div>
+    <div class="flex items-center gap-2">
+        @await Html.PartialAsync("_StatusBadge", Model.Estado)
+    </div>
+    <p class="dialog-description">Revisa los detalles de la solicitud antes de tomar una decisión.</p>
+</div>
+
+<div class="dialog-body">
+    <div class="flex items-center gap-3">
+        @await Html.PartialAsync("_UserAvatar", (AvatarHelper.Iniciales(Model.EmpleadoNombre), AvatarHelper.Color(Model.EmpleadoNombre)), new ViewDataDictionary(ViewData) { ["AvatarSize"] = "lg" })
+        <div class="flex flex-col">
+            <span class="text-sm font-medium">@Model.EmpleadoNombre</span>
+            <span class="text-xs text-muted-foreground">@Model.EmpleadoEmail</span>
+        </div>
+    </div>
+
+    <div class="detail-balance-grid">
+        <div class="mini-card">
+            <span class="mini-card-value tabular-nums">@Model.SaldoDisponible</span>
+            <span class="mini-card-label">Disponible</span>
+        </div>
+        <div class="mini-card">
+            <span class="mini-card-value tabular-nums">@Model.DiasRequeridos</span>
+            <span class="mini-card-label">Solicitados</span>
+        </div>
+        <div class="mini-card">
+            <span class="mini-card-value tabular-nums @(Model.PostAprobacion < 0 ? "negative" : "")">@Model.PostAprobacion</span>
+            <span class="mini-card-label">Post aprobación</span>
+        </div>
+    </div>
+
+    @if (Model.TraslapeAprobada)
+    {
+        <div class="alert alert--destructive">
+            <svg class="alert-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <div class="alert-content">
+                <strong class="alert-title">Traslape con solicitud aprobada</strong>
+                <p class="alert-message">Este periodo se traslapa con una solicitud ya aprobada del colaborador.</p>
+            </div>
+        </div>
+    }
+
+    @if (Model.TraslapePendiente)
+    {
+        <div class="alert alert--warning">
+            <svg class="alert-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <div class="alert-content">
+                <strong class="alert-title">Traslape con solicitud pendiente</strong>
+                <p class="alert-message">Este periodo se traslapa con otra solicitud pendiente del colaborador.</p>
+            </div>
+        </div>
+    }
+
+    <div class="detail-row">
+        <span class="detail-row-label">Fechas</span>
+        <span class="detail-row-value">@Model.FechaInicio.ToString("d MMM yyyy") – @Model.FechaFin.ToString("d MMM yyyy")</span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-row-label">Días hábiles</span>
+        <span class="detail-row-value tabular-nums">@Model.DiasRequeridos</span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-row-label">Solicitada el</span>
+        <span class="detail-row-value">@Model.CreadoEn.ToString("d MMM yyyy, HH:mm")</span>
+    </div>
+    @if (!string.IsNullOrEmpty(Model.Motivo))
+    {
+        <div class="detail-row">
+            <span class="detail-row-label">Motivo</span>
+            <span class="detail-row-value">@Model.Motivo</span>
+        </div>
+    }
+    <div class="detail-row">
+        <span class="detail-row-label">Comentario</span>
+        <span class="detail-row-value">@(string.IsNullOrEmpty(Model.ComentarioAprobador) ? "—" : Model.ComentarioAprobador)</span>
+    </div>
+
+    @if (Model.Historial.Any())
+    {
+        <div class="flex flex-col gap-2">
+            <h3 class="text-sm font-semibold">Historial</h3>
+            <ol class="timeline">
+                @foreach (var evt in Model.Historial.OrderBy(h => h.Timestamp))
+                {
+                    var (icon, cls) = evt.TipoEvento switch
+                    {
+                        TipoEvento.Created => ("Play", "timeline-marker--created"),
+                        TipoEvento.Updated => ("Edit", "timeline-marker--updated"),
+                        TipoEvento.Cancelled => ("Slash", "timeline-marker--cancelled"),
+                        _ when evt.EstadoNuevo == EstadoSolicitud.Approved => ("UserCheck", "timeline-marker--approved"),
+                        _ when evt.EstadoNuevo == EstadoSolicitud.Rejected => ("UserX", "timeline-marker--rejected"),
+                        _ => ("Clock", "")
+                    };
+                    <li class="timeline-item">
+                        <span class="timeline-marker @cls">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                @if (icon == "Play")
+                                {
+                                    <polygon points="6 3 20 12 6 21 6 3" />
+                                }
+                                else if (icon == "Edit")
+                                {
+                                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                }
+                                else if (icon == "Slash")
+                                {
+                                    <circle cx="12" cy="12" r="10" /><path d="m4.9 4.9 14.2 14.2" />
+                                }
+                                else if (icon == "UserCheck")
+                                {
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><polyline points="16 11 18 13 22 9" />
+                                }
+                                else if (icon == "UserX")
+                                {
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="17" x2="22" y1="8" y2="13" /><line x1="22" x2="17" y1="8" y2="13" />
+                                }
+                                else
+                                {
+                                    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                                }
+                            </svg>
+                        </span>
+                        <div class="timeline-body">
+                            <span class="text-sm font-medium">@GetEventoLabel(evt)</span>
+                            <span class="text-xs text-muted-foreground">@evt.Actor · @evt.Timestamp.ToString("d MMM yyyy, HH:mm")</span>
+                            @if (!string.IsNullOrEmpty(evt.Comentario))
+                            {
+                                <p>@evt.Comentario</p>
+                            }
+                        </div>
+                    </li>
+                }
+            </ol>
+        </div>
+    }
+</div>
+
+<div class="dialog-footer">
+    @if (Model.Estado == EstadoSolicitud.Pending)
+    {
+        <form id="form-rechazo" asp-action="Rechazar" method="post" class="m-0" hidden>
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="SolicitudId" value="@Model.Id" />
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label form-label--required" for="comentario-rechazo">Comentario (obligatorio)</label>
+                <textarea id="comentario-rechazo" name="Comentario" rows="3" placeholder="Indica el motivo del rechazo…" required maxlength="500"></textarea>
+            </div>
+        </form>
+        <button type="button" class="btn btn--destructive" data-rechazo-cancelar hidden>Volver</button>
+        <button type="button" class="btn btn--destructive" data-rechazo-enviar hidden>Confirmar rechazo</button>
+        <button type="button" class="btn btn--destructive" data-abrir-rechazo>Rechazar</button>
+        <button type="button" class="btn btn--default" data-aprobar="@Model.Id">Aprobar</button>
+    }
+    else
+    {
+        <button type="button" class="btn btn--outline" data-dialog-close>Cerrar</button>
+    }
+</div>
+
+@functions {
+    string GetEventoLabel(Vacations.Application.Solicitudes.Queries.HistorialEventoDto evt) => evt.TipoEvento switch
+    {
+        TipoEvento.Created => "Solicitud creada",
+        TipoEvento.Updated => "Solicitud actualizada",
+        TipoEvento.Cancelled => "Solicitud cancelada",
+        _ when evt.EstadoNuevo == EstadoSolicitud.Approved => "Solicitud aprobada",
+        _ when evt.EstadoNuevo == EstadoSolicitud.Rejected => "Solicitud rechazada",
+        _ => "Cambio de estado"
+    };
+}
