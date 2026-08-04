@@ -1,0 +1,45 @@
+@model PaginacionViewModel
+@{
+    var desde = Model.TotalCount == 0 ? 0 : (Model.Page - 1) * Model.PageSize + 1;
+    var hasta = Math.Min(Model.Page * Model.PageSize, Model.TotalCount);
+}
+<div class="table-pagination">
+    <p class="pagination-info">
+        Mostrando <strong>@desde</strong>–<strong>@hasta</strong> de <strong>@Model.TotalCount</strong>
+    </p>
+    <div class="pagination-controls">
+        @{
+            var rutaAnterior = new Dictionary<string, string?>(Model.RouteValues) { ["page"] = (Model.Page - 1).ToString(), ["pageSize"] = Model.PageSize.ToString() };
+            var rutaSiguiente = new Dictionary<string, string?>(Model.RouteValues) { ["page"] = (Model.Page + 1).ToString(), ["pageSize"] = Model.PageSize.ToString() };
+        }
+        @if (Model.Page <= 1)
+        {
+            <span class="pagination-btn pagination-btn--disabled" aria-disabled="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Anterior
+            </span>
+        }
+        else
+        {
+            <a class="pagination-btn" asp-action="@Model.ActionName" asp-all-route-data="@rutaAnterior">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Anterior
+            </a>
+        }
+        <span class="pagination-current">@Model.Page / @Model.TotalPages</span>
+        @if (Model.Page >= Model.TotalPages)
+        {
+            <span class="pagination-btn pagination-btn--disabled" aria-disabled="true">
+                Siguiente
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </span>
+        }
+        else
+        {
+            <a class="pagination-btn" asp-action="@Model.ActionName" asp-all-route-data="@rutaSiguiente">
+                Siguiente
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </a>
+        }
+    </div>
+</div>

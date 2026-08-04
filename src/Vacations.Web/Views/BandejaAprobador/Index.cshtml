@@ -1,0 +1,107 @@
+@model BandejaAprobadorViewModel
+@{
+    ViewData["Title"] = "Bandeja de Aprobación";
+}
+
+<div class="flex flex-col gap-6">
+    <div class="page-header">
+        <div>
+            <h1>Bandeja de aprobación</h1>
+            <p class="page-header--subtitle">Revisa y decide las solicitudes de vacaciones pendientes.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-content" style="padding:16px;">
+            <form asp-action="Index" method="get" class="filter-row">
+                <div class="search-field" style="flex:1;min-width:200px;">
+                    <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" name="filtroEmpleado" value="@Model.FiltroEmpleado" placeholder="Buscar por nombre o folio..." />
+                </div>
+                <input type="date" name="fechaDesde" value="@Model.FechaDesde?.ToString("yyyy-MM-dd")" aria-label="Desde" />
+                <input type="date" name="fechaHasta" value="@Model.FechaHasta?.ToString("yyyy-MM-dd")" aria-label="Hasta" />
+                <button type="submit" class="btn btn--default">Buscar</button>
+                <a class="btn btn--outline" asp-action="Index">Limpiar</a>
+            </form>
+        </div>
+
+        @if (Model.Solicitudes.Any())
+        {
+            <div class="card-content" style="padding:0;">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Colaborador</th>
+                                <th>Periodo</th>
+                                <th>Días</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model.Solicitudes)
+                            {
+                                <tr onclick="location.href='@Url.Action("Detalle", new { id = s.Id })'">
+                                    <td>
+                                        <div class="flex items-center gap-3">
+                                            @await Html.PartialAsync("_UserAvatar", (GetIniciales(s.EmpleadoNombre), GetAvatarColor(s.EmpleadoNombre)), new ViewDataDictionary(ViewData) { ["AvatarSize"] = "sm" })
+                                            <div class="flex flex-col">
+                                                <span class="text-sm font-medium">@s.EmpleadoNombre</span>
+                                                <span class="text-xs text-muted-foreground">@s.EmpleadoEmail</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>@s.FechaInicio.ToString("d MMM yyyy") – @s.FechaFin.ToString("d MMM yyyy")</td>
+                                    <td class="tabular-nums">@s.DiasRequeridos</td>
+                                    <td onclick="event.stopPropagation()">
+                                        <a class="btn btn--outline btn--sm" asp-action="Detalle" asp-route-id="@s.Id">Revisar</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                @await Html.PartialAsync("_TablePagination", new PaginacionViewModel
+                {
+                    Page = Model.Page,
+                    PageSize = Model.PageSize,
+                    TotalPages = Model.TotalPages,
+                    TotalCount = Model.TotalCount,
+                    ActionName = "Index",
+                    RouteValues = new Dictionary<string, string?>
+                    {
+                        ["filtroEmpleado"] = Model.FiltroEmpleado,
+                        ["fechaDesde"] = Model.FechaDesde?.ToString("yyyy-MM-dd"),
+                        ["fechaHasta"] = Model.FechaHasta?.ToString("yyyy-MM-dd")
+                    }
+                })
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <svg class="empty-state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                <h3 class="empty-state-title">No hay solicitudes</h3>
+                <p class="empty-state-message">No se encontraron solicitudes con los filtros aplicados.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    string GetIniciales(string nombre)
+    {
+        var partes = nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return string.Join("", partes.Select(p => p[0]).Take(2));
+    }
+
+    string GetAvatarColor(string nombre)
+    {
+        var colores = new[] { "f43f5e", "0ea5e9", "8b5cf6", "14b8a6", "f97316", "6366f1", "c026d3" };
+        var hash = nombre.Aggregate(0, (acc, c) => acc + c);
+        return colores[Math.Abs(hash) % colores.Length];
+    }
+}

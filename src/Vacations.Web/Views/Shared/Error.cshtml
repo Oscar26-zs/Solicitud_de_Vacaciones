@@ -1,0 +1,18 @@
+@model Vacations.Web.ViewModels.ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="card" style="max-width:480px;margin:48px auto;text-align:center;">
+    <div class="empty-state">
+        <h3 class="empty-state-title">Ha ocurrido un error</h3>
+        <p class="empty-state-message">Intente nuevamente más tarde.</p>
+
+        @if (Model?.ShowRequestId ?? false)
+        {
+            <code class="mono text-xs text-muted-foreground">@Model?.RequestId</code>
+        }
+
+        <a asp-controller="Home" asp-action="Index" class="btn btn--default">Volver al inicio</a>
+    </div>
+</div>

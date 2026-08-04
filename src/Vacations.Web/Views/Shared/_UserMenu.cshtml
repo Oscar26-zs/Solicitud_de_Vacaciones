@@ -1,0 +1,31 @@
+@{
+    var nombre = User.Identity?.Name ?? "Usuario";
+    var email = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value ?? User.Identity?.Name ?? "usuario@empresa.com";
+    var esAprobador = User.IsInRole(Roles.Aprobador);
+    var esRRHH = User.IsInRole(Roles.RRHH);
+    var rolActivo = esAprobador ? "Aprobador" : esRRHH ? "RRHH" : "Empleado";
+    var iniciales = string.Join("", nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(p => p[0]).Take(2));
+}
+<div class="user-menu">
+    <button type="button" class="user-menu-trigger" data-user-menu-trigger aria-expanded="false">
+        @await Html.PartialAsync("_UserAvatar", (iniciales, "343434"))
+        <span class="user-menu-name">@nombre</span>
+        <svg class="user-menu-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+
+    <div class="user-menu-dropdown" data-user-menu-dropdown>
+        <div class="user-menu-header">
+            <p class="user-menu-header-name">@nombre</p>
+            <p class="user-menu-header-email">@email</p>
+            <span class="badge badge--secondary">@rolActivo</span>
+        </div>
+        <div class="user-menu-separator"></div>
+        <form asp-controller="Cuenta" asp-action="Logout" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="user-menu-item user-menu-item--danger">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                <span>Cerrar sesión</span>
+            </button>
+        </form>
+    </div>
+</div>

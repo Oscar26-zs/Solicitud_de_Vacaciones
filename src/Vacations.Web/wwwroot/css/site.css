@@ -1,0 +1,83 @@
+/* Sistema de Vacaciones - Estilos personalizados */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+/* Cards */
+.card {
+    margin-bottom: 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Tables */
+.table th {
+    white-space: nowrap;
+}
+
+/* Timeline for history */
+.timeline-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Display utilities */
+.display-6 {
+    font-weight: 600;
+}
+
+/* Forms */
+.form-label {
+    font-weight: 500;
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+}
+
+/* Navbar brand */
+.navbar-brand {
+    font-weight: 600;
+}
+
+/* Alert links */
+.alert-link {
+    font-weight: 600;
+}
+
+/* Pagination */
+.pagination {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+
+    .display-6 {
+        font-size: 1.25rem;
+    }
+
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+
+    .btn-sm {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.75rem;
+    }
+}

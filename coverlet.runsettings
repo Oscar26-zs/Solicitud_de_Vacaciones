@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Include>
+            <Include>[Vacations.Domain]*</Include>
+            <Include>[Vacations.Application]*</Include>
+          </Include>
+          <Exclude>
+            <Exclude>[Vacations.Domain.Tests]*</Exclude>
+            <Exclude>[Vacations.Application.Tests]*</Exclude>
+            <Exclude>[Vacations.Infrastructure.Tests]*</Exclude>
+            <Exclude>[Vacations.Web.Tests]*</Exclude>
+            <Exclude>[*]*.DependencyInjection</Exclude>
+            <Exclude>[*]*Exception</Exclude>
+          </Exclude>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+          <SkipAutoProps>true</SkipAutoProps>
+          <DeterministicReport>true</DeterministicReport>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

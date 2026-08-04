@@ -1,0 +1,13 @@
+@model EstadoSolicitud
+@{
+    var (label, cls) = Model switch
+    {
+        EstadoSolicitud.Pending => ("Pendiente", "status-badge--pending"),
+        EstadoSolicitud.Approved => ("Aprobada", "status-badge--approved"),
+        EstadoSolicitud.Rejected => ("Rechazada", "status-badge--rejected"),
+        EstadoSolicitud.Cancelled => ("Cancelada", "status-badge--cancelled"),
+        EstadoSolicitud.Expired => ("Expirada", "status-badge--expired"),
+        _ => ("Desconocido", "")
+    };
+}
+<span class="status-badge @cls">@label</span>

@@ -1,0 +1,211 @@
+/* ============================================================
+   tokens.css — Tokens de diseño, variables globales y estilos base
+   Sistema de Gestión de Permisos y Vacaciones (ASP.NET Core MVC)
+   ============================================================ */
+
+/* ---------- Token base ---------- */
+:root {
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --radius: 0.625rem;
+  --card-spacing: 16px;
+
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 10px;
+  --border-radius-xl: 14px;
+  --border-radius-2xl: 18px;
+  --border-radius-4xl: 26px;
+
+  /* Breakpoints (informativos) */
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+}
+
+/* ---------- Modo claro ---------- */
+:root,
+:root[data-theme="light"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+
+  /* Colores de estado (semánticos fijos) */
+  --status-pending-bg: rgba(245, 158, 11, 0.15);
+  --status-pending-fg: #b45309;
+  --status-approved-bg: rgba(16, 185, 129, 0.15);
+  --status-approved-fg: #047857;
+  --status-rejected-bg: rgba(229, 72, 77, 0.15);
+  --status-rejected-fg: #e5484d;
+  --status-cancelled-bg: var(--muted);
+  --status-cancelled-fg: var(--muted-foreground);
+  --status-expired-bg: var(--muted);
+  --status-expired-fg: var(--muted-foreground);
+  --status-info-bg: rgba(14, 165, 233, 0.15);
+  --status-info-fg: #0284c7;
+
+  --emerald-700: #047857;
+  --amber-700: #b45309;
+  --sky-600: #0284c7;
+
+  /* Sombras */
+  --shadow-card: 0 0 0 1px rgba(37, 37, 37, 0.10);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  /* Header */
+  --header-bg: rgba(255, 255, 255, 0.8);
+}
+
+/* ---------- Modo oscuro ---------- */
+[data-theme="dark"] {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+
+  --status-pending-fg: #fbbf24;
+  --status-approved-fg: #34d399;
+  --status-rejected-fg: #ff6b6b;
+  --status-info-fg: #38bdf8;
+
+  --emerald-700: #34d399;
+  --amber-700: #fbbf24;
+  --sky-600: #38bdf8;
+
+  --shadow-card: 0 0 0 1px rgba(251, 251, 251, 0.10);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+
+  --header-bg: rgba(37, 37, 37, 0.8);
+}
+
+/* ---------- Estilos base ---------- */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--foreground);
+  text-wrap: balance;
+  margin: 0;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--foreground);
+}
+
+/* ---------- Foco ---------- */
+:focus-visible {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+}
+
+[aria-invalid="true"] {
+  border-color: var(--destructive) !important;
+  box-shadow: 0 0 0 3px rgba(229, 72, 77, 0.2);
+}
+
+/* ---------- Select / Option (dark mode) ---------- */
+select,
+.form-select {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+select option,
+.form-select option {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+}
+
+/* ---------- Transiciones ---------- */
+button,
+a,
+input,
+select,
+textarea {
+  transition: all 150ms ease-in-out;
+}
+
+/* ---------- Scrollbar custom (sheets / modales) ---------- */
+.dialog-body::-webkit-scrollbar,
+.sheet-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.dialog-body::-webkit-scrollbar-track,
+.sheet-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dialog-body::-webkit-scrollbar-thumb,
+.sheet-body::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.dialog-body::-webkit-scrollbar-thumb:hover,
+.sheet-body::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+  background-clip: content-box;
+}

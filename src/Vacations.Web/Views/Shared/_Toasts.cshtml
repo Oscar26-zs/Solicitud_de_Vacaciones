@@ -1,0 +1,13 @@
+@{
+    var mensaje = TempData["Mensaje"] as string;
+    var error = TempData["Error"] as string;
+}
+@if (!string.IsNullOrEmpty(mensaje))
+{
+    <span id="server-toast" data-message="@mensaje" data-type="success" hidden></span>
+}
+@if (!string.IsNullOrEmpty(error))
+{
+    <span id="server-toast" data-message="@error" data-type="error" hidden></span>
+}
+<div class="toast-container" aria-live="polite"></div>

@@ -1,0 +1,73 @@
+@model RechazarSolicitudViewModel
+@{
+    ViewData["Title"] = "Rechazar Solicitud";
+}
+
+<div class="flex flex-col gap-6">
+    <div class="page-header">
+        <div>
+            <h1>Rechazar solicitud</h1>
+            <p class="page-header--subtitle">Esta acción no se puede deshacer. El empleado será notificado del rechazo.</p>
+        </div>
+        <a class="btn btn--outline" asp-action="Index">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Volver
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Confirmar rechazo</h2>
+            </div>
+            <div class="card-content flex flex-col gap-4">
+                <div class="alert alert--destructive">
+                    <svg class="alert-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                    <div class="alert-content">
+                        <strong class="alert-title">Atención</strong>
+                        <p class="alert-message">Esta acción no puede deshacerse.</p>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-row-label">Empleado</span>
+                    <span class="detail-row-value">@Model.EmpleadoNombre</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Periodo</span>
+                    <span class="detail-row-value">@Model.FechaInicio.ToString("d MMM yyyy") – @Model.FechaFin.ToString("d MMM yyyy")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Días</span>
+                    <span class="detail-row-value tabular-nums">@Model.DiasRequeridos</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <form asp-action="Rechazar" method="post" data-client-validate="true">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="SolicitudId" />
+                <div class="card-content flex flex-col gap-4">
+                    <div asp-validation-summary="ModelOnly" class="text-destructive text-sm mb-3"></div>
+
+                    <div class="form-group">
+                        <label asp-for="Comentario" class="form-label form-label--required">Motivo del rechazo</label>
+                        <textarea asp-for="Comentario" rows="4" placeholder="Indica el motivo del rechazo…" required></textarea>
+                        <span asp-validation-for="Comentario"></span>
+                        <span class="form-hint">El comentario es obligatorio al rechazar una solicitud. Máximo 500 caracteres.</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button type="submit" class="btn btn--destructive">Confirmar rechazo</button>
+                        <a asp-action="Index" class="btn btn--outline">Cancelar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

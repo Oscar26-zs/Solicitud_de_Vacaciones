@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PermisosApp</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/utilities.css" asp-append-version="true" />
+    <script src="~/js/theme.js" asp-append-version="true" defer></script>
+</head>
+<body>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header-inner">
+                <a class="app-logo" asp-controller="Home" asp-action="Index" aria-label="PermisosApp">
+                    <span class="app-logo-mark">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+                    </span>
+                    <span class="app-logo-text">
+                        <span class="app-logo-name">PermisosApp</span>
+                        <span class="app-logo-subtitle">Permisos y Vacaciones</span>
+                    </span>
+                </a>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <nav class="app-nav" aria-label="Navegación principal">
+                        <a class="app-nav-link" asp-controller="SolicitudVacaciones" asp-action="Index">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+                            Mis Solicitudes
+                        </a>
+                        <a class="app-nav-link" asp-controller="Saldo" asp-action="Index">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                            Mi Saldo
+                        </a>
+                        @if (User.IsInRole(Roles.Aprobador))
+                        {
+                            <a class="app-nav-link" asp-controller="BandejaAprobador" asp-action="Index">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                Bandeja de Aprobación
+                            </a>
+                        }
+                        @if (User.IsInRole(Roles.RRHH))
+                        {
+                            <a class="app-nav-link" asp-controller="RRHH" asp-action="Solicitudes">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                Consultas RRHH
+                            </a>
+                        }
+                    </nav>
+                }
+
+                <div class="app-header-actions">
+                    @await Html.PartialAsync("_ThemeToggle")
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @await Html.PartialAsync("_UserMenu")
+                    }
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main" role="main">
+            @RenderBody()
+        </main>
+
+        <footer class="app-footer">
+            <div class="app-footer-inner">
+                &copy; @DateTime.Now.Year - Sistema de Gestión de Permisos y Vacaciones
+            </div>
+        </footer>
+
+        @await Html.PartialAsync("_Toasts")
+    </div>
+
+    <script src="~/js/toast.js" asp-append-version="true" defer></script>
+    <script src="~/js/user-menu.js" asp-append-version="true" defer></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
