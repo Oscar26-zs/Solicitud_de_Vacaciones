@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Vacations.Application.Saldos.Queries;
 using Vacations.Application.Solicitudes.Commands;
 using Vacations.Application.Solicitudes.Queries;
+using Vacations.Domain.Abstractions;
 using Vacations.Domain.Enums;
 using Vacations.Domain.Exceptions;
 using Vacations.Web.Authorization;
@@ -22,6 +23,8 @@ public class SolicitudVacacionesController : Controller
     private readonly ObtenerSolicitudDetalleQueryHandler _detalleHandler;
     private readonly ObtenerSaldoQueryHandler _saldoHandler;
     private readonly IValidator<CrearSolicitudCommand> _crearValidator;
+    private readonly IRepositorioEmpleado _repositorioEmpleados;
+    private readonly IRepositorioSolicitudVacaciones _repositorioSolicitudes;
     private readonly TimeProvider _timeProvider;
 
     public SolicitudVacacionesController(
@@ -32,6 +35,8 @@ public class SolicitudVacacionesController : Controller
         ObtenerSolicitudDetalleQueryHandler detalleHandler,
         ObtenerSaldoQueryHandler saldoHandler,
         IValidator<CrearSolicitudCommand> crearValidator,
+        IRepositorioEmpleado repositorioEmpleados,
+        IRepositorioSolicitudVacaciones repositorioSolicitudes,
         TimeProvider timeProvider)
     {
         _crearHandler = crearHandler;
@@ -41,6 +46,8 @@ public class SolicitudVacacionesController : Controller
         _detalleHandler = detalleHandler;
         _saldoHandler = saldoHandler;
         _crearValidator = crearValidator;
+        _repositorioEmpleados = repositorioEmpleados;
+        _repositorioSolicitudes = repositorioSolicitudes;
         _timeProvider = timeProvider;
     }
 
@@ -53,23 +60,37 @@ public class SolicitudVacacionesController : Controller
     private bool EsAprobador() => User.IsInRole(Roles.Aprobador);
     private bool EsRRHH() => User.IsInRole(Roles.RRHH);
 
-    [HttpGet]
-    public async Task<IActionResult> Index(EstadoSolicitud? estado, int page = 1, int pageSize = 10)
+    private async Task<EmpleadoDashboardViewModel> BuildDashboardAsync(Guid empleadoId, EstadoSolicitud? estado = null, int page = 1, int pageSize = 10)
     {
-        var empleadoId = ObtenerEmpleadoId();
         var query = new ObtenerMisSolicitudesQuery(empleadoId, estado, page, pageSize);
         var resultado = await _listarHandler.HandleAsync(query);
+        var saldo = await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId));
+        var empleado = await _repositorioEmpleados.ObtenerPorIdAsync(empleadoId);
+        var todas = await _repositorioSolicitudes.ObtenerPorEmpleadoAsync(empleadoId);
 
-        var viewModel = new SolicitudListaViewModel
+        return new EmpleadoDashboardViewModel
         {
+            Saldo = saldo,
+            NombreEmpleado = empleado?.NombreCompleto ?? "Usuario",
             Solicitudes = resultado.Solicitudes,
             TotalCount = resultado.TotalCount,
             Page = resultado.Page,
             PageSize = resultado.PageSize,
             TotalPages = resultado.TotalPages,
-            FiltroEstado = estado
+            FiltroEstado = estado,
+            Pendientes = todas.Count(s => s.Estado == EstadoSolicitud.Pending),
+            Aprobadas = todas.Count(s => s.Estado == EstadoSolicitud.Approved),
+            Rechazadas = todas.Count(s => s.Estado == EstadoSolicitud.Rejected),
+            Canceladas = todas.Count(s => s.Estado == EstadoSolicitud.Cancelled),
+            CrearSolicitud = new CrearSolicitudViewModel { SaldoDisponible = saldo?.SaldoDisponible ?? 0 }
         };
+    }
 
+    [HttpGet]
+    public async Task<IActionResult> Index(EstadoSolicitud? estado, int page = 1, int pageSize = 10)
+    {
+        var empleadoId = ObtenerEmpleadoId();
+        var viewModel = await BuildDashboardAsync(empleadoId, estado, page, pageSize);
         return View(viewModel);
     }
 
@@ -77,34 +98,30 @@ public class SolicitudVacacionesController : Controller
     public async Task<IActionResult> Crear()
     {
         var empleadoId = ObtenerEmpleadoId();
-        var saldo = await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId));
-
-        var viewModel = new CrearSolicitudViewModel
-        {
-            SaldoDisponible = saldo?.SaldoDisponible ?? 0
-        };
-
-        return View(viewModel);
+        var viewModel = await BuildDashboardAsync(empleadoId);
+        viewModel.SheetAbierta = true;
+        return View("Index", viewModel);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Crear(CrearSolicitudViewModel viewModel)
+    public async Task<IActionResult> Crear(CrearSolicitudViewModel formModel)
     {
         var empleadoId = ObtenerEmpleadoId();
 
         if (!ModelState.IsValid)
         {
-            var saldo = await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId));
-            viewModel.SaldoDisponible = saldo?.SaldoDisponible ?? 0;
-            return View(viewModel);
+            var viewModel = await BuildDashboardAsync(empleadoId);
+            viewModel.SheetAbierta = true;
+            viewModel.CrearSolicitud = formModel;
+            return View("Index", viewModel);
         }
 
         var command = new CrearSolicitudCommand(
             empleadoId,
-            viewModel.FechaInicio,
-            viewModel.FechaFin,
-            viewModel.Comentario ?? string.Empty);
+            formModel.FechaInicio,
+            formModel.FechaFin,
+            formModel.Comentario ?? string.Empty);
 
         var validationResult = await _crearValidator.ValidateAsync(command);
         if (!validationResult.IsValid)
@@ -113,9 +130,10 @@ public class SolicitudVacacionesController : Controller
             {
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
             }
-            var saldo = await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId));
-            viewModel.SaldoDisponible = saldo?.SaldoDisponible ?? 0;
-            return View(viewModel);
+            var viewModel = await BuildDashboardAsync(empleadoId);
+            viewModel.SheetAbierta = true;
+            viewModel.CrearSolicitud = formModel;
+            return View("Index", viewModel);
         }
 
         try
@@ -137,9 +155,10 @@ public class SolicitudVacacionesController : Controller
             ModelState.AddModelError(string.Empty, ex.Message);
         }
 
-        var saldoRecarga = await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId));
-        viewModel.SaldoDisponible = saldoRecarga?.SaldoDisponible ?? 0;
-        return View(viewModel);
+        var viewModelError = await BuildDashboardAsync(empleadoId);
+        viewModelError.SheetAbierta = true;
+        viewModelError.CrearSolicitud = formModel;
+        return View("Index", viewModelError);
     }
 
     [HttpGet]
@@ -207,7 +226,9 @@ public class SolicitudVacacionesController : Controller
 
             var saldo = await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId));
 
-            var viewModel = new EditarSolicitudViewModel
+            var dashboard = await BuildDashboardAsync(empleadoId);
+            dashboard.SheetAbierta = true;
+            dashboard.EditarSolicitud = new EditarSolicitudViewModel
             {
                 SolicitudId = solicitud.Id,
                 FechaInicio = solicitud.FechaInicio,
@@ -217,7 +238,7 @@ public class SolicitudVacacionesController : Controller
                 SaldoDisponible = saldo?.SaldoDisponible ?? 0
             };
 
-            return View(viewModel);
+            return View("Index", dashboard);
         }
         catch (SolicitudNoEncontradaException)
         {
@@ -227,29 +248,32 @@ public class SolicitudVacacionesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Editar(EditarSolicitudViewModel viewModel)
+    public async Task<IActionResult> Editar(EditarSolicitudViewModel formModel)
     {
         var empleadoId = ObtenerEmpleadoId();
 
         if (!ModelState.IsValid)
         {
             var saldo = await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId));
-            viewModel.SaldoDisponible = saldo?.SaldoDisponible ?? 0;
-            return View(viewModel);
+            formModel.SaldoDisponible = saldo?.SaldoDisponible ?? 0;
+            var dashboard = await BuildDashboardAsync(empleadoId);
+            dashboard.SheetAbierta = true;
+            dashboard.EditarSolicitud = formModel;
+            return View("Index", dashboard);
         }
 
         var command = new EditarSolicitudCommand(
-            viewModel.SolicitudId,
+            formModel.SolicitudId,
             empleadoId,
-            viewModel.FechaInicio,
-            viewModel.FechaFin,
-            viewModel.Comentario ?? string.Empty);
+            formModel.FechaInicio,
+            formModel.FechaFin,
+            formModel.Comentario ?? string.Empty);
 
         try
         {
             await _editarHandler.HandleAsync(command);
             TempData["Mensaje"] = "Solicitud editada exitosamente.";
-            return RedirectToAction(nameof(Detalle), new { id = viewModel.SolicitudId });
+            return RedirectToAction(nameof(Detalle), new { id = formModel.SolicitudId });
         }
         catch (SolicitudNoEncontradaException)
         {
@@ -277,8 +301,11 @@ public class SolicitudVacacionesController : Controller
         }
 
         var saldoRecarga = await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId));
-        viewModel.SaldoDisponible = saldoRecarga?.SaldoDisponible ?? 0;
-        return View(viewModel);
+        formModel.SaldoDisponible = saldoRecarga?.SaldoDisponible ?? 0;
+        var dashboardError = await BuildDashboardAsync(empleadoId);
+        dashboardError.SheetAbierta = true;
+        dashboardError.EditarSolicitud = formModel;
+        return View("Index", dashboardError);
     }
 
     [HttpPost]

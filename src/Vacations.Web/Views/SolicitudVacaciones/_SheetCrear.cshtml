@@ -1,0 +1,81 @@
+@model CrearSolicitudViewModel
+@{
+    var abierta = ViewData["SheetAbierta"] is true;
+}
+<div id="sheet-crear" class="sheet-container @(abierta ? "sheet-container--open" : "")" data-sheet-container>
+    <div class="sheet-overlay @(abierta ? "sheet-overlay--open" : "")" data-sheet-overlay></div>
+    <aside class="sheet @(abierta ? "sheet--open" : "")" data-sheet role="dialog" aria-modal="true" aria-labelledby="sheet-crear-title">
+        <form asp-action="Crear" method="post" data-client-validate="true" class="m-0 flex flex-1 flex-col" style="min-height:0;">
+            @Html.AntiForgeryToken()
+            <div class="sheet-header">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex flex-col gap-1">
+                        <h2 class="sheet-title" id="sheet-crear-title">Nueva solicitud</h2>
+                        <p class="sheet-description">Selecciona los días que deseas tomar de vacaciones.</p>
+                    </div>
+                    <button type="button" class="btn btn--ghost btn--icon-sm" data-sheet-close aria-label="Cerrar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sheet-body">
+                <div asp-validation-summary="ModelOnly" class="text-destructive text-sm mb-3"></div>
+
+                <div class="flex justify-center">
+                    <div class="mini-card" style="min-width:96px;">
+                        <span class="mini-card-value tabular-nums">@Model.SaldoDisponible</span>
+                        <span class="mini-card-label">Disponible</span>
+                    </div>
+                </div>
+
+                <div class="calendar-range" data-calendar data-available-balance="@Model.SaldoDisponible">
+                    <div class="calendar-header">
+                        <button type="button" class="btn btn--ghost btn--icon-sm" data-calendar-prev aria-label="Mes anterior">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <span class="calendar-month-label" data-calendar-month></span>
+                        <button type="button" class="btn btn--ghost btn--icon-sm" data-calendar-next aria-label="Mes siguiente">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                    </div>
+                    <div class="calendar-weekdays">
+                        <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span>
+                    </div>
+                    <div class="calendar-days" data-calendar-days></div>
+                </div>
+
+                <div class="calendar-summary" style="text-align:center;">
+                    <p class="text-sm">
+                        Has seleccionado <strong class="font-semibold tabular-nums" data-selected-count>0</strong> días
+                        <span class="text-muted-foreground">·</span>
+                        Saldo disponible: <strong class="font-semibold tabular-nums text-emerald-700">@Model.SaldoDisponible</strong> días
+                    </p>
+                    <p class="text-xs text-destructive" data-exceeding-warning style="display:none;">
+                        ⚠️ Has seleccionado más días de los disponibles
+                    </p>
+                    <p class="text-xs text-destructive" data-no-range-warning style="display:none;">
+                        Selecciona el rango de fechas.
+                    </p>
+                </div>
+
+                <input type="date" asp-for="FechaInicio" style="display:none;" data-fecha-inicio />
+                <input type="date" asp-for="FechaFin" style="display:none;" data-fecha-fin />
+                <span asp-validation-for="FechaInicio"></span>
+                <span asp-validation-for="FechaFin"></span>
+
+                <div class="form-group">
+                    <label asp-for="Comentario" class="form-label">Comentario (opcional)</label>
+                    <textarea asp-for="Comentario" maxlength="500" placeholder="Escribe brevemente el motivo de tu solicitud"></textarea>
+                    <span asp-validation-for="Comentario"></span>
+                    <span class="form-hint">Máximo 500 caracteres.</span>
+                </div>
+            </div>
+
+            <div class="sheet-footer">
+                <button type="button" class="btn btn--outline" data-sheet-close>Cancelar</button>
+                <button type="submit" class="btn btn--default">Enviar solicitud</button>
+            </div>
+        </form>
+    </aside>
+</div>
