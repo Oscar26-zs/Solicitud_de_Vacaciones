@@ -19,6 +19,7 @@ public class DetalleAprobacionViewModel
     public int SaldoDisponible { get; set; }
     public bool TraslapeAprobada { get; set; }
     public bool TraslapePendiente { get; set; }
+    public bool PuedeCancelarAprobada { get; set; }
     public IReadOnlyList<HistorialEventoDto> Historial { get; set; } = [];
 
     public int PostAprobacion => SaldoDisponible - DiasRequeridos;
@@ -39,6 +40,7 @@ public class DetalleAprobacionViewModel
         SaldoDisponible = dto.SaldoDisponible,
         TraslapeAprobada = dto.TraslapeAprobada,
         TraslapePendiente = dto.TraslapePendiente,
-        Historial = dto.Historial
+        Historial = dto.Historial,
+        PuedeCancelarAprobada = false // Será calculado en el controlador
     };
 }

@@ -159,6 +159,7 @@ public sealed class SolicitudVacaciones
             (EstadoSolicitud.Pending, EstadoSolicitud.Rejected) => true,
             (EstadoSolicitud.Pending, EstadoSolicitud.Cancelled) => true,
             (EstadoSolicitud.Pending, EstadoSolicitud.Expired) => true,
+            (EstadoSolicitud.Approved, EstadoSolicitud.Cancelled) => true,
             _ => false
         };
 

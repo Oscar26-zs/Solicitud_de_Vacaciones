@@ -84,6 +84,26 @@
     });
   }
 
+  function setupCancelApproved() {
+    if (!content) return;
+    var btnCancelar = content.querySelector('[data-cancelar-aprobada]');
+    if (!btnCancelar) return;
+
+    btnCancelar.addEventListener('click', function () {
+      window.showConfirmDialog({
+        title: 'Cancelar solicitud aprobada',
+        message: '¿Está seguro que desea cancelar esta solicitud de vacaciones ya aprobada? El saldo será restaurado al empleado.',
+        confirmText: 'Cancelar solicitud',
+        cancelText: 'Volver',
+        destructive: true
+      }).then(function (confirmed) {
+        if (confirmed) {
+          postAction('/BandejaAprobador/CancelarAprobada', { id: currentId });
+        }
+      });
+    });
+  }
+
   function postAction(url, data) {
     var formData = new FormData();
     Object.keys(data).forEach(function (key) {
@@ -138,6 +158,7 @@
         openDialog();
         setupRejectMode();
         setupApprove();
+        setupCancelApproved();
       })
       .catch(function () {
         showToast('No se pudo cargar el detalle.', 'error');

@@ -189,12 +189,7 @@
                                             @if (s.Estado == EstadoSolicitud.Pending)
                                             {
                                                 <a class="btn btn--outline btn--sm" asp-action="Editar" asp-route-id="@s.Id">Editar</a>
-                                                @* TODO: Migrar a modal de confirmación destructiva según DESIGN_TOKENS.md (línea ~482).
-                                                   Actualmente usa confirm() nativo. Debe usar _ConfirmDialog.cshtml + fetch POST + showToast() *@
-                                                <form asp-action="Cancelar" asp-route-id="@s.Id" method="post" class="m-0">
-                                                    @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn--destructive btn--sm" data-confirm="¿Está seguro de cancelar esta solicitud?">Cancelar</button>
-                                                </form>
+                                                <button type="button" class="btn btn--destructive btn--sm" onclick="cancelarSolicitudConConfirmacion('@s.Id', event)">Cancelar</button>
                                             }
                                         </div>
                                     </td>
@@ -251,12 +246,45 @@
     <script src="~/js/calendar-range.js" asp-append-version="true"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('[data-confirm]').forEach(function (btn) {
-                btn.closest('form').addEventListener('submit', function (e) {
-                    if (!confirm(btn.getAttribute('data-confirm'))) e.preventDefault();
-                });
-            });
+            // Prevenir comportamiento por defecto de formularios con data-confirm (compatibilidad)
+            // Este código ahora no se necesita porque los formularios fueron reemplazados
         });
+
+        async function cancelarSolicitudConConfirmacion(solicitudId, event) {
+            event?.stopPropagation?.();
+
+            // Abrir modal de confirmación
+            const confirmed = await window.showConfirmDialog({
+                title: 'Cancelar solicitud',
+                message: '¿Estás seguro de que deseas cancelar esta solicitud? Esta acción no se puede deshacer.',
+                confirmText: 'Confirmar',
+                cancelText: 'Cancelar',
+                destructive: true
+            });
+
+            if (!confirmed) return;
+
+            try {
+                // Ejecutar cancelación vía AJAX POST
+                const response = await fetch(`/SolicitudVacaciones/Cancelar?id=${solicitudId}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || '',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cancelar la solicitud');
+                }
+
+                // Recargar la página para actualizar la lista
+                window.location.reload();
+            } catch (error) {
+                console.error(error);
+                alert('Error al cancelar la solicitud. Por favor intenta nuevamente.');
+            }
+        }
 
         function abrirDetalleModal(solicitudId, event) {
             event?.stopPropagation?.();
@@ -300,6 +328,57 @@
         document.getElementById('modal-detalle').addEventListener('click', function (e) {
             if (e.target === this) {
                 cerrarDetalleModal();
+            }
+        });
+
+        // Manejar submit del formulario de crear solicitud vía AJAX
+        document.addEventListener('DOMContentLoaded', function () {
+            const formCrear = document.getElementById('form-crear-solicitud');
+            if (formCrear) {
+                formCrear.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    // Validar clientside
+                    if (!formCrear.checkValidity()) {
+                        formCrear.reportValidity();
+                        return;
+                    }
+
+                    // Crear FormData con el contenido del formulario
+                    const formData = new FormData(formCrear);
+
+                    // Enviar vía AJAX
+                    fetch('/SolicitudVacaciones/Crear', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Cerrar el sheet de crear
+                                const sheet = formCrear.closest('.sheet-container');
+                                if (sheet) {
+                                    sheet.classList.remove('sheet-container--open');
+                                    sheet.querySelector('.sheet-overlay').classList.remove('sheet-overlay--open');
+                                    sheet.querySelector('.sheet').classList.remove('sheet--open');
+                                }
+
+                                // Abrir el modal de detalle con la solicitud recién creada
+                                setTimeout(() => {
+                                    abrirDetalleModal(data.solicitudId);
+                                }, 300);
+                            } else {
+                                alert('Error al crear la solicitud: ' + (data.error || 'Por favor intenta nuevamente'));
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            alert('Error al crear la solicitud. Por favor intenta nuevamente.');
+                        });
+                });
             }
         });
     </script>

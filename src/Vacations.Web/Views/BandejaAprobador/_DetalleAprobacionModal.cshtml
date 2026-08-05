@@ -164,6 +164,13 @@
             <button type="button" class="btn btn--default" data-aprobar="@Model.Id" @(Model.TraslapeAprobada ? "disabled" : "")>Aprobar</button>
         </div>
     }
+    else if (Model.Estado == EstadoSolicitud.Approved && Model.PuedeCancelarAprobada)
+    {
+        <div class="dialog-footer-actions">
+            <button type="button" class="btn btn--destructive" data-cancelar-aprobada="@Model.Id">Cancelar solicitud</button>
+            <button type="button" class="btn btn--outline" data-dialog-close>Cerrar</button>
+        </div>
+    }
     else
     {
         <button type="button" class="btn btn--outline" data-dialog-close>Cerrar</button>

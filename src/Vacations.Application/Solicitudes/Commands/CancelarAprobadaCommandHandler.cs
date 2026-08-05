@@ -60,7 +60,7 @@ public sealed class CancelarAprobadaCommandHandler
             EstadoSolicitud.Cancelled,
             aprobador.Email,
             ahora,
-            "Cancelación de solicitud aprobada antes del inicio del periodo de vacaciones.");
+            command.Motivo);
 
         _repositorioSolicitudes.Actualizar(solicitud);
         _repositorioSaldos.Actualizar(saldo);

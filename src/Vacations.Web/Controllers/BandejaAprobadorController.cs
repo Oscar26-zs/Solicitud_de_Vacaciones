@@ -187,7 +187,15 @@ public class BandejaAprobadorController : Controller
         {
             var dto = await _detalleAprobacionHandler.HandleAsync(
                 new ObtenerDetalleAprobacionQuery(id, aprobadorId));
-            return PartialView("_DetalleAprobacionModal", DetalleAprobacionViewModel.FromDto(dto));
+
+            var viewModel = DetalleAprobacionViewModel.FromDto(dto);
+
+            // Calcular si puede cancelar una solicitud aprobada
+            var fechaActual = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
+            viewModel.PuedeCancelarAprobada = viewModel.Estado == EstadoSolicitud.Approved 
+                && viewModel.FechaInicio > fechaActual;
+
+            return PartialView("_DetalleAprobacionModal", viewModel);
         }
         catch (SolicitudNoEncontradaException)
         {
@@ -368,14 +376,20 @@ public class BandejaAprobadorController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CancelarAprobada(Guid id)
+    public async Task<IActionResult> CancelarAprobada(Guid id, string motivo = "Cancelación de solicitud aprobada")
     {
         var aprobadorId = ObtenerEmpleadoId();
-        var command = new CancelarAprobadaCommand(id, aprobadorId);
+        var command = new CancelarAprobadaCommand(id, aprobadorId, motivo);
 
         try
         {
             await _cancelarAprobadaHandler.HandleAsync(command);
+
+            if (EsSolicitudJson())
+            {
+                return Json(new { ok = true, message = $"Solicitud {Folio(id)} cancelada." });
+            }
+
             TempData["Mensaje"] = "Solicitud cancelada exitosamente.";
             return RedirectToAction(nameof(Index));
         }
@@ -385,12 +399,21 @@ public class BandejaAprobadorController : Controller
         }
         catch (CancelacionNoPermitidaException ex)
         {
+            if (EsSolicitudJson())
+            {
+                return Json(new { ok = false, message = ex.Message });
+            }
             TempData["Error"] = ex.Message;
             return RedirectToAction(nameof(Detalle), new { id });
         }
         catch (TransicionEstadoInvalidaException)
         {
-            TempData["Error"] = "Solo se pueden cancelar solicitudes aprobadas.";
+            var message = "Solo se pueden cancelar solicitudes aprobadas.";
+            if (EsSolicitudJson())
+            {
+                return Json(new { ok = false, message });
+            }
+            TempData["Error"] = message;
             return RedirectToAction(nameof(Index));
         }
     }

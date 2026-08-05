@@ -141,6 +141,13 @@ public class SolicitudVacacionesController : Controller
         try
         {
             var solicitudId = await _crearHandler.HandleAsync(command);
+
+            // Si es AJAX, retornar JSON con el ID de la solicitud creada
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = true, solicitudId = solicitudId, mensaje = "Solicitud creada exitosamente." });
+            }
+
             TempData["Mensaje"] = "Solicitud creada exitosamente.";
             return RedirectToAction(nameof(Detalle), new { id = solicitudId });
         }
