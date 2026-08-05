@@ -9,6 +9,7 @@ using Vacations.Infrastructure.Identity;
 using Vacations.Infrastructure.Persistence;
 using Vacations.Infrastructure.Persistence.Interceptors;
 using Vacations.Infrastructure.Persistence.Repositories;
+using Vacations.Infrastructure.Time;
 
 namespace Vacations.Infrastructure;
 
@@ -45,9 +46,12 @@ public static class DependencyInjection
         services.AddScoped<IRepositorioEmpleado, RepositorioEmpleado>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        services.AddSingleton(TimeProvider.System);
+        var proveedorTiempo = new ProveedorTiempoSistema(TimeProvider.System);
+        services.AddSingleton<TimeProvider>(proveedorTiempo);
+        services.AddSingleton<IProveedorTiempoCorporativo>(proveedorTiempo);
 
         services.AddHostedService<ServicioExpiracionAutomatica>();
+        services.AddHostedService<ServicioAcumuloMensual>();
 
         return services;
     }

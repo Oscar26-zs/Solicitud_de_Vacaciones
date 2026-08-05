@@ -26,6 +26,11 @@ public sealed class HistorialSolicitudConfiguration : IEntityTypeConfiguration<H
 
         builder.Property(h => h.Comentario).IsRequired(false).HasMaxLength(500);
 
+        builder.HasOne<SolicitudVacaciones>()
+            .WithMany()
+            .HasForeignKey(h => h.SolicitudId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(h => new { h.SolicitudId, h.Timestamp });
     }
 }

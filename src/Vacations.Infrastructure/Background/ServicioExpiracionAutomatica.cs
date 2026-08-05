@@ -18,17 +18,17 @@ public sealed class ServicioExpiracionAutomatica : BackgroundService
     private readonly IServiceProvider _services;
     private readonly ILogger<ServicioExpiracionAutomatica> _logger;
     private readonly TimeSpan _intervalo;
-    private readonly TimeProvider _timeProvider;
+    private readonly IProveedorTiempoCorporativo _proveedorTiempo;
 
     public ServicioExpiracionAutomatica(
         IServiceProvider services,
         ILogger<ServicioExpiracionAutomatica> logger,
-        TimeProvider timeProvider,
+        IProveedorTiempoCorporativo proveedorTiempo,
         TimeSpan? intervalo = null)
     {
         _services = services;
         _logger = logger;
-        _timeProvider = timeProvider;
+        _proveedorTiempo = proveedorTiempo;
         _intervalo = intervalo ?? TimeSpan.FromHours(12);
     }
 
@@ -55,7 +55,7 @@ public sealed class ServicioExpiracionAutomatica : BackgroundService
 
     private async Task ExpirarPendientesVencidasAsync(CancellationToken cancellationToken)
     {
-        var hoy = _timeProvider.GetUtcNow().UtcDateTime.Date;
+        var hoy = _proveedorTiempo.ObtenerFechaActualCorporativa();
 
         await using var scope = _services.CreateAsyncScope();
         var repositorio = scope.ServiceProvider.GetRequiredService<IRepositorioSolicitudVacaciones>();

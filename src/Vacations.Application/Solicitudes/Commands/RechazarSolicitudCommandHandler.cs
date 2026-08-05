@@ -1,3 +1,4 @@
+using FluentValidation;
 using Vacations.Domain.Abstractions;
 using Vacations.Domain.Entities;
 using Vacations.Domain.Exceptions;
@@ -14,30 +15,33 @@ public sealed class RechazarSolicitudCommandHandler
     private readonly IRepositorioSaldoEmpleado _saldos;
     private readonly IRepositorioEmpleado _empleados;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly TimeProvider _timeProvider;
+    private readonly IProveedorTiempoCorporativo _proveedorTiempo;
+    private readonly RechazarSolicitudCommandValidator _validator;
 
     public RechazarSolicitudCommandHandler(
         IRepositorioSolicitudVacaciones solicitudes,
         IRepositorioSaldoEmpleado saldos,
         IRepositorioEmpleado empleados,
         IUnitOfWork unitOfWork,
-        TimeProvider timeProvider)
+        IProveedorTiempoCorporativo proveedorTiempo,
+        RechazarSolicitudCommandValidator validator)
     {
         _solicitudes = solicitudes;
         _saldos = saldos;
         _empleados = empleados;
         _unitOfWork = unitOfWork;
-        _timeProvider = timeProvider;
+        _proveedorTiempo = proveedorTiempo;
+        _validator = validator;
     }
 
     public async Task HandleAsync(RechazarSolicitudCommand comando, CancellationToken cancellationToken = default)
     {
-        var fechaActual = _timeProvider.GetUtcNow().UtcDateTime.Date;
+        var fechaActual = _proveedorTiempo.ObtenerFechaActualCorporativa();
 
-        if (string.IsNullOrWhiteSpace(comando.Comentario)
-            || comando.Comentario.Trim().Length is < 1 or > SolicitudVacaciones.ComentarioMaxLength)
+        var validacion = await _validator.ValidateAsync(comando, cancellationToken);
+        if (!validacion.IsValid)
         {
-            throw new ArgumentException($"El comentario es obligatorio y no puede exceder {SolicitudVacaciones.ComentarioMaxLength} caracteres.");
+            throw new ValidationException(validacion.Errors);
         }
 
         var aprobador = await _empleados.ObtenerPorIdAsync(comando.AprobadorEmpleadoId, cancellationToken)

@@ -1,3 +1,4 @@
+using FluentValidation;
 using Vacations.Domain.Abstractions;
 using Vacations.Domain.Exceptions;
 
@@ -14,25 +15,34 @@ public sealed class AprobarSolicitudCommandHandler
     private readonly IRepositorioSaldoEmpleado _saldos;
     private readonly IRepositorioEmpleado _empleados;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly TimeProvider _timeProvider;
+    private readonly IProveedorTiempoCorporativo _proveedorTiempo;
+    private readonly AprobarSolicitudCommandValidator _validator;
 
     public AprobarSolicitudCommandHandler(
         IRepositorioSolicitudVacaciones solicitudes,
         IRepositorioSaldoEmpleado saldos,
         IRepositorioEmpleado empleados,
         IUnitOfWork unitOfWork,
-        TimeProvider timeProvider)
+        IProveedorTiempoCorporativo proveedorTiempo,
+        AprobarSolicitudCommandValidator validator)
     {
         _solicitudes = solicitudes;
         _saldos = saldos;
         _empleados = empleados;
         _unitOfWork = unitOfWork;
-        _timeProvider = timeProvider;
+        _proveedorTiempo = proveedorTiempo;
+        _validator = validator;
     }
 
     public async Task HandleAsync(AprobarSolicitudCommand comando, CancellationToken cancellationToken = default)
     {
-        var fechaActual = _timeProvider.GetUtcNow().UtcDateTime.Date;
+        var fechaActual = _proveedorTiempo.ObtenerFechaActualCorporativa();
+
+        var validacion = await _validator.ValidateAsync(comando, cancellationToken);
+        if (!validacion.IsValid)
+        {
+            throw new ValidationException(validacion.Errors);
+        }
 
         var aprobador = await _empleados.ObtenerPorIdAsync(comando.AprobadorEmpleadoId, cancellationToken)
             ?? throw new EmpleadoNoEncontradoException("Aprobador no encontrado.");

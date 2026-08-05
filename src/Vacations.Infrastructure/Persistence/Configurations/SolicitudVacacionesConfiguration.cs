@@ -37,6 +37,11 @@ public sealed class SolicitudVacacionesConfiguration : IEntityTypeConfiguration<
 
         builder.Property(s => s.RowVersion).IsRowVersion();
 
+        builder.HasOne<Empleado>()
+            .WithMany()
+            .HasForeignKey(s => s.EmpleadoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(s => new { s.EmpleadoId, s.Estado });
     }
 }

@@ -14,7 +14,7 @@ public class AprobarSolicitudCommandHandlerTests
     private readonly Mock<IRepositorioSaldoEmpleado> _saldos = new();
     private readonly Mock<IRepositorioEmpleado> _empleados = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
-    private readonly TimeProvider _timeProvider;
+    private readonly IProveedorTiempoCorporativo _timeProvider;
 
     private readonly Guid _empleadoId = Guid.NewGuid();
     private readonly Guid _aprobadorId = Guid.NewGuid();
@@ -27,7 +27,7 @@ public class AprobarSolicitudCommandHandlerTests
     }
 
     private AprobarSolicitudCommandHandler CrearHandler()
-        => new(_solicitudes.Object, _saldos.Object, _empleados.Object, _unitOfWork.Object, _timeProvider);
+        => new(_solicitudes.Object, _saldos.Object, _empleados.Object, _unitOfWork.Object, _timeProvider, new AprobarSolicitudCommandValidator());
 
     private SolicitudVacaciones CrearSolicitud(Guid empleadoId)
         => SolicitudVacaciones.Crear(
@@ -126,12 +126,14 @@ public class AprobarSolicitudCommandHandlerTests
             handler.HandleAsync(new AprobarSolicitudCommand { SolicitudId = solicitud.Id, AprobadorEmpleadoId = aprobador.Id }));
     }
 
-    private sealed class TimeProviderFalso : TimeProvider
+    private sealed class TimeProviderFalso : TimeProvider, IProveedorTiempoCorporativo
     {
         private DateTimeOffset _now;
 
         public override DateTimeOffset GetUtcNow() => _now;
 
         public void SetNow(DateTime now) => _now = new DateTimeOffset(DateTime.SpecifyKind(now, DateTimeKind.Utc));
+
+        public DateTime ObtenerFechaActualCorporativa() => _now.UtcDateTime.Date;
     }
 }

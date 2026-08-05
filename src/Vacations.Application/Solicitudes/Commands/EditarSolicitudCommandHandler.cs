@@ -1,4 +1,5 @@
 using System.Text.Json;
+using FluentValidation;
 using Vacations.Domain.Abstractions;
 using Vacations.Domain.Entities;
 using Vacations.Domain.Exceptions;
@@ -15,23 +16,32 @@ public sealed class EditarSolicitudCommandHandler
     private readonly IRepositorioSolicitudVacaciones _solicitudes;
     private readonly IRepositorioSaldoEmpleado _saldos;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly TimeProvider _timeProvider;
+    private readonly IProveedorTiempoCorporativo _proveedorTiempo;
+    private readonly EditarSolicitudCommandValidator _validator;
 
     public EditarSolicitudCommandHandler(
         IRepositorioSolicitudVacaciones solicitudes,
         IRepositorioSaldoEmpleado saldos,
         IUnitOfWork unitOfWork,
-        TimeProvider timeProvider)
+        IProveedorTiempoCorporativo proveedorTiempo,
+        EditarSolicitudCommandValidator validator)
     {
         _solicitudes = solicitudes;
         _saldos = saldos;
         _unitOfWork = unitOfWork;
-        _timeProvider = timeProvider;
+        _proveedorTiempo = proveedorTiempo;
+        _validator = validator;
     }
 
     public async Task HandleAsync(EditarSolicitudCommand comando, CancellationToken cancellationToken = default)
     {
-        var fechaActual = _timeProvider.GetUtcNow().UtcDateTime.Date;
+        var fechaActual = _proveedorTiempo.ObtenerFechaActualCorporativa();
+
+        var validacion = await _validator.ValidateAsync(comando, cancellationToken);
+        if (!validacion.IsValid)
+        {
+            throw new ValidationException(validacion.Errors);
+        }
 
         var solicitud = await _solicitudes.ObtenerPorIdAsync(comando.SolicitudId, cancellationToken)
             ?? throw new SolicitudNoEncontradaException();

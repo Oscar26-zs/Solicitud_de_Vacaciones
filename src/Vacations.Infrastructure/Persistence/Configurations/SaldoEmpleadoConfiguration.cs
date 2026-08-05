@@ -22,6 +22,11 @@ public sealed class SaldoEmpleadoConfiguration : IEntityTypeConfiguration<SaldoE
 
         builder.Ignore(s => s.SaldoDisponible);
 
+        builder.HasOne<Empleado>()
+            .WithMany()
+            .HasForeignKey(s => s.EmpleadoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(s => s.EmpleadoId).IsUnique();
     }
 }

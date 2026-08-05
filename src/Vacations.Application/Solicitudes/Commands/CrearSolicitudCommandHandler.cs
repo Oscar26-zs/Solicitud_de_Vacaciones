@@ -1,3 +1,4 @@
+using FluentValidation;
 using Vacations.Application.Common;
 using Vacations.Domain.Abstractions;
 using Vacations.Domain.Entities;
@@ -15,25 +16,34 @@ public sealed class CrearSolicitudCommandHandler
     private readonly IRepositorioSolicitudVacaciones _solicitudes;
     private readonly IRepositorioSaldoEmpleado _saldos;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly TimeProvider _timeProvider;
+    private readonly IProveedorTiempoCorporativo _proveedorTiempo;
+    private readonly CrearSolicitudCommandValidator _validator;
 
     public CrearSolicitudCommandHandler(
         IRepositorioSolicitudVacaciones solicitudes,
         IRepositorioSaldoEmpleado saldos,
         IUnitOfWork unitOfWork,
-        TimeProvider timeProvider)
+        IProveedorTiempoCorporativo proveedorTiempo,
+        CrearSolicitudCommandValidator validator)
     {
         _solicitudes = solicitudes;
         _saldos = saldos;
         _unitOfWork = unitOfWork;
-        _timeProvider = timeProvider;
+        _proveedorTiempo = proveedorTiempo;
+        _validator = validator;
     }
 
     public async Task<CrearSolicitudResult> HandleAsync(
         CrearSolicitudCommand comando,
         CancellationToken cancellationToken = default)
     {
-        var fechaActual = _timeProvider.GetUtcNow().UtcDateTime.Date;
+        var fechaActual = _proveedorTiempo.ObtenerFechaActualCorporativa();
+
+        var validacion = await _validator.ValidateAsync(comando, cancellationToken);
+        if (!validacion.IsValid)
+        {
+            throw new ValidationException(validacion.Errors);
+        }
 
         var rango = RangoFechas.Crear(comando.FechaInicio, comando.FechaFin, fechaActual);
         var saldo = await _saldos.ObtenerPorEmpleadoIdAsync(comando.EmpleadoId, cancellationToken)

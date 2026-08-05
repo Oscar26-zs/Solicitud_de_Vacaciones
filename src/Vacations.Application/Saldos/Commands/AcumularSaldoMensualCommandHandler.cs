@@ -15,23 +15,23 @@ public sealed class AcumularSaldoMensualCommandHandler
     private readonly IRepositorioEmpleado _empleados;
     private readonly IRepositorioSaldoEmpleado _saldos;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly TimeProvider _timeProvider;
+    private readonly IProveedorTiempoCorporativo _proveedorTiempo;
 
     public AcumularSaldoMensualCommandHandler(
         IRepositorioEmpleado empleados,
         IRepositorioSaldoEmpleado saldos,
         IUnitOfWork unitOfWork,
-        TimeProvider timeProvider)
+        IProveedorTiempoCorporativo proveedorTiempo)
     {
         _empleados = empleados;
         _saldos = saldos;
         _unitOfWork = unitOfWork;
-        _timeProvider = timeProvider;
+        _proveedorTiempo = proveedorTiempo;
     }
 
     public async Task HandleAsync(AcumularSaldoMensualCommand comando, CancellationToken cancellationToken = default)
     {
-        var fechaActual = _timeProvider.GetUtcNow().UtcDateTime;
+        var fechaActual = _proveedorTiempo.ObtenerFechaActualCorporativa();
 
         var empleados = await _empleados.ObtenerActivosAsync(cancellationToken);
 

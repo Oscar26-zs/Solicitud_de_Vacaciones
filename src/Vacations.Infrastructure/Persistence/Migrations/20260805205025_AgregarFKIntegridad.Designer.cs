@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vacations.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Vacations.Infrastructure.Persistence;
 namespace Vacations.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(VacacionesDbContext))]
-    partial class VacacionesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260805205025_AgregarFKIntegridad")]
+    partial class AgregarFKIntegridad
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

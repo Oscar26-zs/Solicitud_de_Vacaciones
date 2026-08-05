@@ -210,6 +210,8 @@ public sealed class SolicitudVacacionesController : Controller
             Domain.Exceptions.AutoAprobacionNoPermitidaException => "No se puede aprobar la propia solicitud.",
             Domain.Exceptions.AprobadorInactivoException => "El aprobador está inactivo.",
             Domain.Exceptions.AccesoNoPermitidoException => "No tiene permiso para realizar esta acción.",
+            Domain.Exceptions.ConcurrenciaException => "El registro fue modificado por otro usuario. Reintente la operación.",
+            FluentValidation.ValidationException ve => ve.Errors.FirstOrDefault()?.ErrorMessage ?? "Los datos proporcionados no son válidos.",
             _ => "Ocurrió un error al procesar la solicitud.",
         };
     }

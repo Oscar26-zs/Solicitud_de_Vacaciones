@@ -157,6 +157,8 @@ public sealed class BandejaAprobadorController : Controller
             SolicitudNoEncontradaException => "La solicitud no existe.",
             AprobadorInactivoException => "El aprobador está inactivo.",
             AutoAprobacionNoPermitidaException => "No se puede aprobar la propia solicitud.",
+            ConcurrenciaException => "El registro fue modificado por otro usuario. Reintente la operación.",
+            FluentValidation.ValidationException ve => ve.Errors.FirstOrDefault()?.ErrorMessage ?? "Los datos proporcionados no son válidos.",
             _ => "Ocurrió un error al procesar la operación.",
         };
     }
