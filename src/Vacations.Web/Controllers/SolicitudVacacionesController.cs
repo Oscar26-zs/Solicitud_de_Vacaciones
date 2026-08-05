@@ -338,4 +338,26 @@ public class SolicitudVacacionesController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> DetalleModal(Guid id)
+    {
+        var empleadoId = ObtenerEmpleadoId();
+
+        try
+        {
+            var query = new ObtenerSolicitudDetalleQuery(id, empleadoId, EsAprobador(), EsRRHH());
+            var solicitud = await _detalleHandler.HandleAsync(query);
+
+            return PartialView("_DetalleModal", solicitud);
+        }
+        catch (SolicitudNoEncontradaException)
+        {
+            return NotFound();
+        }
+        catch (AccesoNoAutorizadoException)
+        {
+            return Forbid();
+        }
+    }
 }

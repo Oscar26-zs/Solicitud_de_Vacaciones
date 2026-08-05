@@ -20,6 +20,11 @@ main {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
+/* Dashboard employee - balance card compact spacing */
+#card-saldo-anual {
+    gap: 8px !important;
+}
+
 /* Tables */
 .table th {
     white-space: nowrap;
@@ -81,3 +86,4 @@ main {
         font-size: 0.75rem;
     }
 }
+

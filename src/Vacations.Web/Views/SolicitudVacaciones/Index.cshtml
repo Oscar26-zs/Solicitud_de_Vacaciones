@@ -67,12 +67,12 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div class="card" style="grid-column: span 2;">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="dashboard-saldo-grid">
+            <div class="card" id="card-saldo-anual" style="grid-column: span 2;">
                 <div class="card-header">
                     <h2 class="card-title text-base">Uso del saldo anual</h2>
                 </div>
-                <div class="card-content flex flex-col gap-2">
+                <div class="card-content flex flex-col gap-2" style="padding-bottom: 0;">
                     <div class="flex items-end justify-between">
                         <span class="text-2xl font-semibold tabular-nums">@Model.Saldo.SaldoConsumido</span>
                         <span class="text-xs text-muted-foreground">de @Model.Saldo.SaldoAcumulado días</span>
@@ -174,18 +174,18 @@
                         <tbody>
                             @foreach (var s in Model.Solicitudes)
                             {
-                                <tr onclick="location.href='@Url.Action("Detalle", new { id = s.Id })'">
+                                <tr class="cursor-pointer hover:bg-muted/50 transition-colors" data-solicitud-id="@s.Id" onclick="abrirDetalleModal('@s.Id', event)">
                                     <td class="mono text-xs text-muted-foreground">SOL-@s.Id.ToString("N").Substring(0, 6).ToUpper()</td>
                                     <td>@s.FechaInicio.ToString("d MMM yyyy") – @s.FechaFin.ToString("d MMM yyyy")</td>
                                     <td class="tabular-nums">@s.DiasRequeridos</td>
                                     <td>@await Html.PartialAsync("_StatusBadge", s.Estado)</td>
                                     <td class="text-muted-foreground text-xs">@s.CreadoEn.ToString("d MMM yyyy")</td>
-                                    <td>
-                                        <div class="flex items-center gap-1" onclick="event.stopPropagation()">
-                                            <a class="btn btn--ghost btn--sm" asp-action="Detalle" asp-route-id="@s.Id">
+                                    <td onclick="event.stopPropagation()">
+                                        <div class="flex items-center gap-1">
+                                            <button type="button" class="btn btn--ghost btn--sm" onclick="abrirDetalleModal('@s.Id', event)">
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                                                 Ver
-                                            </a>
+                                            </button>
                                             @if (s.Estado == EstadoSolicitud.Pending)
                                             {
                                                 <a class="btn btn--outline btn--sm" asp-action="Editar" asp-route-id="@s.Id">Editar</a>
@@ -237,10 +237,72 @@
     @await Html.PartialAsync("_SheetEditar", Model.EditarSolicitud, new ViewDataDictionary(ViewData) { ["SheetAbierta"] = Model.SheetAbierta })
 }
 
+<!-- Modal de Detalle de Solicitud -->
+<div id="modal-detalle" class="dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-detalle-title">
+    <div class="dialog-content" style="max-width: 600px;">
+        <div id="modal-content" class="dialog">
+            <!-- El contenido se cargará aquí mediante AJAX -->
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/calendar-range.js" asp-append-version="true"></script>
-    <script>document.addEventListener('DOMContentLoaded', function () { document.querySelectorAll('[data-confirm]').forEach(function (btn) { btn.closest('form').addEventListener('submit', function (e) { if (!confirm(btn.getAttribute('data-confirm'))) e.preventDefault(); }); }); });</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('[data-confirm]').forEach(function (btn) {
+                btn.closest('form').addEventListener('submit', function (e) {
+                    if (!confirm(btn.getAttribute('data-confirm'))) e.preventDefault();
+                });
+            });
+        });
+
+        function abrirDetalleModal(solicitudId, event) {
+            event?.stopPropagation?.();
+
+            const modal = document.getElementById('modal-detalle');
+            const modalContent = document.getElementById('modal-content');
+
+            // Mostrar spinner/loading
+            modalContent.innerHTML = '<div class="flex justify-center items-center py-8"><div class="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div></div>';
+            modal.classList.add('dialog-overlay--open');
+
+            // Cargar contenido vía AJAX
+            fetch(`/SolicitudVacaciones/DetalleModal?id=${solicitudId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Error al cargar el detalle');
+                    return response.text();
+                })
+                .then(html => {
+                    modalContent.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error(error);
+                    modalContent.innerHTML = '<div class="text-center py-4"><p class="text-red-500">Error al cargar la solicitud</p><button class="btn btn--outline mt-2" onclick="cerrarDetalleModal()">Cerrar</button></div>';
+                });
+        }
+
+        function cerrarDetalleModal() {
+            const modal = document.getElementById('modal-detalle');
+            modal.classList.remove('dialog-overlay--open');
+            document.getElementById('modal-content').innerHTML = '';
+        }
+
+        // Cerrar modal al presionar ESC
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                cerrarDetalleModal();
+            }
+        });
+
+        // Cerrar modal al hacer clic en el overlay
+        document.getElementById('modal-detalle').addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarDetalleModal();
+            }
+        });
+    </script>
     @* TODO: Reemplazar confirm() nativo por modal destructivo (_ConfirmDialog.cshtml) según DESIGN_TOKENS.md.
        El patrón correcto: interceptar submit → abrir modal → fetch POST a /Cancelar → showToast() → reload. *@
 }
