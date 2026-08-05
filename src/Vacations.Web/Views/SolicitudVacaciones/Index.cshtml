@@ -67,15 +67,15 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div class="card" style="grid-column: span 2;">
                 <div class="card-header">
-                    <h2 class="card-title">Uso del saldo anual</h2>
+                    <h2 class="card-title text-base">Uso del saldo anual</h2>
                 </div>
-                <div class="card-content flex flex-col gap-4">
+                <div class="card-content flex flex-col gap-2">
                     <div class="flex items-end justify-between">
-                        <span class="text-3xl font-semibold tabular-nums">@Model.Saldo.SaldoConsumido</span>
-                        <span class="text-sm text-muted-foreground">de @Model.Saldo.SaldoAcumulado días consumidos</span>
+                        <span class="text-2xl font-semibold tabular-nums">@Model.Saldo.SaldoConsumido</span>
+                        <span class="text-xs text-muted-foreground">de @Model.Saldo.SaldoAcumulado días</span>
                     </div>
                     <div class="progress-track">
                         @{
@@ -83,11 +83,11 @@
                         }
                         <div class="progress-indicator" style="width: @pct%;"></div>
                     </div>
-                    <span class="text-sm text-muted-foreground">
-                        Te quedan <strong class="font-semibold text-emerald-700 tabular-nums">@Model.Saldo.SaldoDisponible</strong> días disponibles
+                    <span class="text-xs text-muted-foreground">
+                        Disponibles: <strong class="font-semibold text-emerald-700 tabular-nums">@Model.Saldo.SaldoDisponible</strong>
                         @if (Model.Saldo.SaldoPendiente > 0)
                         {
-                            <text>y @Model.Saldo.SaldoPendiente pendientes de aprobación.</text>
+                            <text> | Pendientes: @Model.Saldo.SaldoPendiente</text>
                         }
                     </span>
                 </div>
@@ -95,9 +95,9 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Resumen de solicitudes</h2>
+                    <h2 class="card-title text-base">Resumen</h2>
                 </div>
-                <div class="card-content flex flex-col gap-3" style="font-size:14px;">
+                <div class="card-content flex flex-col gap-2" style="font-size:13px;">
                     <div class="detail-row">
                         <span class="detail-row-label">Pendientes</span>
                         <span class="detail-row-value tabular-nums font-semibold text-amber-700">@Model.Pendientes</span>
@@ -189,6 +189,8 @@
                                             @if (s.Estado == EstadoSolicitud.Pending)
                                             {
                                                 <a class="btn btn--outline btn--sm" asp-action="Editar" asp-route-id="@s.Id">Editar</a>
+                                                @* TODO: Migrar a modal de confirmación destructiva según DESIGN_TOKENS.md (línea ~482).
+                                                   Actualmente usa confirm() nativo. Debe usar _ConfirmDialog.cshtml + fetch POST + showToast() *@
                                                 <form asp-action="Cancelar" asp-route-id="@s.Id" method="post" class="m-0">
                                                     @Html.AntiForgeryToken()
                                                     <button type="submit" class="btn btn--destructive btn--sm" data-confirm="¿Está seguro de cancelar esta solicitud?">Cancelar</button>
@@ -239,4 +241,6 @@
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/calendar-range.js" asp-append-version="true"></script>
     <script>document.addEventListener('DOMContentLoaded', function () { document.querySelectorAll('[data-confirm]').forEach(function (btn) { btn.closest('form').addEventListener('submit', function (e) { if (!confirm(btn.getAttribute('data-confirm'))) e.preventDefault(); }); }); });</script>
+    @* TODO: Reemplazar confirm() nativo por modal destructivo (_ConfirmDialog.cshtml) según DESIGN_TOKENS.md.
+       El patrón correcto: interceptar submit → abrir modal → fetch POST a /Cancelar → showToast() → reload. *@
 }

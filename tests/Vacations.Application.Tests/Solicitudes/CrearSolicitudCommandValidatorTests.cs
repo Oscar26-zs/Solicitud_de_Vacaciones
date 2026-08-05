@@ -4,7 +4,13 @@ namespace Vacations.Application.Tests.Solicitudes;
 
 public class CrearSolicitudCommandValidatorTests
 {
-    private readonly CrearSolicitudCommandValidator _validator = new();
+    private readonly TimeProvider _timeProvider = TimeProvider.System;
+    private readonly CrearSolicitudCommandValidator _validator;
+
+    public CrearSolicitudCommandValidatorTests()
+    {
+        _validator = new CrearSolicitudCommandValidator(_timeProvider);
+    }
 
     private static CrearSolicitudCommand ComandoValido() =>
         new(Guid.NewGuid(), new DateOnly(2026, 8, 10), new DateOnly(2026, 8, 14), "Vacaciones familiares");

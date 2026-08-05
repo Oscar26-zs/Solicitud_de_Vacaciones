@@ -488,6 +488,8 @@ Usado para acciones destructivas (cancelar solicitud, etc.). **Nunca usar `confi
 - Al confirmar, se llama `closeDialog()` del modal + `showToast()` de éxito/error + `window.location.reload()` si corresponde.
 - El overlay usa el mismo `backdrop-filter: blur(4px)` estándar.
 
+> **⚠️ MEJORA PENDIENTE:** La implementación actual en `Views/SolicitudVacaciones/Index.cshtml:194` y `Views/SolicitudVacaciones/Detalle.cshtml:69` usa `data-confirm` con `confirm()` nativo del navegador. **Esto viola el patrón definido arriba.** Se debe migrar al modal destructivo reutilizable: crear un Partial View `_ConfirmDialog.cshtml` con el patrón, y en el JS interceptar el submit, abrir el modal, y al confirmar hacer `fetch POST` al endpoint de cancelar + `showToast()` + recargar.
+
 **Diálogo de detalle (solo lectura):**
 Reutiliza la misma estructura que el modal de detalle de revisión del Aprobador, pero **sin los botones de acción** (Rechazar/Aprobar/Confirmar rechazo) y **sin la sección de rechazo** (`#reject-section`). El footer contiene únicamente un botón "Cerrar" (`.btn--outline` con `data-dialog-close`). Usado en:
 - Empleado: botón "Ver" en la tabla "Mis solicitudes" → `openDetailDialog()`.

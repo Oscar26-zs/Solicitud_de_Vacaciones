@@ -86,6 +86,98 @@ public class BandejaAprobadorController : Controller
         return View(viewModel);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Index(
+        string? handler,
+        Guid? id,
+        Guid? solicitudId,
+        string? comentario,
+        string? filtroEmpleado,
+        DateOnly? fechaDesde,
+        DateOnly? fechaHasta,
+        EstadoSolicitud? estado,
+        int page = 1,
+        int pageSize = 10)
+    {
+        if (handler == "Approve" && id.HasValue)
+        {
+            return await HandleApprove(id.Value);
+        }
+        if (handler == "Reject" && solicitudId.HasValue)
+        {
+            return await HandleReject(solicitudId.Value, comentario);
+        }
+        return BadRequest();
+    }
+
+    private async Task<IActionResult> HandleApprove(Guid id)
+    {
+        var aprobadorId = ObtenerEmpleadoId();
+        var command = new AprobarSolicitudCommand(id, aprobadorId);
+
+        try
+        {
+            await _aprobarHandler.HandleAsync(command);
+            return Json(new { ok = true, message = $"Solicitud {Folio(id)} aprobada." });
+        }
+        catch (SolicitudNoEncontradaException)
+        {
+            return Json(new { ok = false, message = "La solicitud no fue encontrada." });
+        }
+        catch (AutoAprobacionNoPermitidaException)
+        {
+            return Json(new { ok = false, message = "No puede aprobar sus propias solicitudes." });
+        }
+        catch (AprobadorInactivoException)
+        {
+            return Json(new { ok = false, message = "Su cuenta de aprobador no está activa." });
+        }
+        catch (TransicionEstadoInvalidaException)
+        {
+            return Json(new { ok = false, message = "La solicitud ya no está en estado Pendiente." });
+        }
+    }
+
+    private async Task<IActionResult> HandleReject(Guid solicitudId, string? comentario)
+    {
+        if (string.IsNullOrWhiteSpace(comentario))
+        {
+            return Json(new { ok = false, message = "El comentario es obligatorio al rechazar una solicitud." });
+        }
+
+        var aprobadorId = ObtenerEmpleadoId();
+        var command = new RechazarSolicitudCommand(solicitudId, aprobadorId, comentario);
+
+        var validationResult = await _rechazarValidator.ValidateAsync(command);
+        if (!validationResult.IsValid)
+        {
+            return Json(new { ok = false, message = validationResult.Errors.FirstOrDefault()?.ErrorMessage ?? "Datos inválidos." });
+        }
+
+        try
+        {
+            await _rechazarHandler.HandleAsync(command);
+            return Json(new { ok = true, message = $"Solicitud {Folio(solicitudId)} rechazada." });
+        }
+        catch (SolicitudNoEncontradaException)
+        {
+            return Json(new { ok = false, message = "La solicitud no fue encontrada." });
+        }
+        catch (AutoAprobacionNoPermitidaException)
+        {
+            return Json(new { ok = false, message = "No puede rechazar sus propias solicitudes." });
+        }
+        catch (AprobadorInactivoException)
+        {
+            return Json(new { ok = false, message = "Su cuenta de aprobador no está activa." });
+        }
+        catch (TransicionEstadoInvalidaException)
+        {
+            return Json(new { ok = false, message = "La solicitud ya no está en estado Pendiente." });
+}
+    }
+
     [HttpGet]
     public async Task<IActionResult> DetalleModal(Guid id)
     {

@@ -1,4 +1,5 @@
 @model SolicitudDetalleViewModel
+@using Vacations.Domain.Enums
 @{
     ViewData["Title"] = "Detalle de Solicitud";
 }
@@ -18,14 +19,21 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">InformaciÃ³n de la solicitud</h2>
+                <h2 class="card-title">Información de la solicitud</h2>
             </div>
-            <div class="card-content">
-                <div class="flex items-center gap-3 mb-3">
-                    @await Html.PartialAsync("_UserAvatar", (GetIniciales(Model.NombreEmpleado), "343434"), new ViewDataDictionary(ViewData) { ["AvatarSize"] = "lg" })
+            <div class="card-content flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    @await Html.PartialAsync("_UserAvatar", (GetIniciales(Model.NombreEmpleado), GetAvatarColor(Model.NombreEmpleado)), new ViewDataDictionary(ViewData) { ["AvatarSize"] = "lg" })
                     <div class="flex flex-col">
                         <span class="text-sm font-medium">@Model.NombreEmpleado</span>
-                        <span class="text-xs text-muted-foreground">Solicitud #@Model.Id.ToString("N").Substring(0, 6).ToUpper()</span>
+                        <span class="text-xs text-muted-foreground">Empleado</span>
+                    </div>
+                </div>
+
+                <div class="detail-balance-grid">
+                    <div class="mini-card">
+                        <span class="mini-card-value tabular-nums">@Model.DiasHabiles</span>
+                        <span class="mini-card-label">Solicitados</span>
                     </div>
                 </div>
 
@@ -38,7 +46,7 @@
                     <span class="detail-row-value">@Model.FechaFin.ToString("d MMM yyyy")</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-row-label">DÃ­as hÃ¡biles</span>
+                    <span class="detail-row-label">Días hábiles</span>
                     <span class="detail-row-value tabular-nums">@Model.DiasHabiles</span>
                 </div>
                 <div class="detail-row">
@@ -48,16 +56,16 @@
                 @if (!string.IsNullOrEmpty(Model.Comentario))
                 {
                     <div class="detail-row">
-                        <span class="detail-row-label">Comentario</span>
+                        <span class="detail-row-label">Motivo</span>
                         <span class="detail-row-value">@Model.Comentario</span>
                     </div>
                 }
             </div>
 
-            @if (Model.PuedeEditar || Model.PuedeCancelar)
+            @if (Model.PuedeEditar || Model.PuedeCancelar || Model.PuedeCancelarAprobada)
             {
                 <div class="card-footer">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         @if (Model.PuedeEditar)
                         {
                             <a class="btn btn--outline" asp-action="Editar" asp-route-id="@Model.Id">Editar</a>
@@ -66,7 +74,14 @@
                         {
                             <form asp-action="Cancelar" asp-route-id="@Model.Id" method="post" class="m-0">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn--destructive" data-confirm="Â¿EstÃ¡ seguro de cancelar esta solicitud?">Cancelar solicitud</button>
+                                <button type="submit" class="btn btn--destructive" data-confirm="¿Está seguro de cancelar esta solicitud?">Cancelar solicitud</button>
+                            </form>
+                        }
+                        @if (Model.PuedeCancelarAprobada)
+                        {
+                            <form asp-action="CancelarAprobada" asp-route-id="@Model.Id" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn--destructive" data-confirm="¿Cancelar esta solicitud aprobada? Solo es posible si aún no inició el periodo.">Cancelar solicitud aprobada</button>
                             </form>
                         }
                     </div>
@@ -93,6 +108,7 @@
                                 _ when evt.EstadoNuevo == EstadoSolicitud.Rejected => ("UserX", "timeline-marker--rejected"),
                                 _ => ("Clock", "")
                             };
+
                             <li class="timeline-item">
                                 <span class="timeline-marker @cls">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -118,49 +134,52 @@
                                         }
                                         else
                                         {
-                                            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                                            <circle cx="12" cy="12" r="1" />
                                         }
                                     </svg>
                                 </span>
-                                <div class="timeline-body">
-                                    <span class="text-sm font-medium">@GetEventoLabel(evt)</span>
-                                    <span class="text-xs text-muted-foreground">@evt.Actor Â· @evt.Timestamp.ToString("d MMM yyyy, HH:mm")</span>
-                                    @if (!string.IsNullOrEmpty(evt.Comentario))
-                                    {
-                                        <p>@evt.Comentario</p>
-                                    }
-                                </div>
+                                <span class="text-sm">
+                                    <span class="font-medium block">@GetEventoLabel(evt)</span>
+                                    <span class="text-muted-foreground text-xs">@evt.Timestamp.ToString("d MMM yyyy, HH:mm")</span>
+                                </span>
                             </li>
                         }
                     </ol>
                 }
                 else
                 {
-                    <p class="text-muted-foreground text-sm">No hay eventos registrados.</p>
+                    <p class="text-sm text-muted-foreground text-center py-4">Sin historial</p>
                 }
             </div>
         </div>
     </div>
 </div>
 
-@section Scripts {
-    <script>document.addEventListener('DOMContentLoaded', function () { document.querySelectorAll('[data-confirm]').forEach(function (btn) { btn.closest('form').addEventListener('submit', function (e) { if (!confirm(btn.getAttribute('data-confirm'))) e.preventDefault(); }); }); });</script>
-}
-
 @functions {
-    string GetIniciales(string nombre)
+    private string GetIniciales(string nombre)
     {
-        var partes = nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return string.Join("", partes.Select(p => p[0]).Take(2));
+        if (string.IsNullOrEmpty(nombre)) return "?";
+        var partes = nombre.Split(' ');
+        return partes.Length > 1 
+            ? $"{partes[0][0]}{partes[1][0]}" 
+            : $"{partes[0][0]}";
     }
 
-    string GetEventoLabel(Vacations.Application.Solicitudes.Queries.HistorialEventoDto evt) => evt.TipoEvento switch
+    private string GetAvatarColor(string nombre)
     {
-        Vacations.Domain.Enums.TipoEvento.Created => "Solicitud creada",
-        Vacations.Domain.Enums.TipoEvento.Updated => "Solicitud actualizada",
-        Vacations.Domain.Enums.TipoEvento.Cancelled => "Solicitud cancelada",
-        _ when evt.EstadoNuevo == EstadoSolicitud.Approved => "Solicitud aprobada",
-        _ when evt.EstadoNuevo == EstadoSolicitud.Rejected => "Solicitud rechazada",
-        _ => "Cambio de estado"
-    };
+        var hash = nombre.GetHashCode();
+        var colors = new[] { "e74c3c", "3498db", "2ecc71", "f39c12", "9b59b6", "1abc9c", "e67e22", "34495e" };
+        return colors[Math.Abs(hash) % colors.Length];
+    }
+
+    private string GetEventoLabel(Vacations.Application.Solicitudes.Queries.HistorialEventoDto evt) => 
+        evt.TipoEvento switch
+        {
+            TipoEvento.Created => "Solicitud creada",
+            TipoEvento.Updated => "Solicitud actualizada",
+            TipoEvento.Cancelled => "Solicitud cancelada",
+            _ when evt.EstadoNuevo == EstadoSolicitud.Approved => "Solicitud aprobada",
+            _ when evt.EstadoNuevo == EstadoSolicitud.Rejected => "Solicitud rechazada",
+            _ => "Cambio de estado"
+        };
 }

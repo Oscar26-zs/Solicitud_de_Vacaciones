@@ -83,6 +83,19 @@
         <span class="detail-row-value">@(string.IsNullOrEmpty(Model.ComentarioAprobador) ? "—" : Model.ComentarioAprobador)</span>
     </div>
 
+    @if (Model.Estado == EstadoSolicitud.Pending)
+    {
+        <div class="rechazo-section" hidden data-rechazo-section>
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="SolicitudId" value="@Model.Id" />
+            <div class="form-group">
+                <label class="form-label form-label--required" for="comentario-rechazo">Motivo del rechazo</label>
+                <textarea id="comentario-rechazo" name="Comentario" rows="4" placeholder="Indica el motivo del rechazo…" required maxlength="500"></textarea>
+                <span class="form-hint"><span id="char-count">0</span>/500 caracteres</span>
+            </div>
+        </div>
+    }
+
     @if (Model.Historial.Any())
     {
         <div class="flex flex-col gap-2">
@@ -146,18 +159,10 @@
 <div class="dialog-footer">
     @if (Model.Estado == EstadoSolicitud.Pending)
     {
-        <form id="form-rechazo" asp-action="Rechazar" method="post" class="m-0" hidden>
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="SolicitudId" value="@Model.Id" />
-            <div class="form-group" style="margin-bottom:12px;">
-                <label class="form-label form-label--required" for="comentario-rechazo">Comentario (obligatorio)</label>
-                <textarea id="comentario-rechazo" name="Comentario" rows="3" placeholder="Indica el motivo del rechazo…" required maxlength="500"></textarea>
-            </div>
-        </form>
-        <button type="button" class="btn btn--destructive" data-rechazo-cancelar hidden>Volver</button>
-        <button type="button" class="btn btn--destructive" data-rechazo-enviar hidden>Confirmar rechazo</button>
-        <button type="button" class="btn btn--destructive" data-abrir-rechazo>Rechazar</button>
-        <button type="button" class="btn btn--default" data-aprobar="@Model.Id">Aprobar</button>
+        <div class="dialog-footer-actions">
+            <button type="button" class="btn btn--outline" data-abrir-rechazo>Rechazar</button>
+            <button type="button" class="btn btn--default" data-aprobar="@Model.Id" @(Model.TraslapeAprobada ? "disabled" : "")>Aprobar</button>
+        </div>
     }
     else
     {

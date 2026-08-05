@@ -27,44 +27,52 @@
 
   function setupRejectMode() {
     if (!content) return;
-    var formRechazo = content.querySelector('#form-rechazo');
+
     var btnRechazar = content.querySelector('[data-abrir-rechazo]');
-    var btnVolver = content.querySelector('[data-rechazo-cancelar]');
-    var btnEnviar = content.querySelector('[data-rechazo-enviar]');
-    var btnAprobar = content.querySelector('[data-aprobar]');
-    if (!formRechazo) return;
+    var rechazoSection = content.querySelector('[data-rechazo-section]');
+
+    if (!btnRechazar || !rechazoSection) return;
+
+    var textarea = rechazoSection.querySelector('textarea[name="Comentario"]');
+    var charCount = content.querySelector('#char-count');
+    var modoRechazo = false;
+
+    function updateState() {
+      var hasText = textarea && textarea.value.trim().length > 0;
+      btnRechazar.disabled = !hasText;
+      if (charCount) charCount.textContent = textarea ? textarea.value.length : 0;
+    }
 
     btnRechazar.addEventListener('click', function () {
-      formRechazo.hidden = false;
-      btnRechazar.hidden = true;
-      btnVolver.hidden = false;
-      btnEnviar.hidden = false;
-      if (btnAprobar) btnAprobar.hidden = true;
-      var textarea = formRechazo.querySelector('textarea');
-      if (textarea) textarea.focus();
-    });
+      if (!modoRechazo) {
+        rechazoSection.hidden = false;
+        modoRechazo = true;
+        btnRechazar.textContent = 'Confirmar rechazo';
+        btnRechazar.classList.remove('btn--outline');
+        btnRechazar.classList.add('btn--destructive');
+        btnRechazar.disabled = true;
+        if (textarea) {
+          textarea.focus();
+          updateState();
+        }
+        return;
+      }
 
-    btnVolver.addEventListener('click', function () {
-      formRechazo.hidden = true;
-      btnRechazar.hidden = false;
-      btnVolver.hidden = true;
-      btnEnviar.hidden = true;
-      if (btnAprobar) btnAprobar.hidden = false;
-    });
-
-    btnEnviar.addEventListener('click', function () {
-      var textarea = formRechazo.querySelector('textarea');
       var comentario = (textarea && textarea.value.trim()) || '';
       if (!comentario) {
         showToast('El comentario es obligatorio al rechazar.', 'error');
         if (textarea) textarea.focus();
         return;
       }
-      postAction('/BandejaAprobador/Rechazar', {
+      postAction('/BandejaAprobador/Index?handler=Reject', {
         SolicitudId: currentId,
         Comentario: comentario
       });
     });
+
+    if (textarea) {
+      textarea.addEventListener('input', updateState);
+    }
   }
 
   function setupApprove() {
@@ -72,7 +80,7 @@
     var btnAprobar = content.querySelector('[data-aprobar]');
     if (!btnAprobar) return;
     btnAprobar.addEventListener('click', function () {
-      postAction('/BandejaAprobador/Aprobar', { id: currentId });
+      postAction('/BandejaAprobador/Index?handler=Approve', { id: currentId });
     });
   }
 

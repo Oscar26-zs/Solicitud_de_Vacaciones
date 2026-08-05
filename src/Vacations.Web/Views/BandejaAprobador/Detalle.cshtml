@@ -89,6 +89,8 @@
             else if (sol.Estado == EstadoSolicitud.Approved && Model.PuedeCancelarAprobada)
             {
                 <div class="card-footer">
+                    @* TODO: Migrar a modal de confirmación destructiva según DESIGN_TOKENS.md (línea ~482).
+                       Actualmente usa confirm() nativo. Debe usar _ConfirmDialog.cshtml + fetch POST + showToast() *@
                     <form asp-action="CancelarAprobada" asp-route-id="@sol.Id" method="post" class="m-0">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn--destructive" data-confirm="¿Cancelar esta solicitud aprobada? Solo es posible si aún no inició el periodo.">Cancelar solicitud aprobada</button>
@@ -168,6 +170,7 @@
 
 @section Scripts {
     <script>document.addEventListener('DOMContentLoaded', function () { document.querySelectorAll('[data-confirm]').forEach(function (btn) { btn.closest('form').addEventListener('submit', function (e) { if (!confirm(btn.getAttribute('data-confirm'))) e.preventDefault(); }); }); });</script>
+    @* TODO: Reemplazar confirm() nativo por modal destructivo (_ConfirmDialog.cshtml) según DESIGN_TOKENS.md. *@
 }
 
 @functions {

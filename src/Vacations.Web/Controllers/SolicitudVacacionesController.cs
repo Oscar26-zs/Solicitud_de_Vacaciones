@@ -111,6 +111,7 @@ public class SolicitudVacacionesController : Controller
 
         if (!ModelState.IsValid)
         {
+            formModel.SaldoDisponible = (await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId)))?.SaldoDisponible ?? 0;
             var viewModel = await BuildDashboardAsync(empleadoId);
             viewModel.SheetAbierta = true;
             viewModel.CrearSolicitud = formModel;
@@ -121,7 +122,7 @@ public class SolicitudVacacionesController : Controller
             empleadoId,
             formModel.FechaInicio,
             formModel.FechaFin,
-            formModel.Comentario ?? string.Empty);
+            formModel.Motivo ?? string.Empty);
 
         var validationResult = await _crearValidator.ValidateAsync(command);
         if (!validationResult.IsValid)
@@ -130,6 +131,7 @@ public class SolicitudVacacionesController : Controller
             {
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
             }
+            formModel.SaldoDisponible = (await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId)))?.SaldoDisponible ?? 0;
             var viewModel = await BuildDashboardAsync(empleadoId);
             viewModel.SheetAbierta = true;
             viewModel.CrearSolicitud = formModel;
@@ -155,6 +157,7 @@ public class SolicitudVacacionesController : Controller
             ModelState.AddModelError(string.Empty, ex.Message);
         }
 
+        formModel.SaldoDisponible = (await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId)))?.SaldoDisponible ?? 0;
         var viewModelError = await BuildDashboardAsync(empleadoId);
         viewModelError.SheetAbierta = true;
         viewModelError.CrearSolicitud = formModel;
