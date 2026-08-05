@@ -10,6 +10,8 @@ using Vacations.Web.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var httpsPort = builder.Configuration["HTTPS_PORT"] ?? builder.Configuration["ASPNETCORE_HTTPS_PORT"];
+
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
 
@@ -64,7 +66,10 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+if (!string.IsNullOrWhiteSpace(httpsPort))
+{
+    app.UseHttpsRedirection();
+}
 
 app.Use(async (context, next) =>
 {

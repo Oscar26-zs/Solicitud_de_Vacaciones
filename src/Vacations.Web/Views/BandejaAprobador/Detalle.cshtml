@@ -88,12 +88,19 @@
             }
             else if (sol.Estado == EstadoSolicitud.Approved && Model.PuedeCancelarAprobada)
             {
+                var folio = "SOL-" + sol.Id.ToString("N").Substring(0, 6).ToUpper();
                 <div class="card-footer">
-                    @* TODO: Migrar a modal de confirmación destructiva según DESIGN_TOKENS.md (línea ~482).
-                       Actualmente usa confirm() nativo. Debe usar _ConfirmDialog.cshtml + fetch POST + showToast() *@
-                    <form asp-action="CancelarAprobada" asp-route-id="@sol.Id" method="post" class="m-0">
+                    <form id="form-cancelar-aprobada" asp-action="CancelarAprobada" asp-route-id="@sol.Id" method="post" class="m-0">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn--destructive" data-confirm="¿Cancelar esta solicitud aprobada? Solo es posible si aún no inició el periodo.">Cancelar solicitud aprobada</button>
+                        <button type="button"
+                                class="btn btn--destructive"
+                                id="btn-cancelar-aprobada"
+                                data-empleado="@sol.EmpleadoNombre"
+                                data-folio="@folio"
+                                data-fecha-inicio="@sol.FechaInicio.ToString("d MMM yyyy")"
+                                data-fecha-fin="@sol.FechaFin.ToString("d MMM yyyy")">
+                            Cancelar solicitud
+                        </button>
                     </form>
                 </div>
             }
@@ -169,8 +176,41 @@
 </div>
 
 @section Scripts {
-    <script>document.addEventListener('DOMContentLoaded', function () { document.querySelectorAll('[data-confirm]').forEach(function (btn) { btn.closest('form').addEventListener('submit', function (e) { if (!confirm(btn.getAttribute('data-confirm'))) e.preventDefault(); }); }); });</script>
-    @* TODO: Reemplazar confirm() nativo por modal destructivo (_ConfirmDialog.cshtml) según DESIGN_TOKENS.md. *@
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btnCancelar = document.getElementById('btn-cancelar-aprobada');
+            const formCancelar = document.getElementById('form-cancelar-aprobada');
+
+            if (!btnCancelar || !formCancelar || !window.showConfirmDialog) return;
+
+            btnCancelar.addEventListener('click', async function () {
+                const empleado = btnCancelar.getAttribute('data-empleado') || 'el empleado';
+                const folio = btnCancelar.getAttribute('data-folio') || '';
+                const fechaInicio = btnCancelar.getAttribute('data-fecha-inicio') || '';
+                const fechaFin = btnCancelar.getAttribute('data-fecha-fin') || '';
+
+                const detalles = [];
+                if (folio) detalles.push(folio);
+                if (fechaInicio && fechaFin) detalles.push(fechaInicio + ' – ' + fechaFin);
+
+                const mensaje = 'Se cancelará la solicitud aprobada de ' + empleado +
+                    (detalles.length ? ' (' + detalles.join(' · ') + ')' : '') +
+                    '. Los días serán devueltos al saldo disponible.';
+
+                const confirmado = await window.showConfirmDialog({
+                    title: 'Cancelar solicitud',
+                    message: mensaje,
+                    confirmText: 'Sí, cancelar',
+                    cancelText: 'Volver',
+                    destructive: true
+                });
+
+                if (confirmado) {
+                    formCancelar.submit();
+                }
+            });
+        });
+    </script>
 }
 
 @functions {

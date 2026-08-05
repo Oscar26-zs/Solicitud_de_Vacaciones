@@ -84,22 +84,60 @@
     });
   }
 
-  function setupCancelApproved() {
-    if (!content) return;
-    var btnCancelar = content.querySelector('[data-cancelar-aprobada]');
-    if (!btnCancelar) return;
+  function armarMensajeCancelacion(btnCancelar) {
+    var empleado = btnCancelar.getAttribute('data-empleado') || 'el empleado';
+    var folio = btnCancelar.getAttribute('data-folio') || '';
+    var fechaInicio = btnCancelar.getAttribute('data-fecha-inicio') || '';
+    var fechaFin = btnCancelar.getAttribute('data-fecha-fin') || '';
 
-    btnCancelar.addEventListener('click', function () {
-      window.showConfirmDialog({
-        title: 'Cancelar solicitud aprobada',
-        message: '¿Está seguro que desea cancelar esta solicitud de vacaciones ya aprobada? El saldo será restaurado al empleado.',
-        confirmText: 'Cancelar solicitud',
-        cancelText: 'Volver',
-        destructive: true
-      }).then(function (confirmed) {
-        if (confirmed) {
-          postAction('/BandejaAprobador/CancelarAprobada', { id: currentId });
-        }
+    var detalles = [];
+    if (folio) detalles.push(folio);
+    if (fechaInicio && fechaFin) detalles.push(fechaInicio + ' – ' + fechaFin);
+
+    var detalleTexto = detalles.length > 0 ? ' (' + detalles.join(' · ') + ')' : '';
+    return 'Se cancelará la solicitud aprobada de ' + empleado + detalleTexto + '. Los días serán devueltos al saldo disponible.';
+  }
+
+  function confirmarCancelacionAprobada(btnCancelar) {
+    var id = btnCancelar.getAttribute('data-cancelar-aprobada') || currentId;
+    if (!id) return;
+
+    if (typeof window.showConfirmDialog !== 'function') {
+      showToast('No se pudo abrir el diálogo de confirmación.', 'error');
+      return;
+    }
+
+    window.showConfirmDialog({
+      title: 'Cancelar solicitud',
+      message: armarMensajeCancelacion(btnCancelar),
+      confirmText: 'Sí, cancelar',
+      cancelText: 'Volver',
+      destructive: true
+    }).then(function (confirmed) {
+      if (confirmed) {
+        postAction('/BandejaAprobador/CancelarAprobada', { id: id });
+      }
+    });
+  }
+
+  window.confirmarCancelacionAprobadaAprobador = function (btnCancelar, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    confirmarCancelacionAprobada(btnCancelar);
+    return false;
+  };
+
+  function bindCancelButtons(scope) {
+    if (!scope) return;
+    scope.querySelectorAll('[data-cancelar-aprobada]').forEach(function (btn) {
+      if (btn.dataset.cancelBound === 'true') return;
+      btn.dataset.cancelBound = 'true';
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        confirmarCancelacionAprobada(btn);
       });
     });
   }
@@ -158,7 +196,7 @@
         openDialog();
         setupRejectMode();
         setupApprove();
-        setupCancelApproved();
+        bindCancelButtons(content);
       })
       .catch(function () {
         showToast('No se pudo cargar el detalle.', 'error');
@@ -168,6 +206,8 @@
   document.addEventListener('DOMContentLoaded', function () {
     dialogContainer = document.getElementById('detalle-aprobacion');
     content = document.getElementById('detalle-aprobacion-content');
+
+    bindCancelButtons(document);
 
     document.addEventListener('click', function (e) {
       var btn = e.target.closest('[data-abrir-detalle]');

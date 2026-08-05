@@ -22,61 +22,61 @@
 
 <script>
     // Función global para abrir modal de confirmación
-    window.showConfirmDialog = function(options = {}) {
+    window.showConfirmDialog = function (options = {}) {
         return new Promise((resolve) => {
-            const dialog = document.getElementById('confirm-dialog');
-            const overlay = dialog;
+            const overlay = document.getElementById('confirm-dialog');
             const title = document.getElementById('confirm-dialog-title');
             const message = document.getElementById('confirm-dialog-message');
             const confirmBtn = document.getElementById('confirm-dialog-confirm');
             const cancelBtn = document.getElementById('confirm-dialog-cancel');
 
-            // Configurar opciones
+            if (!overlay || !title || !message || !confirmBtn || !cancelBtn) {
+                resolve(false);
+                return;
+            }
+
             title.textContent = options.title || 'Confirmar acción';
             message.textContent = options.message || '¿Estás seguro?';
             confirmBtn.textContent = options.confirmText || 'Confirmar';
-            confirmBtn.className = options.destructive !== false 
-                ? 'btn btn--destructive' 
+            confirmBtn.className = options.destructive !== false
+                ? 'btn btn--destructive'
                 : 'btn btn--default';
             cancelBtn.textContent = options.cancelText || 'Cancelar';
 
-            // Limpiar eventos previos
             const newConfirmBtn = confirmBtn.cloneNode(true);
             const newCancelBtn = cancelBtn.cloneNode(true);
             confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
             cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
-            // Mostrar modal
-            overlay.classList.remove('hidden');
-
-            // Manejar botones
-            newCancelBtn.addEventListener('click', () => {
+            const close = (result) => {
+                overlay.classList.remove('dialog-overlay--open');
                 overlay.classList.add('hidden');
-                resolve(false);
-            });
+                document.body.style.overflow = '';
+                document.removeEventListener('keydown', handleEscape);
+                overlay.removeEventListener('click', handleOverlayClick);
+                resolve(result);
+            };
 
-            newConfirmBtn.addEventListener('click', () => {
-                overlay.classList.add('hidden');
-                resolve(true);
-            });
-
-            // Cerrar al presionar ESC
             const handleEscape = (e) => {
                 if (e.key === 'Escape') {
-                    overlay.classList.add('hidden');
-                    document.removeEventListener('keydown', handleEscape);
-                    resolve(false);
+                    close(false);
                 }
             };
-            document.addEventListener('keydown', handleEscape);
 
-            // Cerrar al hacer clic en el overlay
-            overlay.addEventListener('click', (e) => {
+            const handleOverlayClick = (e) => {
                 if (e.target === overlay) {
-                    overlay.classList.add('hidden');
-                    resolve(false);
+                    close(false);
                 }
-            });
+            };
+
+            newCancelBtn.addEventListener('click', () => close(false));
+            newConfirmBtn.addEventListener('click', () => close(true));
+            document.addEventListener('keydown', handleEscape);
+            overlay.addEventListener('click', handleOverlayClick);
+
+            overlay.classList.remove('hidden');
+            overlay.classList.add('dialog-overlay--open');
+            document.body.style.overflow = 'hidden';
         });
     };
 </script>

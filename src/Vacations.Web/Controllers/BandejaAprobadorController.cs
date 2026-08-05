@@ -64,6 +64,7 @@ public class BandejaAprobadorController : Controller
         var aprobadorId = ObtenerEmpleadoId();
         var query = new ObtenerBandejaAprobadorQuery(aprobadorId, filtroEmpleado, fechaDesde, fechaHasta, estado, page, pageSize);
         var resultado = await _bandejaHandler.HandleAsync(query);
+        var fechaActual = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
 
         var viewModel = new BandejaAprobadorViewModel
         {
@@ -76,6 +77,7 @@ public class BandejaAprobadorController : Controller
             FechaDesde = fechaDesde,
             FechaHasta = fechaHasta,
             FiltroEstado = estado,
+            FechaActual = fechaActual,
             Pendientes = resultado.Estadisticas.Pendientes,
             Aprobadas = resultado.Estadisticas.Aprobadas,
             Rechazadas = resultado.Estadisticas.Rechazadas,
@@ -379,10 +381,35 @@ public class BandejaAprobadorController : Controller
     public async Task<IActionResult> CancelarAprobada(Guid id, string motivo = "Cancelación de solicitud aprobada")
     {
         var aprobadorId = ObtenerEmpleadoId();
-        var command = new CancelarAprobadaCommand(id, aprobadorId, motivo);
 
         try
         {
+            var solicitud = await _detalleHandler.HandleAsync(new ObtenerSolicitudDetalleQuery(id, aprobadorId, true, false));
+            var fechaActual = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
+
+            if (solicitud.Estado != EstadoSolicitud.Approved)
+            {
+                var estadoInvalido = "Solo se pueden cancelar solicitudes aprobadas.";
+                if (EsSolicitudJson())
+                {
+                    return Json(new { ok = false, message = estadoInvalido });
+                }
+                TempData["Error"] = estadoInvalido;
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (solicitud.FechaInicio <= fechaActual)
+            {
+                var fueraDeRegla = "No se puede cancelar una solicitud cuyo periodo ya inició o está en curso.";
+                if (EsSolicitudJson())
+                {
+                    return Json(new { ok = false, message = fueraDeRegla });
+                }
+                TempData["Error"] = fueraDeRegla;
+                return RedirectToAction(nameof(Detalle), new { id });
+            }
+
+            var command = new CancelarAprobadaCommand(id, aprobadorId, motivo);
             await _cancelarAprobadaHandler.HandleAsync(command);
 
             if (EsSolicitudJson())

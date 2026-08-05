@@ -167,7 +167,16 @@
     else if (Model.Estado == EstadoSolicitud.Approved && Model.PuedeCancelarAprobada)
     {
         <div class="dialog-footer-actions">
-            <button type="button" class="btn btn--destructive" data-cancelar-aprobada="@Model.Id">Cancelar solicitud</button>
+            <button type="button"
+                    class="btn btn--destructive"
+                    data-cancelar-aprobada="@Model.Id"
+                    data-empleado="@Model.EmpleadoNombre"
+                    data-folio="@folio"
+                    data-fecha-inicio="@Model.FechaInicio.ToString("d MMM yyyy")"
+                    data-fecha-fin="@Model.FechaFin.ToString("d MMM yyyy")"
+                    onclick="window.confirmarCancelacionAprobadaAprobador && window.confirmarCancelacionAprobadaAprobador(this, event)">
+                Cancelar solicitud
+            </button>
             <button type="button" class="btn btn--outline" data-dialog-close>Cerrar</button>
         </div>
     }

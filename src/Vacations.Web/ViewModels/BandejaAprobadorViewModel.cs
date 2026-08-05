@@ -14,6 +14,7 @@ public class BandejaAprobadorViewModel
     public DateOnly? FechaDesde { get; set; }
     public DateOnly? FechaHasta { get; set; }
     public EstadoSolicitud? FiltroEstado { get; set; }
+    public DateOnly FechaActual { get; set; }
 
     public int Pendientes { get; set; }
     public int Aprobadas { get; set; }
