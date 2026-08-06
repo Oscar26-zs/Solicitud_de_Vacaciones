@@ -58,13 +58,10 @@
         <span class="detail-row-value">@Model.CreadoEn.ToString("d MMM yyyy, HH:mm")</span>
     </div>
 
-    @if (!string.IsNullOrEmpty(Model.Motivo))
-    {
-        <div class="detail-row">
-            <span class="detail-row-label">Motivo</span>
-            <span class="detail-row-value">@Model.Motivo</span>
-        </div>
-    }
+    <div class="detail-row">
+        <span class="detail-row-label">Motivo</span>
+        <span class="detail-row-value">@(string.IsNullOrEmpty(Model.Motivo) ? "—" : Model.Motivo)</span>
+    </div>
 
     <!-- Historial -->
     <div class="pt-4 border-t border-muted">

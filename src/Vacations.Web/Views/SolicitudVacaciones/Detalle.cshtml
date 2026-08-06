@@ -19,7 +19,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">Información de la solicitud</h2>
+                <h2 class="card-title">Informaciï¿½n de la solicitud</h2>
             </div>
             <div class="card-content flex flex-col gap-4">
                 <div class="flex items-center gap-3">
@@ -46,20 +46,17 @@
                     <span class="detail-row-value">@Model.FechaFin.ToString("d MMM yyyy")</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-row-label">Días hábiles</span>
+                    <span class="detail-row-label">Dï¿½as hï¿½biles</span>
                     <span class="detail-row-value tabular-nums">@Model.DiasHabiles</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-row-label">Fecha de solicitud</span>
                     <span class="detail-row-value">@Model.FechaCreacion.ToString("d MMM yyyy, HH:mm")</span>
                 </div>
-                @if (!string.IsNullOrEmpty(Model.Comentario))
-                {
-                    <div class="detail-row">
-                        <span class="detail-row-label">Motivo</span>
-                        <span class="detail-row-value">@Model.Comentario</span>
-                    </div>
-                }
+                <div class="detail-row">
+                    <span class="detail-row-label">Motivo</span>
+                    <span class="detail-row-value">@(string.IsNullOrEmpty(Model.Comentario) ? "â€”" : Model.Comentario)</span>
+                </div>
             </div>
 
             @if (Model.PuedeEditar || Model.PuedeCancelar || Model.PuedeCancelarAprobada)
@@ -74,14 +71,14 @@
                         {
                             <form asp-action="Cancelar" asp-route-id="@Model.Id" method="post" class="m-0">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn--destructive" data-confirm="¿Está seguro de cancelar esta solicitud?">Cancelar solicitud</button>
+                                <button type="submit" class="btn btn--destructive" data-confirm="ï¿½Estï¿½ seguro de cancelar esta solicitud?">Cancelar solicitud</button>
                             </form>
                         }
                         @if (Model.PuedeCancelarAprobada)
                         {
                             <form asp-action="CancelarAprobada" asp-route-id="@Model.Id" method="post" class="m-0">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn--destructive" data-confirm="¿Cancelar esta solicitud aprobada? Solo es posible si aún no inició el periodo.">Cancelar solicitud aprobada</button>
+                                <button type="submit" class="btn btn--destructive" data-confirm="ï¿½Cancelar esta solicitud aprobada? Solo es posible si aï¿½n no iniciï¿½ el periodo.">Cancelar solicitud aprobada</button>
                             </form>
                         }
                     </div>

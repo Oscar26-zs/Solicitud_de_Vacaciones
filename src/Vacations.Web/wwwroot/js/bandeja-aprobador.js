@@ -43,6 +43,20 @@
       if (charCount) charCount.textContent = textarea ? textarea.value.length : 0;
     }
 
+    function armarMensajeRechazo(motivo) {
+      var empleado = btnRechazar.getAttribute('data-empleado') || 'el empleado';
+      var folio = btnRechazar.getAttribute('data-folio') || '';
+      var fechaInicio = btnRechazar.getAttribute('data-fecha-inicio') || '';
+      var fechaFin = btnRechazar.getAttribute('data-fecha-fin') || '';
+
+      var detalles = [];
+      if (folio) detalles.push(folio);
+      if (fechaInicio && fechaFin) detalles.push(fechaInicio + ' – ' + fechaFin);
+
+      var detalleTexto = detalles.length > 0 ? ' (' + detalles.join(' · ') + ')' : '';
+      return 'Se rechazará la solicitud de ' + empleado + detalleTexto + '. Motivo: "' + motivo + '". Esta acción no se puede deshacer.';
+    }
+
     btnRechazar.addEventListener('click', function () {
       if (!modoRechazo) {
         rechazoSection.hidden = false;
@@ -64,9 +78,25 @@
         if (textarea) textarea.focus();
         return;
       }
-      postAction('/BandejaAprobador/Index?handler=Reject', {
-        SolicitudId: currentId,
-        Comentario: comentario
+
+      if (typeof window.showConfirmDialog !== 'function') {
+        showToast('No se pudo abrir el diálogo de confirmación.', 'error');
+        return;
+      }
+
+      window.showConfirmDialog({
+        title: 'Confirmar rechazo',
+        message: armarMensajeRechazo(comentario),
+        confirmText: 'Sí, rechazar',
+        cancelText: 'Volver',
+        destructive: true
+      }).then(function (confirmed) {
+        if (confirmed) {
+          postAction('/BandejaAprobador/Index?handler=Reject', {
+            SolicitudId: currentId,
+            Comentario: comentario
+          });
+        }
       });
     });
 
@@ -84,7 +114,7 @@
     });
   }
 
-  function armarMensajeCancelacion(btnCancelar) {
+  function armarMensajeCancelacion(btnCancelar, motivo) {
     var empleado = btnCancelar.getAttribute('data-empleado') || 'el empleado';
     var folio = btnCancelar.getAttribute('data-folio') || '';
     var fechaInicio = btnCancelar.getAttribute('data-fecha-inicio') || '';
@@ -95,49 +125,102 @@
     if (fechaInicio && fechaFin) detalles.push(fechaInicio + ' – ' + fechaFin);
 
     var detalleTexto = detalles.length > 0 ? ' (' + detalles.join(' · ') + ')' : '';
-    return 'Se cancelará la solicitud aprobada de ' + empleado + detalleTexto + '. Los días serán devueltos al saldo disponible.';
+    return 'Se cancelará la solicitud aprobada de ' + empleado + detalleTexto + '. Motivo: "' + motivo + '". Los días serán devueltos al saldo disponible.';
   }
 
-  function confirmarCancelacionAprobada(btnCancelar) {
-    var id = btnCancelar.getAttribute('data-cancelar-aprobada') || currentId;
-    if (!id) return;
+  function setupCancelMode() {
+    if (!content) return;
 
-    if (typeof window.showConfirmDialog !== 'function') {
-      showToast('No se pudo abrir el diálogo de confirmación.', 'error');
-      return;
+    var footer = content.querySelector('[data-cancel-footer]');
+    var cancelSection = content.querySelector('[data-cancel-section]');
+    if (!footer || !cancelSection) return;
+
+    var btnCancelar = footer.querySelector('[data-cancelar-aprobada]');
+    var btnVolver = footer.querySelector('[data-dialog-close]');
+    var textarea = cancelSection.querySelector('textarea[name="Motivo"]');
+    var charCount = content.querySelector('#cancel-char-count');
+    var modoCancelacion = false;
+
+    if (!btnCancelar || !btnVolver || !textarea) return;
+
+    function updateState() {
+      var hasText = textarea.value.trim().length > 0;
+      btnCancelar.disabled = !hasText;
+      if (charCount) charCount.textContent = textarea.value.length;
     }
 
-    window.showConfirmDialog({
-      title: 'Cancelar solicitud',
-      message: armarMensajeCancelacion(btnCancelar),
-      confirmText: 'Sí, cancelar',
-      cancelText: 'Volver',
-      destructive: true
-    }).then(function (confirmed) {
-      if (confirmed) {
-        postAction('/BandejaAprobador/CancelarAprobada', { id: id });
+    function salirModoCancelacion() {
+      modoCancelacion = false;
+      cancelSection.hidden = true;
+      textarea.value = '';
+      btnCancelar.textContent = 'Cancelar solicitud';
+      btnCancelar.disabled = false;
+      btnVolver.textContent = 'Cerrar';
+      btnVolver.setAttribute('data-dialog-close', '');
+      btnVolver.removeAttribute('data-cancel-volver');
+      updateState();
+    }
+
+    btnCancelar.addEventListener('click', function () {
+      if (!modoCancelacion) {
+        modoCancelacion = true;
+        cancelSection.hidden = false;
+        btnCancelar.textContent = 'Confirmar cancelación';
+        btnCancelar.disabled = true;
+        btnVolver.textContent = 'Volver';
+        btnVolver.removeAttribute('data-dialog-close');
+        btnVolver.setAttribute('data-cancel-volver', '');
+        textarea.focus();
+        updateState();
+        return;
+      }
+
+      var motivo = textarea.value.trim();
+      if (!motivo) {
+        showToast('El motivo de la cancelación es obligatorio.', 'error');
+        textarea.focus();
+        return;
+      }
+
+      if (typeof window.showConfirmDialog !== 'function') {
+        showToast('No se pudo abrir el diálogo de confirmación.', 'error');
+        return;
+      }
+
+      var id = btnCancelar.getAttribute('data-cancelar-aprobada') || currentId;
+      window.showConfirmDialog({
+        title: 'Cancelar solicitud',
+        message: armarMensajeCancelacion(btnCancelar, motivo),
+        confirmText: 'Sí, cancelar',
+        cancelText: 'Volver',
+        destructive: true
+      }).then(function (confirmed) {
+        if (confirmed) {
+          postAction('/BandejaAprobador/CancelarAprobada', { id: id, motivo: motivo });
+        }
+      });
+    });
+
+    btnVolver.addEventListener('click', function (e) {
+      if (btnVolver.hasAttribute('data-cancel-volver')) {
+        e.preventDefault();
+        e.stopPropagation();
+        salirModoCancelacion();
       }
     });
-  }
 
-  window.confirmarCancelacionAprobadaAprobador = function (btnCancelar, event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    confirmarCancelacionAprobada(btnCancelar);
-    return false;
-  };
+    textarea.addEventListener('input', updateState);
+  }
 
   function bindCancelButtons(scope) {
     if (!scope) return;
-    scope.querySelectorAll('[data-cancelar-aprobada]').forEach(function (btn) {
+    scope.querySelectorAll('[data-abrir-cancelacion]').forEach(function (btn) {
       if (btn.dataset.cancelBound === 'true') return;
       btn.dataset.cancelBound = 'true';
       btn.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        confirmarCancelacionAprobada(btn);
+        openDetalleAprobacion(btn.getAttribute('data-abrir-cancelacion'), true);
       });
     });
   }
@@ -178,7 +261,7 @@
       });
   }
 
-  window.openDetalleAprobacion = function (id) {
+  window.openDetalleAprobacion = function (id, activarCancelacion) {
     fetch('/BandejaAprobador/DetalleModal?id=' + encodeURIComponent(id), {
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
@@ -196,7 +279,14 @@
         openDialog();
         setupRejectMode();
         setupApprove();
-        bindCancelButtons(content);
+        setupCancelMode();
+        if (activarCancelacion) {
+          var footer = content.querySelector('[data-cancel-footer]');
+          if (footer) {
+            var btn = footer.querySelector('[data-cancelar-aprobada]');
+            if (btn) btn.click();
+          }
+        }
       })
       .catch(function () {
         showToast('No se pudo cargar el detalle.', 'error');

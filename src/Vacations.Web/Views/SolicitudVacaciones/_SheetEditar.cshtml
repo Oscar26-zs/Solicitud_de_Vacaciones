@@ -70,9 +70,9 @@
                 <span asp-validation-for="FechaFin"></span>
 
                 <div class="form-group">
-                    <label asp-for="Comentario" class="form-label">Comentario (opcional)</label>
-                    <textarea asp-for="Comentario" maxlength="500"></textarea>
-                    <span asp-validation-for="Comentario"></span>
+                    <label asp-for="Motivo" class="form-label">Motivo</label>
+                    <textarea asp-for="Motivo" maxlength="1000" placeholder="Escribe el motivo de tu solicitud (opcional)"></textarea>
+                    <span asp-validation-for="Motivo"></span>
                     <span class="text-sm text-muted-foreground">
                         Al modificar las fechas se recalcularán los días hábiles.
                     </span>

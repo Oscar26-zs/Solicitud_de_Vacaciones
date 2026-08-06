@@ -29,11 +29,6 @@ public sealed class SolicitudVacaciones
         string motivo,
         DateTime fechaActual)
     {
-        if (string.IsNullOrWhiteSpace(motivo))
-        {
-            throw new ArgumentException("El motivo no puede estar vacío.", nameof(motivo));
-        }
-
         var diasHabiles = rangoFechas.CalcularDiasHabiles();
 
         return new SolicitudVacaciones
@@ -44,7 +39,7 @@ public sealed class SolicitudVacaciones
             FechaFin = rangoFechas.FechaFin,
             DiasRequeridos = diasHabiles,
             Estado = EstadoSolicitud.Pending,
-            Motivo = motivo.Trim(),
+            Motivo = (motivo ?? string.Empty).Trim(),
             CreadoEn = fechaActual,
             ActualizadoEn = fechaActual
         };
@@ -121,15 +116,10 @@ public sealed class SolicitudVacaciones
             throw new InvalidOperationException("Solo se pueden editar solicitudes en estado Pending.");
         }
 
-        if (string.IsNullOrWhiteSpace(nuevoMotivo))
-        {
-            throw new ArgumentException("El motivo no puede estar vacío.", nameof(nuevoMotivo));
-        }
-
         FechaInicio = nuevoRango.FechaInicio;
         FechaFin = nuevoRango.FechaFin;
         DiasRequeridos = nuevoRango.CalcularDiasHabiles();
-        Motivo = nuevoMotivo.Trim();
+        Motivo = (nuevoMotivo ?? string.Empty).Trim();
         ActualizadoEn = fechaActual;
     }
 

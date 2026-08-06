@@ -15,7 +15,7 @@ public class CrearSolicitudViewModel
     public DateOnly FechaFin { get; set; }
 
     [MaxLength(1000, ErrorMessage = "El motivo no puede exceder los 1000 caracteres.")]
-    [Display(Name = "Motivo (opcional)")]
+    [Display(Name = "Motivo")]
     public string? Motivo { get; set; }
 
     public int? DiasCalculados { get; set; }

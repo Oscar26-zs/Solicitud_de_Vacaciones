@@ -118,7 +118,6 @@
                             @foreach (var s in Model.Solicitudes)
                             {
                                 var puedeCancelarAprobada = s.Estado == EstadoSolicitud.Approved && s.FechaInicio > Model.FechaActual;
-                                var folio = "SOL-" + s.Id.ToString("N").Substring(0, 6).ToUpper();
                                 <tr onclick="openDetalleAprobacion('@s.Id')">
                                     <td>
                                         <div class="flex items-center gap-3">
@@ -148,12 +147,7 @@
                                             {
                                                 <button type="button"
                                                         class="btn btn--destructive btn--sm"
-                                                        data-cancelar-aprobada="@s.Id"
-                                                        data-empleado="@s.EmpleadoNombre"
-                                                        data-folio="@folio"
-                                                        data-fecha-inicio="@s.FechaInicio.ToString("d MMM yyyy")"
-                                                        data-fecha-fin="@s.FechaFin.ToString("d MMM yyyy")"
-                                                        onclick="window.confirmarCancelacionAprobadaAprobador && window.confirmarCancelacionAprobadaAprobador(this, event)">
+                                                        data-abrir-cancelacion="@s.Id">
                                                     Cancelar
                                                 </button>
                                             }

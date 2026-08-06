@@ -42,11 +42,23 @@ public class CrearSolicitudCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    [InlineData("Corto")]
-    public void Validate_MotivoInvalido_EsInvalido(string motivo)
+    public void Validate_MotivoVacio_EsValido(string motivo)
     {
         // Arrange
         var command = ComandoValido() with { Motivo = motivo };
+
+        // Act
+        var result = _validator.Validate(command);
+
+        // Assert
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void Validate_MotivoCorto_EsInvalido()
+    {
+        // Arrange
+        var command = ComandoValido() with { Motivo = "Corto" };
 
         // Act
         var result = _validator.Validate(command);

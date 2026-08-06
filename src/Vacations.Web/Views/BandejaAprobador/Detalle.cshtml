@@ -61,13 +61,10 @@
                     <span class="detail-row-label">Fecha de solicitud</span>
                     <span class="detail-row-value">@sol.CreadoEn.ToString("d MMM yyyy, HH:mm")</span>
                 </div>
-                @if (!string.IsNullOrEmpty(sol.Motivo))
-                {
-                    <div class="detail-row">
-                        <span class="detail-row-label">Motivo</span>
-                        <span class="detail-row-value">@sol.Motivo</span>
-                    </div>
-                }
+                <div class="detail-row">
+                    <span class="detail-row-label">Motivo</span>
+                    <span class="detail-row-value">@(string.IsNullOrEmpty(sol.Motivo) ? "—" : sol.Motivo)</span>
+                </div>
                 <div class="detail-row">
                     <span class="detail-row-label">Comentario</span>
                     <span class="detail-row-value">@(string.IsNullOrEmpty(sol.ComentarioAprobador) ? "—" : sol.ComentarioAprobador)</span>
@@ -90,18 +87,30 @@
             {
                 var folio = "SOL-" + sol.Id.ToString("N").Substring(0, 6).ToUpper();
                 <div class="card-footer">
-                    <form id="form-cancelar-aprobada" asp-action="CancelarAprobada" asp-route-id="@sol.Id" method="post" class="m-0">
-                        @Html.AntiForgeryToken()
-                        <button type="button"
-                                class="btn btn--destructive"
-                                id="btn-cancelar-aprobada"
-                                data-empleado="@sol.EmpleadoNombre"
-                                data-folio="@folio"
-                                data-fecha-inicio="@sol.FechaInicio.ToString("d MMM yyyy")"
-                                data-fecha-fin="@sol.FechaFin.ToString("d MMM yyyy")">
-                            Cancelar solicitud
-                        </button>
-                    </form>
+                    <div class="flex flex-col gap-3" id="cancelar-aprobada-block">
+                        <div class="rechazo-section" hidden data-cancel-section>
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="SolicitudId" value="@sol.Id" />
+                            <div class="form-group">
+                                <label class="form-label form-label--required" for="motivo-cancelacion-detalle">Motivo de la cancelación</label>
+                                <textarea id="motivo-cancelacion-detalle" name="Motivo" rows="4" placeholder="Indica el motivo de la cancelación…" required maxlength="500"></textarea>
+                                <span class="form-hint"><span id="cancel-char-count-detalle">0</span>/500 caracteres</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button"
+                                    class="btn btn--destructive"
+                                    id="btn-cancelar-aprobada"
+                                    data-cancelar-aprobada-detalle="@sol.Id"
+                                    data-empleado="@sol.EmpleadoNombre"
+                                    data-folio="@folio"
+                                    data-fecha-inicio="@sol.FechaInicio.ToString("d MMM yyyy")"
+                                    data-fecha-fin="@sol.FechaFin.ToString("d MMM yyyy")">
+                                Cancelar solicitud
+                            </button>
+                            <button type="button" class="btn btn--outline" id="btn-volver-cancelacion-detalle">Cerrar</button>
+                        </div>
+                    </div>
                 </div>
             }
         </div>
@@ -123,6 +132,7 @@
                                 TipoEvento.Cancelled => ("Slash", "timeline-marker--cancelled"),
                                 _ when evt.EstadoNuevo == EstadoSolicitud.Approved => ("UserCheck", "timeline-marker--approved"),
                                 _ when evt.EstadoNuevo == EstadoSolicitud.Rejected => ("UserX", "timeline-marker--rejected"),
+                                _ when evt.EstadoNuevo == EstadoSolicitud.Cancelled => ("Slash", "timeline-marker--cancelled"),
                                 _ => ("Clock", "")
                             };
                             <li class="timeline-item">
@@ -178,37 +188,111 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const btnCancelar = document.getElementById('btn-cancelar-aprobada');
-            const formCancelar = document.getElementById('form-cancelar-aprobada');
+            var btnCancelar = document.getElementById('btn-cancelar-aprobada');
+            var cancelSection = document.getElementById('cancelar-aprobada-block').querySelector('[data-cancel-section]');
+            var btnVolver = document.getElementById('btn-volver-cancelacion-detalle');
+            var textarea = document.getElementById('motivo-cancelacion-detalle');
+            var charCount = document.getElementById('cancel-char-count-detalle');
+            var tokenInput = document.querySelector('#cancelar-aprobada-block input[name="__RequestVerificationToken"]');
 
-            if (!btnCancelar || !formCancelar || !window.showConfirmDialog) return;
+            if (!btnCancelar || !cancelSection || !btnVolver || !textarea) return;
 
-            btnCancelar.addEventListener('click', async function () {
-                const empleado = btnCancelar.getAttribute('data-empleado') || 'el empleado';
-                const folio = btnCancelar.getAttribute('data-folio') || '';
-                const fechaInicio = btnCancelar.getAttribute('data-fecha-inicio') || '';
-                const fechaFin = btnCancelar.getAttribute('data-fecha-fin') || '';
+            var modoCancelacion = false;
 
-                const detalles = [];
+            function updateState() {
+                var hasText = textarea.value.trim().length > 0;
+                btnCancelar.disabled = !hasText;
+                if (charCount) charCount.textContent = textarea.value.length;
+            }
+
+            function salirModoCancelacion() {
+                modoCancelacion = false;
+                cancelSection.hidden = true;
+                textarea.value = '';
+                btnCancelar.textContent = 'Cancelar solicitud';
+                btnCancelar.disabled = false;
+                btnVolver.textContent = 'Cerrar';
+                updateState();
+            }
+
+            btnCancelar.addEventListener('click', function () {
+                if (!modoCancelacion) {
+                    modoCancelacion = true;
+                    cancelSection.hidden = false;
+                    btnCancelar.textContent = 'Confirmar cancelación';
+                    btnCancelar.disabled = true;
+                    btnVolver.textContent = 'Volver';
+                    textarea.focus();
+                    updateState();
+                    return;
+                }
+
+                var motivo = textarea.value.trim();
+                if (!motivo) {
+                    showToast('El motivo de la cancelación es obligatorio.', 'error');
+                    textarea.focus();
+                    return;
+                }
+
+                var empleado = btnCancelar.getAttribute('data-empleado') || 'el empleado';
+                var folio = btnCancelar.getAttribute('data-folio') || '';
+                var fechaInicio = btnCancelar.getAttribute('data-fecha-inicio') || '';
+                var fechaFin = btnCancelar.getAttribute('data-fecha-fin') || '';
+
+                var detalles = [];
                 if (folio) detalles.push(folio);
                 if (fechaInicio && fechaFin) detalles.push(fechaInicio + ' – ' + fechaFin);
+                var detalleTexto = detalles.length > 0 ? ' (' + detalles.join(' · ') + ')' : '';
+                var mensaje = 'Se cancelará la solicitud aprobada de ' + empleado + detalleTexto +
+                    '. Motivo: "' + motivo + '". Los días serán devueltos al saldo disponible.';
 
-                const mensaje = 'Se cancelará la solicitud aprobada de ' + empleado +
-                    (detalles.length ? ' (' + detalles.join(' · ') + ')' : '') +
-                    '. Los días serán devueltos al saldo disponible.';
+                if (typeof window.showConfirmDialog !== 'function') {
+                    showToast('No se pudo abrir el diálogo de confirmación.', 'error');
+                    return;
+                }
 
-                const confirmado = await window.showConfirmDialog({
+                window.showConfirmDialog({
                     title: 'Cancelar solicitud',
                     message: mensaje,
                     confirmText: 'Sí, cancelar',
                     cancelText: 'Volver',
                     destructive: true
-                });
+                }).then(function (confirmed) {
+                    if (!confirmed) return;
 
-                if (confirmado) {
-                    formCancelar.submit();
+                    var formData = new FormData();
+                    formData.append('id', btnCancelar.getAttribute('data-cancelar-aprobada-detalle'));
+                    formData.append('motivo', motivo);
+                    if (tokenInput) formData.append('__RequestVerificationToken', tokenInput.value);
+
+                    fetch('/BandejaAprobador/CancelarAprobada', {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    })
+                        .then(function (res) { return res.json(); })
+                        .then(function (data) {
+                            if (data.ok) {
+                                showToast(data.message, 'success');
+                                setTimeout(function () { location.reload(); }, 400);
+                            } else {
+                                showToast(data.message, 'error');
+                            }
+                        })
+                        .catch(function () {
+                            showToast('Ocurrió un error. Intente de nuevo.', 'error');
+                        });
+                });
+            });
+
+            btnVolver.addEventListener('click', function (e) {
+                if (modoCancelacion) {
+                    e.preventDefault();
+                    salirModoCancelacion();
                 }
             });
+
+            textarea.addEventListener('input', updateState);
         });
     </script>
 }
@@ -234,6 +318,7 @@
         Vacations.Domain.Enums.TipoEvento.Cancelled => "Solicitud cancelada",
         _ when evt.EstadoNuevo == EstadoSolicitud.Approved => "Solicitud aprobada",
         _ when evt.EstadoNuevo == EstadoSolicitud.Rejected => "Solicitud rechazada",
+        _ when evt.EstadoNuevo == EstadoSolicitud.Cancelled => "Solicitud cancelada",
         _ => "Cambio de estado"
     };
 }

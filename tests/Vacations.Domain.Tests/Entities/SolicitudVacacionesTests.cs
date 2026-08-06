@@ -183,16 +183,18 @@ public class SolicitudVacacionesTests
     }
 
     [Fact]
-    public void Crear_ConMotivoVacio_LanzaArgumentException()
+    public void Crear_ConMotivoVacio_CreaSolicitudConMotivoVacio()
     {
         // Arrange
         var rango = RangoFechas.Crear(_fechaActual.AddDays(5), _fechaActual.AddDays(10), _fechaActual);
 
-        // Act & Assert
-        Assert.Throws<ArgumentException>(() =>
-            SolicitudVacaciones.Crear(Guid.NewGuid(), rango, "", _fechaActual.ToDateTime(TimeOnly.MinValue)));
-        Assert.Throws<ArgumentException>(() =>
-            SolicitudVacaciones.Crear(Guid.NewGuid(), rango, "   ", _fechaActual.ToDateTime(TimeOnly.MinValue)));
+        // Act
+        var solicitud = SolicitudVacaciones.Crear(Guid.NewGuid(), rango, "", _fechaActual.ToDateTime(TimeOnly.MinValue));
+        var solicitudEspacios = SolicitudVacaciones.Crear(Guid.NewGuid(), rango, "   ", _fechaActual.ToDateTime(TimeOnly.MinValue));
+
+        // Assert
+        Assert.Equal(string.Empty, solicitud.Motivo);
+        Assert.Equal(string.Empty, solicitudEspacios.Motivo);
     }
 
     [Fact]
@@ -245,15 +247,20 @@ public class SolicitudVacacionesTests
     }
 
     [Fact]
-    public void Editar_ConMotivoVacio_LanzaArgumentException()
+    public void Editar_ConMotivoVacio_ActualizaMotivoVacio()
     {
         // Arrange
         var rango = RangoFechas.Crear(_fechaActual.AddDays(5), _fechaActual.AddDays(10), _fechaActual);
         var solicitud = SolicitudVacaciones.Crear(Guid.NewGuid(), rango, "Vacaciones", _fechaActual.ToDateTime(TimeOnly.MinValue));
+        var nuevoRango = RangoFechas.Crear(_fechaActual.AddDays(8), _fechaActual.AddDays(15), _fechaActual);
 
-        // Act & Assert
-        Assert.Throws<ArgumentException>(() =>
-            solicitud.Editar(rango, "", _fechaActual.ToDateTime(TimeOnly.MinValue)));
+        // Act
+        solicitud.Editar(nuevoRango, "", _fechaActual.ToDateTime(TimeOnly.MinValue));
+
+        // Assert
+        Assert.Equal(string.Empty, solicitud.Motivo);
+        Assert.Equal(nuevoRango.FechaInicio, solicitud.FechaInicio);
+        Assert.Equal(nuevoRango.FechaFin, solicitud.FechaFin);
     }
 
     [Fact]

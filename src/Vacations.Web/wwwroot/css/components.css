@@ -519,6 +519,16 @@ textarea:focus,
   pointer-events: none;
 }
 
+.pagination-btn--current {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+
+.pagination-btn--current:hover:not(:disabled) {
+  background: var(--primary);
+}
+
 .pagination-current {
   font-size: 13px;
   color: var(--muted-foreground);

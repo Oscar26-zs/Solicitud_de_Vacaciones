@@ -16,9 +16,9 @@ public class EditarSolicitudViewModel
     [DataType(DataType.Date)]
     public DateOnly FechaFin { get; set; }
 
-    [MaxLength(500, ErrorMessage = "El comentario no puede exceder los 500 caracteres.")]
-    [Display(Name = "Comentario")]
-    public string? Comentario { get; set; }
+    [MaxLength(1000, ErrorMessage = "El motivo no puede exceder los 1000 caracteres.")]
+    [Display(Name = "Motivo")]
+    public string? Motivo { get; set; }
 
     public int DiasActuales { get; set; }
     public int SaldoDisponible { get; set; }

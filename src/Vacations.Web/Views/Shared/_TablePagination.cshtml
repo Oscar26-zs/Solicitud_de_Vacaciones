@@ -11,6 +11,9 @@
         @{
             var rutaAnterior = new Dictionary<string, string?>(Model.RouteValues) { ["page"] = (Model.Page - 1).ToString(), ["pageSize"] = Model.PageSize.ToString() };
             var rutaSiguiente = new Dictionary<string, string?>(Model.RouteValues) { ["page"] = (Model.Page + 1).ToString(), ["pageSize"] = Model.PageSize.ToString() };
+
+            var primerPagina = Math.Max(1, Model.Page - 2);
+            var ultimaPagina = Math.Min(Model.TotalPages, Model.Page + 2);
         }
         @if (Model.Page <= 1)
         {
@@ -25,6 +28,18 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 Anterior
             </a>
+        }
+        @for (var p = primerPagina; p <= ultimaPagina; p++)
+        {
+            var ruta = new Dictionary<string, string?>(Model.RouteValues) { ["page"] = p.ToString(), ["pageSize"] = Model.PageSize.ToString() };
+            if (p == Model.Page)
+            {
+                <span class="pagination-btn pagination-btn--current" aria-current="page">@p</span>
+            }
+            else
+            {
+                <a class="pagination-btn" asp-action="@Model.ActionName" asp-all-route-data="@ruta">@p</a>
+            }
         }
         <span class="pagination-current">@Model.Page / @Model.TotalPages</span>
         @if (Model.Page >= Model.TotalPages)

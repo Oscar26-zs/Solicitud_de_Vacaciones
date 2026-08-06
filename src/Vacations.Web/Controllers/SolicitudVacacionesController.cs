@@ -59,6 +59,15 @@ public class SolicitudVacacionesController : Controller
 
     private bool EsAprobador() => User.IsInRole(Roles.Aprobador);
     private bool EsRRHH() => User.IsInRole(Roles.RRHH);
+    private bool EsSolicitudJson() => Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
+    private string ObtenerPrimerError()
+    {
+        var error = ModelState.Values
+            .SelectMany(v => v.Errors)
+            .FirstOrDefault();
+        return error?.ErrorMessage ?? "Revise los datos ingresados.";
+    }
 
     private async Task<EmpleadoDashboardViewModel> BuildDashboardAsync(Guid empleadoId, EstadoSolicitud? estado = null, int page = 1, int pageSize = 10)
     {
@@ -111,6 +120,10 @@ public class SolicitudVacacionesController : Controller
 
         if (!ModelState.IsValid)
         {
+            if (EsSolicitudJson())
+            {
+                return Json(new { success = false, error = ObtenerPrimerError() });
+            }
             formModel.SaldoDisponible = (await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId)))?.SaldoDisponible ?? 0;
             var viewModel = await BuildDashboardAsync(empleadoId);
             viewModel.SheetAbierta = true;
@@ -131,6 +144,10 @@ public class SolicitudVacacionesController : Controller
             {
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
             }
+            if (EsSolicitudJson())
+            {
+                return Json(new { success = false, error = ObtenerPrimerError() });
+            }
             formModel.SaldoDisponible = (await _saldoHandler.HandleAsync(new ObtenerSaldoQuery(empleadoId)))?.SaldoDisponible ?? 0;
             var viewModel = await BuildDashboardAsync(empleadoId);
             viewModel.SheetAbierta = true;
@@ -143,7 +160,7 @@ public class SolicitudVacacionesController : Controller
             var solicitudId = await _crearHandler.HandleAsync(command);
 
             // Si es AJAX, retornar JSON con el ID de la solicitud creada
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            if (EsSolicitudJson())
             {
                 return Json(new { success = true, solicitudId = solicitudId, mensaje = "Solicitud creada exitosamente." });
             }
@@ -153,14 +170,26 @@ public class SolicitudVacacionesController : Controller
         }
         catch (SaldoInsuficienteException)
         {
+            if (EsSolicitudJson())
+            {
+                return Json(new { success = false, error = "Saldo insuficiente para esta solicitud." });
+            }
             ModelState.AddModelError(string.Empty, "Saldo insuficiente para esta solicitud.");
         }
         catch (TraslapeSolicitudesException)
         {
+            if (EsSolicitudJson())
+            {
+                return Json(new { success = false, error = "La solicitud incluye días que ya están comprometidos en otra solicitud." });
+            }
             ModelState.AddModelError(string.Empty, "La solicitud incluye días que ya están comprometidos en otra solicitud.");
         }
         catch (ArgumentException ex)
         {
+            if (EsSolicitudJson())
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
             ModelState.AddModelError(string.Empty, ex.Message);
         }
 
@@ -243,7 +272,7 @@ public class SolicitudVacacionesController : Controller
                 SolicitudId = solicitud.Id,
                 FechaInicio = solicitud.FechaInicio,
                 FechaFin = solicitud.FechaFin,
-                Comentario = solicitud.Motivo,
+                Motivo = solicitud.Motivo,
                 DiasActuales = solicitud.DiasRequeridos,
                 SaldoDisponible = saldo?.SaldoDisponible ?? 0
             };
@@ -277,7 +306,7 @@ public class SolicitudVacacionesController : Controller
             empleadoId,
             formModel.FechaInicio,
             formModel.FechaFin,
-            formModel.Comentario ?? string.Empty);
+            formModel.Motivo ?? string.Empty);
 
         try
         {

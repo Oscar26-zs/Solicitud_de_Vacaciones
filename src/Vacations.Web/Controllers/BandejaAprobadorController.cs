@@ -20,6 +20,7 @@ public class BandejaAprobadorController : Controller
     private readonly RechazarSolicitudCommandHandler _rechazarHandler;
     private readonly CancelarAprobadaCommandHandler _cancelarAprobadaHandler;
     private readonly IValidator<RechazarSolicitudCommand> _rechazarValidator;
+    private readonly IValidator<CancelarAprobadaCommand> _cancelarAprobadaValidator;
     private readonly TimeProvider _timeProvider;
 
     public BandejaAprobadorController(
@@ -30,6 +31,7 @@ public class BandejaAprobadorController : Controller
         RechazarSolicitudCommandHandler rechazarHandler,
         CancelarAprobadaCommandHandler cancelarAprobadaHandler,
         IValidator<RechazarSolicitudCommand> rechazarValidator,
+        IValidator<CancelarAprobadaCommand> cancelarAprobadaValidator,
         TimeProvider timeProvider)
     {
         _bandejaHandler = bandejaHandler;
@@ -39,6 +41,7 @@ public class BandejaAprobadorController : Controller
         _rechazarHandler = rechazarHandler;
         _cancelarAprobadaHandler = cancelarAprobadaHandler;
         _rechazarValidator = rechazarValidator;
+        _cancelarAprobadaValidator = cancelarAprobadaValidator;
         _timeProvider = timeProvider;
     }
 
@@ -378,9 +381,22 @@ public class BandejaAprobadorController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CancelarAprobada(Guid id, string motivo = "Cancelación de solicitud aprobada")
+    public async Task<IActionResult> CancelarAprobada(Guid id, string motivo = "")
     {
         var aprobadorId = ObtenerEmpleadoId();
+        var command = new CancelarAprobadaCommand(id, aprobadorId, motivo.Trim());
+
+        var validationResult = await _cancelarAprobadaValidator.ValidateAsync(command);
+        if (!validationResult.IsValid)
+        {
+            var mensajeValidacion = validationResult.Errors.FirstOrDefault()?.ErrorMessage ?? "Datos inválidos.";
+            if (EsSolicitudJson())
+            {
+                return Json(new { ok = false, message = mensajeValidacion });
+            }
+            TempData["Error"] = mensajeValidacion;
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
 
         try
         {
@@ -409,7 +425,6 @@ public class BandejaAprobadorController : Controller
                 return RedirectToAction(nameof(Detalle), new { id });
             }
 
-            var command = new CancelarAprobadaCommand(id, aprobadorId, motivo);
             await _cancelarAprobadaHandler.HandleAsync(command);
 
             if (EsSolicitudJson())

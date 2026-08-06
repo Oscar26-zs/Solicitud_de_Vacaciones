@@ -71,13 +71,10 @@
         <span class="detail-row-label">Solicitada el</span>
         <span class="detail-row-value">@Model.CreadoEn.ToString("d MMM yyyy, HH:mm")</span>
     </div>
-    @if (!string.IsNullOrEmpty(Model.Motivo))
-    {
-        <div class="detail-row">
-            <span class="detail-row-label">Motivo</span>
-            <span class="detail-row-value">@Model.Motivo</span>
-        </div>
-    }
+    <div class="detail-row">
+        <span class="detail-row-label">Motivo</span>
+        <span class="detail-row-value">@(string.IsNullOrEmpty(Model.Motivo) ? "—" : Model.Motivo)</span>
+    </div>
     <div class="detail-row">
         <span class="detail-row-label">Comentario</span>
         <span class="detail-row-value">@(string.IsNullOrEmpty(Model.ComentarioAprobador) ? "—" : Model.ComentarioAprobador)</span>
@@ -96,6 +93,19 @@
         </div>
     }
 
+    @if (Model.Estado == EstadoSolicitud.Approved && Model.PuedeCancelarAprobada)
+    {
+        <div class="rechazo-section" hidden data-cancel-section>
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="SolicitudId" value="@Model.Id" />
+            <div class="form-group">
+                <label class="form-label form-label--required" for="motivo-cancelacion">Motivo de la cancelación</label>
+                <textarea id="motivo-cancelacion" name="Motivo" rows="4" placeholder="Indica el motivo de la cancelación…" required maxlength="500"></textarea>
+                <span class="form-hint"><span id="cancel-char-count">0</span>/500 caracteres</span>
+            </div>
+        </div>
+    }
+
     @if (Model.Historial.Any())
     {
         <div class="flex flex-col gap-2">
@@ -110,6 +120,7 @@
                         TipoEvento.Cancelled => ("Slash", "timeline-marker--cancelled"),
                         _ when evt.EstadoNuevo == EstadoSolicitud.Approved => ("UserCheck", "timeline-marker--approved"),
                         _ when evt.EstadoNuevo == EstadoSolicitud.Rejected => ("UserX", "timeline-marker--rejected"),
+                        _ when evt.EstadoNuevo == EstadoSolicitud.Cancelled => ("Slash", "timeline-marker--cancelled"),
                         _ => ("Clock", "")
                     };
                     <li class="timeline-item">
@@ -160,23 +171,26 @@
     @if (Model.Estado == EstadoSolicitud.Pending)
     {
         <div class="dialog-footer-actions">
-            <button type="button" class="btn btn--outline" data-abrir-rechazo>Rechazar</button>
+            <button type="button"
+                    class="btn btn--outline"
+                    data-abrir-rechazo
+                    data-empleado="@Model.EmpleadoNombre"
+                    data-folio="@folio"
+                    data-fecha-inicio="@Model.FechaInicio.ToString("d MMM yyyy")"
+                    data-fecha-fin="@Model.FechaFin.ToString("d MMM yyyy")">Rechazar</button>
             <button type="button" class="btn btn--default" data-aprobar="@Model.Id" @(Model.TraslapeAprobada ? "disabled" : "")>Aprobar</button>
         </div>
     }
     else if (Model.Estado == EstadoSolicitud.Approved && Model.PuedeCancelarAprobada)
     {
-        <div class="dialog-footer-actions">
+        <div class="dialog-footer-actions" data-cancel-footer>
             <button type="button"
                     class="btn btn--destructive"
                     data-cancelar-aprobada="@Model.Id"
                     data-empleado="@Model.EmpleadoNombre"
                     data-folio="@folio"
                     data-fecha-inicio="@Model.FechaInicio.ToString("d MMM yyyy")"
-                    data-fecha-fin="@Model.FechaFin.ToString("d MMM yyyy")"
-                    onclick="window.confirmarCancelacionAprobadaAprobador && window.confirmarCancelacionAprobadaAprobador(this, event)">
-                Cancelar solicitud
-            </button>
+                    data-fecha-fin="@Model.FechaFin.ToString("d MMM yyyy")">Cancelar solicitud</button>
             <button type="button" class="btn btn--outline" data-dialog-close>Cerrar</button>
         </div>
     }
@@ -194,6 +208,7 @@
         TipoEvento.Cancelled => "Solicitud cancelada",
         _ when evt.EstadoNuevo == EstadoSolicitud.Approved => "Solicitud aprobada",
         _ when evt.EstadoNuevo == EstadoSolicitud.Rejected => "Solicitud rechazada",
+        _ when evt.EstadoNuevo == EstadoSolicitud.Cancelled => "Solicitud cancelada",
         _ => "Cambio de estado"
     };
 }

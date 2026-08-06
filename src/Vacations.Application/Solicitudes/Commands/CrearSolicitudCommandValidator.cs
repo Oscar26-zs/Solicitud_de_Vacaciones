@@ -52,5 +52,10 @@ public sealed class CrearSolicitudCommandValidator : AbstractValidator<CrearSoli
         RuleFor(x => x.Motivo)
             .MaximumLength(1000)
             .WithMessage("El motivo no puede exceder los 1000 caracteres.");
+
+        RuleFor(x => x.Motivo)
+            .MinimumLength(10)
+            .WithMessage("El motivo debe tener al menos 10 caracteres.")
+            .When(x => !string.IsNullOrWhiteSpace(x.Motivo));
     }
 }

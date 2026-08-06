@@ -52,7 +52,7 @@
                         Saldo disponible: <strong class="font-semibold tabular-nums text-emerald-700">@Model.SaldoDisponible</strong> días
                     </p>
                     <p class="text-xs text-destructive" data-exceeding-warning style="display:none;">
-                        ⚠️ Has seleccionado más días de los disponibles
+                        Has seleccionado más días de los disponibles
                     </p>
                     <p class="text-xs text-destructive" data-no-range-warning style="display:none;">
                         Selecciona el rango de fechas.
@@ -65,7 +65,7 @@
                 <span asp-validation-for="FechaFin"></span>
 
                 <div class="form-group">
-                    <label asp-for="Motivo" class="form-label">Motivo (opcional)</label>
+                    <label asp-for="Motivo" class="form-label">Motivo</label>
                     <textarea asp-for="Motivo" maxlength="1000" placeholder="Escribe el motivo de tu solicitud (opcional)"></textarea>
                     <span asp-validation-for="Motivo"></span>
                     <span class="form-hint">Máximo 1000 caracteres.</span>
