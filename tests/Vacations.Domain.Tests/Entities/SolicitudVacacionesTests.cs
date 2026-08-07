@@ -106,7 +106,7 @@ public class SolicitudVacacionesTests
     }
 
     [Fact]
-    public void Cancelar_SolicitudAprobada_LanzaTransicionEstadoInvalidaException()
+    public void Cancelar_SolicitudAprobada_CambiaEstadoACancelled()
     {
         // Arrange
         var empleadoId = Guid.NewGuid();
@@ -115,9 +115,11 @@ public class SolicitudVacacionesTests
         var solicitud = SolicitudVacaciones.Crear(empleadoId, rango, "Vacaciones", _fechaActual.ToDateTime(TimeOnly.MinValue));
         solicitud.Aprobar(aprobadorId, _fechaActual.ToDateTime(TimeOnly.MinValue));
 
-        // Act & Assert
-        Assert.Throws<TransicionEstadoInvalidaException>(() => 
-            solicitud.Cancelar(_fechaActual.ToDateTime(TimeOnly.MinValue)));
+        // Act
+        solicitud.Cancelar(_fechaActual.ToDateTime(TimeOnly.MinValue));
+
+        // Assert
+        Assert.Equal(EstadoSolicitud.Cancelled, solicitud.Estado);
     }
 
     [Fact]

@@ -31,19 +31,69 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddRateLimiter(options =>
 {
-    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    // Límites documentados en plan.md (sección "Objetivos de rendimiento"):
+    //   - Lectura   (GET: listar, paginar, filtrar, detalle, saldo): 120/min por usuario
+    //   - Escritura (POST/PUT/PATCH/DELETE: crear, editar, aprobar, rechazar, cancelar): 30/min por usuario
+    //   - Auth      (login): 10/min por IP
+    const int limiteLecturaPorMinuto = 120;
+    const int limiteEscrituraPorMinuto = 30;
+    const int limiteAuthPorMinuto = 10;
+
+    // Política específica para el login (endpoint público): se cuenta por IP.
+    options.AddPolicy<string>("auth", context =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: context.User?.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anónimo",
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 120,
+                PermitLimit = limiteAuthPorMinuto,
                 Window = TimeSpan.FromMinutes(1)
             }));
+
+    // IMPORTANTE: este middleware se registra DESPUÉS de UseAuthentication() (ver más abajo),
+    // porque la clave de partición depende de la identidad del usuario autenticado.
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    {
+        var claveUsuario = context.User.Identity?.Name
+            ?? context.Connection.RemoteIpAddress?.ToString()
+            ?? "anónimo";
+
+        var esEscritura = HttpMethods.IsPost(context.Request.Method)
+            || HttpMethods.IsPut(context.Request.Method)
+            || HttpMethods.IsPatch(context.Request.Method)
+            || HttpMethods.IsDelete(context.Request.Method);
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"{(esEscritura ? "escritura" : "lectura")}:{claveUsuario}",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = esEscritura ? limiteEscrituraPorMinuto : limiteLecturaPorMinuto,
+                Window = TimeSpan.FromMinutes(1)
+            });
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
     options.OnRejected = async (context, token) =>
     {
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-        await context.HttpContext.Response.WriteAsync("Demasiadas solicitudes. Intente de nuevo más tarde.", token);
+        context.HttpContext.Response.Headers.RetryAfter = "60";
+
+        var esAjax = context.HttpContext.Request.Headers.Accept.ToString().Contains("application/json")
+            || context.HttpContext.Request.Headers.XRequestedWith.ToString().Contains("XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
+
+        if (esAjax)
+        {
+            await context.HttpContext.Response.WriteAsJsonAsync(new
+            {
+                success = false,
+                error = "Has realizado demasiadas solicitudes. Espera unos segundos antes de reintentar.",
+                message = "Has realizado demasiadas solicitudes. Espera unos segundos antes de reintentar."
+            }, token);
+        }
+        else
+        {
+            await context.HttpContext.Response.WriteAsync("Demasiadas solicitudes. Intente de nuevo más tarde.", token);
+        }
     };
 });
 
@@ -81,9 +131,10 @@ app.Use(async (context, next) =>
 });
 
 app.UseRouting();
-app.UseRateLimiter();
-
 app.UseAuthentication();
+// El rate limiter va DESPUÉS de UseAuthentication() para que la clave de
+// partición use la identidad del usuario y no caiga a la IP en sesiones autenticadas.
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapStaticAssets();

@@ -244,6 +244,11 @@
           closeDialog();
           return null;
         }
+        if (res.status === 429) {
+          showToast('Demasiadas solicitudes. Espera unos segundos antes de reintentar.', 'error');
+          closeDialog();
+          return null;
+        }
         return res.json();
       })
       .then(function (data) {
@@ -268,6 +273,10 @@
       .then(function (res) {
         if (res.status === 404) {
           showToast('La solicitud no fue encontrada.', 'error');
+          return null;
+        }
+        if (res.status === 429) {
+          showToast('Demasiadas solicitudes. Espera unos segundos antes de reintentar.', 'error');
           return null;
         }
         return res.text();

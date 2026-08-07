@@ -96,6 +96,31 @@ public static class SeedData
             dbContext.SaldosEmpleado.Add(saldo2);
         }
 
+        // Empleado 4 - Rol Aprobador
+        var aprobador2Email = "aprobador2@example.com";
+        if (await userManager.FindByEmailAsync(aprobador2Email) == null)
+        {
+            var empleado4 = Empleado.Crear(aprobador2Email, "Carlos Rodríguez", DateOnly.FromDateTime(fechaActual.AddYears(-4)));
+            dbContext.Empleados.Add(empleado4);
+
+            var usuario4 = new UsuarioAplicacion
+            {
+                Id = Guid.NewGuid(),
+                UserName = aprobador2Email,
+                Email = aprobador2Email,
+                EmpleadoId = empleado4.Id,
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+            var resultado4 = await userManager.CreateAsync(usuario4, "Aprobador123!");
+            if (!resultado4.Succeeded) throw new InvalidOperationException(string.Join("; ", resultado4.Errors.Select(e => e.Description)));
+            await userManager.AddToRolesAsync(usuario4, ["Empleado", "Aprobador"]);
+
+            var saldo4 = SaldoEmpleado.Crear(empleado4.Id, fechaActual);
+            saldo4.AcumularDias(48, fechaActual); // 4 años = 48 días
+            dbContext.SaldosEmpleado.Add(saldo4);
+        }
+
         // Empleado 3 - Rol RRHH
         var rrhhEmail = "rrhh@example.com";
         if (await userManager.FindByEmailAsync(rrhhEmail) == null)

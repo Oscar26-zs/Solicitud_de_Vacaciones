@@ -205,6 +205,7 @@
                 {
                     Page = Model.Page,
                     PageSize = Model.PageSize,
+                    SelectedPageSize = Model.PageSize,
                     TotalPages = Model.TotalPages,
                     TotalCount = Model.TotalCount,
                     ActionName = "Index",
@@ -278,6 +279,11 @@
                     }
                 });
 
+                if (response.status === 429) {
+                    showToast('Demasiadas solicitudes. Espera unos segundos antes de reintentar.', 'error');
+                    return;
+                }
+
                 if (!response.ok) {
                     throw new Error('Error al cancelar la solicitud');
                 }
@@ -303,10 +309,16 @@
             // Cargar contenido vía AJAX
             fetch(`/SolicitudVacaciones/DetalleModal?id=${solicitudId}`)
                 .then(response => {
+                    if (response.status === 429) {
+                        showToast('Demasiadas solicitudes. Espera unos segundos antes de reintentar.', 'error');
+                        cerrarDetalleModal();
+                        return null;
+                    }
                     if (!response.ok) throw new Error('Error al cargar el detalle');
                     return response.text();
                 })
                 .then(html => {
+                    if (html === null) return;
                     modalContent.innerHTML = html;
                 })
                 .catch(error => {
