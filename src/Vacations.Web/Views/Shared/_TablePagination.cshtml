@@ -2,11 +2,32 @@
 @{
     var desde = Model.TotalCount == 0 ? 0 : (Model.Page - 1) * Model.PageSize + 1;
     var hasta = Math.Min(Model.Page * Model.PageSize, Model.TotalCount);
+    var tamanioPaginaActual = Model.SelectedPageSize > 0 ? Model.SelectedPageSize : Model.PageSize;
 }
 <div class="table-pagination">
-    <p class="pagination-info">
-        Mostrando <strong>@desde</strong>–<strong>@hasta</strong> de <strong>@Model.TotalCount</strong>
-    </p>
+    <div class="pagination-left">
+        <p class="pagination-info">
+            Mostrando <strong>@desde</strong>–<strong>@hasta</strong> de <strong>@Model.TotalCount</strong>
+        </p>
+        <form method="get" class="page-size-form">
+            @foreach (var ruta in Model.RouteValues)
+            {
+                if (ruta.Key is "page" or "pageSize" || string.IsNullOrEmpty(ruta.Value))
+                {
+                    continue;
+                }
+                <input type="hidden" name="@ruta.Key" value="@ruta.Value" />
+            }
+            <input type="hidden" name="page" value="1" />
+            <label class="page-size-label" for="page-size-select">Elementos por página</label>
+            <select id="page-size-select" class="page-size-select" name="pageSize" aria-label="Elementos por página" onchange="this.form.submit()">
+                @foreach (var tamanio in Model.AvailablePageSizes)
+                {
+                    <option value="@tamanio" selected="@(tamanio == tamanioPaginaActual)">@tamanio</option>
+                }
+            </select>
+        </form>
+    </div>
     <div class="pagination-controls">
         @{
             var rutaAnterior = new Dictionary<string, string?>(Model.RouteValues) { ["page"] = (Model.Page - 1).ToString(), ["pageSize"] = Model.PageSize.ToString() };
