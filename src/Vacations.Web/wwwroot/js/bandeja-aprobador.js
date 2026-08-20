@@ -225,6 +225,25 @@
     });
   }
 
+  // Igual que bindCancelButtons: se enlaza directo al botón en vez de por
+  // delegación en document, porque la celda de acciones de la tabla tiene
+  // <td onclick="event.stopPropagation()"> (evita que el clic también abra
+  // el detalle por el onclick de la fila) — eso mismo bloquea que el clic
+  // llegue a burbujear hasta document, así que un listener delegado ahí
+  // nunca se dispara para estos botones.
+  function bindDetalleButtons(scope) {
+    if (!scope) return;
+    scope.querySelectorAll('[data-abrir-detalle]').forEach(function (btn) {
+      if (btn.dataset.detalleBound === 'true') return;
+      btn.dataset.detalleBound = 'true';
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openDetalleAprobacion(btn.getAttribute('data-abrir-detalle'));
+      });
+    });
+  }
+
   function postAction(url, data) {
     var formData = new FormData();
     Object.keys(data).forEach(function (key) {
@@ -298,13 +317,9 @@
     content = document.getElementById('detalle-aprobacion-content');
 
     bindCancelButtons(document);
+    bindDetalleButtons(document);
 
     document.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-abrir-detalle]');
-      if (btn) {
-        window.openDetalleAprobacion(btn.getAttribute('data-abrir-detalle'));
-        return;
-      }
       var closeBtn = e.target.closest('[data-dialog-close]');
       if (closeBtn) {
         closeDialog();

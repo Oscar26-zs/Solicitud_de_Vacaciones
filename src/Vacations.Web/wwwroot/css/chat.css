@@ -1,0 +1,232 @@
+/* ============================================================
+   chat.css — Widget flotante del asistente de vacaciones (chat)
+   ============================================================ */
+
+.chat-widget {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* ---------- Botón flotante (FAB) ---------- */
+.chat-widget-fab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+  order: 2;
+}
+
+.chat-widget-fab:hover {
+  background: color-mix(in oklch, var(--primary) 85%, transparent);
+  transform: translateY(-1px);
+}
+
+.chat-widget-fab-icon--close {
+  display: none;
+}
+
+.chat-widget--open .chat-widget-fab-icon--open {
+  display: none;
+}
+
+.chat-widget--open .chat-widget-fab-icon--close {
+  display: block;
+}
+
+/* ---------- Panel ---------- */
+.chat-widget-panel {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  width: min(360px, calc(100vw - 48px));
+  height: min(480px, calc(100vh - 160px));
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-2xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px) scale(0.98);
+  transform-origin: bottom left;
+  transition: opacity 150ms ease-in-out, transform 150ms ease-in-out, visibility 150ms;
+}
+
+.chat-widget--open .chat-widget-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.chat-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 14px 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.chat-widget-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.chat-widget-header-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.chat-widget-header-subtitle {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+/* ---------- Mensajes ---------- */
+.chat-widget-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-widget-messages::-webkit-scrollbar {
+  width: 10px;
+}
+
+.chat-widget-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-widget-messages::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.chat-widget-message {
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: var(--border-radius-lg);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-widget-message--bot {
+  align-self: flex-start;
+  background: var(--muted);
+  color: var(--foreground);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-widget-message--user {
+  align-self: flex-end;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-bottom-right-radius: 4px;
+}
+
+.chat-widget-message--error {
+  align-self: flex-start;
+  background: rgba(229, 72, 77, 0.10);
+  color: var(--destructive);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-widget-typing {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: var(--border-radius-lg);
+  border-bottom-left-radius: 4px;
+  background: var(--muted);
+}
+
+.chat-widget-typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--muted-foreground);
+  animation: chat-widget-typing-bounce 1.2s infinite ease-in-out;
+}
+
+.chat-widget-typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.chat-widget-typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes chat-widget-typing-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+/* ---------- Formulario ---------- */
+.chat-widget-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.chat-widget-input {
+  flex: 1;
+  min-height: 36px;
+  max-height: 96px;
+  height: 36px;
+  padding: 8px 12px;
+  resize: none;
+  border-radius: var(--border-radius-lg);
+}
+
+.chat-widget-form .btn--icon {
+  flex-shrink: 0;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 480px) {
+  .chat-widget {
+    left: 16px;
+    bottom: 16px;
+  }
+
+  .chat-widget-panel {
+    width: calc(100vw - 32px);
+  }
+}

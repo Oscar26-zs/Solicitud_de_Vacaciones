@@ -7,8 +7,16 @@ using Vacations.Infrastructure.Data;
 using Vacations.Infrastructure.Identity;
 using Vacations.Infrastructure.Persistence;
 using Vacations.Web.Authorization;
+using Vacations.Web.Controllers.Api;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsDevelopment())
+{
+    // Convención ya presente en .gitignore pero sin usar todavía: valores locales
+    // (como AgenteIA:ApiKey) que no deben subirse al repo van en este archivo.
+    builder.Configuration.AddJsonFile("appsettings.Development.local.json", optional: true, reloadOnChange: true);
+}
 
 var httpsPort = builder.Configuration["HTTPS_PORT"] ?? builder.Configuration["ASPNETCORE_HTTPS_PORT"];
 
@@ -16,6 +24,15 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<ApiKeyAuthFilter>();
+
+builder.Services.AddHttpClient("OroAgente", (sp, client) =>
+{
+    var baseUrl = sp.GetRequiredService<IConfiguration>()["OroAgente:BaseUrl"] ?? "http://localhost:8001";
+    client.BaseAddress = new Uri(baseUrl);
+    // El chat puede tardar varios pasos de un agente de IA en responder.
+    client.Timeout = TimeSpan.FromSeconds(100);
+});
 
 builder.Services.AddAuthorization(options =>
 {

@@ -1,0 +1,41 @@
+<div class="chat-widget" data-chat-widget>
+    <button type="button" class="chat-widget-fab" data-chat-toggle aria-expanded="false" aria-controls="chat-widget-panel" aria-label="Abrir chat de vacaciones">
+        <svg class="chat-widget-fab-icon chat-widget-fab-icon--open" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <svg class="chat-widget-fab-icon chat-widget-fab-icon--close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+
+    <div class="chat-widget-panel" id="chat-widget-panel" data-chat-panel aria-hidden="true">
+        <div class="chat-widget-header">
+            <div class="chat-widget-header-info">
+                <span class="chat-widget-header-title">Asistente de vacaciones</span>
+                <span class="chat-widget-header-subtitle">Pregúntame por tus vacaciones</span>
+            </div>
+            <button type="button" class="btn btn--icon-sm btn--ghost" data-chat-toggle aria-label="Cerrar chat">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="chat-widget-messages" data-chat-messages>
+            <div class="chat-widget-message chat-widget-message--bot">
+                Hola, soy tu asistente de vacaciones. Puedes escribirme algo como
+                "Quiero tomar vacaciones del 10 al 15 de septiembre a Panamá" o
+                preguntarme si ya se aprobó tu solicitud.
+            </div>
+        </div>
+
+        <form data-chat-form class="chat-widget-form">
+            @Html.AntiForgeryToken()
+            <textarea
+                name="mensaje"
+                class="chat-widget-input"
+                placeholder="Escribe tu mensaje..."
+                rows="1"
+                maxlength="1000"
+                required
+                data-chat-input></textarea>
+            <button type="submit" class="btn btn--default btn--icon" aria-label="Enviar mensaje" data-chat-submit>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            </button>
+        </form>
+    </div>
+</div>

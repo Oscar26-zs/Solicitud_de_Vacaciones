@@ -192,6 +192,6 @@
 @await Html.PartialAsync("_DetalleAprobacionDialog")
 
 @section Scripts {
-    <script src="~/js/dialog.js" asp-append-version="true" defer></script>
+    @* dialog.js ya se carga globalmente en _Layout.cshtml — no duplicarlo aquí. *@
     <script src="~/js/bandeja-aprobador.js" asp-append-version="true" defer></script>
 }

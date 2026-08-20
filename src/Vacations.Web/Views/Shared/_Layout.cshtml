@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/utilities.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
     <script src="~/js/theme.js" asp-append-version="true" defer></script>
 </head>
 <body>
@@ -72,12 +73,18 @@
 
         @await Html.PartialAsync("_Toasts")
         @await Html.PartialAsync("_ConfirmDialog")
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            @await Html.PartialAsync("_ChatWidget")
+        }
     </div>
 
     <script src="~/js/toast.js" asp-append-version="true" defer></script>
     <script src="~/js/user-menu.js" asp-append-version="true" defer></script>
     <script src="~/js/sheet.js" asp-append-version="true" defer></script>
     <script src="~/js/dialog.js" asp-append-version="true" defer></script>
+    <script src="~/js/chat.js" asp-append-version="true" defer></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
